@@ -12,7 +12,7 @@ import { Gift, Truck, Zap } from 'lucide-react';
 
 const promoData = [
   {
-    discount: "২০% ছাড়!",
+    discount: "২০% ছাড়!f",
     cta: "এখানে কিনুন!",
     icon: <Zap className="h-8 w-8 text-yellow-400" />,
     bgColor: "bg-black",

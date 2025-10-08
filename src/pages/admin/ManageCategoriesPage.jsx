@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -37,13 +36,13 @@ const ManageCategoriesPage = () => {
   const [formData, setFormData] = useState({ name: '', icon: '', color: '' });
 
   useEffect(() => {
-    const handleCategoriesUpdate = () => {
-      setCategories(getCategories());
+    const handleCategoriesUpdate = async () => {
+      setCategories(await getCategories());
     };
-    
-    window.addEventListener('categoriesUpdated', handleCategoriesUpdate);
-    handleCategoriesUpdate(); 
 
+    handleCategoriesUpdate();
+
+    window.addEventListener('categoriesUpdated', handleCategoriesUpdate);
     return () => {
       window.removeEventListener('categoriesUpdated', handleCategoriesUpdate);
     };
@@ -66,7 +65,7 @@ const ManageCategoriesPage = () => {
     setIsDialogOpen(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.icon) {
       toast({
@@ -78,17 +77,17 @@ const ManageCategoriesPage = () => {
     }
 
     if (currentCategory) {
-      updateCategory({ ...currentCategory, ...formData });
+      await updateCategory({ ...currentCategory, ...formData });
       toast({ title: "সফল", description: "ক্যাটাগরি সফলভাবে আপডেট করা হয়েছে।" });
     } else {
-      addCategory(formData);
+      await addCategory(formData);
       toast({ title: "সফল", description: "নতুন ক্যাটাগরি সফলভাবে যোগ করা হয়েছে।" });
     }
     setIsDialogOpen(false);
   };
 
-  const handleDelete = (categoryId) => {
-    deleteCategory(categoryId);
+  const handleDelete = async (categoryId) => {
+    await deleteCategory(categoryId);
     toast({ title: "সফল", description: "ক্যাটাগরি সফলভাবে মুছে ফেলা হয়েছে।" });
   };
 
@@ -148,7 +147,7 @@ const ManageCategoriesPage = () => {
             </TableHeader>
             <TableBody>
               {categories.map((category) => (
-                <TableRow key={category.id}>
+                <TableRow key={category._id}>
                   <TableCell className="text-2xl">{category.icon}</TableCell>
                   <TableCell className="font-medium">{category.name}</TableCell>
                   <TableCell>
@@ -176,7 +175,7 @@ const ManageCategoriesPage = () => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>বাতিল</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(category.id)} className="bg-red-600 hover:bg-red-700">মুছে ফেলুন</AlertDialogAction>
+                          <AlertDialogAction onClick={() => handleDelete(category._id)} className="bg-red-600 hover:bg-red-700">মুছে ফেলুন</AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>

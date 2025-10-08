@@ -1,81 +1,88 @@
-const CATEGORIES_STORAGE_KEY = 'letsdropship_categories';
+import { toast } from "@/components/ui/use-toast";
 
-const defaultCategories = [
-  { id: 1, name: "ছেলেদের ফ্যাশন", icon: "👕", color: "bg-blue-100" },
-  { id: 2, name: "মেয়েদের ফ্যাশন", icon: "👗", color: "bg-pink-100" },
-  { id: 3, name: "ইলেকট্রনিক্স", icon: "📱", color: "bg-purple-100" },
-  { id: 4, name: "বিউটি ও লাইফস্টাইল", icon: "💄", color: "bg-orange-100" },
-  { id: 5, name: "কিডস জোন", icon: "👶", color: "bg-green-100" },
-  { id: 6, name: "অফার প্যাক", icon: "🎁", color: "bg-red-100" },
-  { id: 7, name: "ঘর ও লাইফস্টাইল", icon: "🏡", color: "bg-yellow-100" },
-  { id: 8, name: "খেলাধুলা", icon: "⚽", color: "bg-teal-100" },
-];
-
-const initializeCategories = () => {
-  try {
-    const storedCategories = localStorage.getItem(CATEGORIES_STORAGE_KEY);
-    if (!storedCategories) {
-      localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(defaultCategories));
-    }
-  } catch (error) {
-    console.error("Failed to initialize categories in localStorage", error);
-  }
-};
-
-initializeCategories();
-
+const BASE_URL = import.meta.env.VITE_BASE_URL || "localhost:5000";
 const notifyUpdate = () => {
-  window.dispatchEvent(new Event('categoriesUpdated'));
+  window.dispatchEvent(new Event("categoriesUpdated"));
 };
 
-export const getCategories = () => {
+export const getCategories = async () => {
   try {
-    const storedCategories = localStorage.getItem(CATEGORIES_STORAGE_KEY);
-    return storedCategories ? JSON.parse(storedCategories) : [];
+    const response = await fetch(`${BASE_URL}/categories`);
+    if (!response.ok) throw new Error("Failed to fetch categories");
+    return await response.json();
   } catch (error) {
-    console.error("Failed to get categories from localStorage", error);
+    console.error("Failed to get categories from API", error);
+    toast({
+      title: "ত্রুটি",
+      description: "ক্যাটাগরি লোড করতে ব্যর্থ হয়েছে।",
+      variant: "destructive",
+    });
     return [];
   }
 };
 
-export const addCategory = (category) => {
+export const addCategory = async (category) => {
   try {
-    const categories = getCategories();
-    const newCategory = { 
-      ...category, 
-      id: Date.now(),
-      color: category.color || `bg-gray-100`
-    };
-    const updatedCategories = [...categories, newCategory];
-    localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(updatedCategories));
+    const response = await fetch(`${BASE_URL}/categories`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...category,
+        color: category.color || "bg-gray-100",
+      }),
+    });
+    if (!response.ok) throw new Error("Failed to add category");
+    const newCategory = await response.json();
     notifyUpdate();
     return newCategory;
   } catch (error) {
-    console.error("Failed to add category to localStorage", error);
+    console.error("Failed to add category to API", error);
+    toast({
+      title: "ত্রুটি",
+      description: "নতুন ক্যাটাগরি যোগ করতে ব্যর্থ হয়েছে।",
+      variant: "destructive",
+    });
   }
 };
 
-export const updateCategory = (updatedCategory) => {
+export const updateCategory = async (updatedCategory) => {
   try {
-    const categories = getCategories();
-    const updatedCategories = categories.map(c => 
-      c.id === updatedCategory.id ? { ...c, ...updatedCategory } : c
+    const response = await fetch(
+      `${BASE_URL}/categories/${updatedCategory._id}`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedCategory),
+      }
     );
-    localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(updatedCategories));
+    if (!response.ok) throw new Error("Failed to update category");
+    const result = await response.json();
     notifyUpdate();
-    return updatedCategory;
+    return result;
   } catch (error) {
-    console.error("Failed to update category in localStorage", error);
+    console.error("Failed to update category in API", error);
+    toast({
+      title: "ত্রুটি",
+      description: "ক্যাটাগরি আপডেট করতে ব্যর্থ হয়েছে।",
+      variant: "destructive",
+    });
   }
 };
 
-export const deleteCategory = (categoryId) => {
+export const deleteCategory = async (categoryId) => {
   try {
-    const categories = getCategories();
-    const updatedCategories = categories.filter(c => c.id !== categoryId);
-    localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(updatedCategories));
+    const response = await fetch(`${BASE_URL}/categories/${categoryId}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) throw new Error("Failed to delete category");
     notifyUpdate();
+    return await response.json();
   } catch (error) {
-    console.error("Failed to delete category from localStorage", error);
+    console.error("Failed to delete category from API", error);
+    toast({
+      title: "ত্রুটি",
+      description: "ক্যাটাগরি মুছে ফেলতে ব্যর্থ হয়েছে।",
+      variant: "destructive",
+    });
   }
 };

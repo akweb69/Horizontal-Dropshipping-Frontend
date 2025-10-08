@@ -8,13 +8,13 @@ const CategoriesSection = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    const fetchCategories = () => {
-      const storedCategories = getCategories();
+    const fetchCategories = async () => {
+      const storedCategories = await getCategories();
       setCategories(storedCategories);
     };
 
     fetchCategories();
-    
+
     window.addEventListener('categoriesUpdated', fetchCategories);
 
     return () => {
@@ -41,7 +41,7 @@ const CategoriesSection = () => {
         >
           <CarouselContent>
             {categories.map((category, index) => (
-              <CarouselItem key={category.id} className="basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6 xl:basis-1/8">
+              <CarouselItem key={category._id} className="basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6 xl:basis-1/8">
                 <motion.button
                   className="w-full"
                   onClick={showToast}
