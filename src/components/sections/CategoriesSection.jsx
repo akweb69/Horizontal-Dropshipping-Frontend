@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { toast } from '@/components/ui/use-toast';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { getCategories } from '@/data/categories';
+import { useNavigate } from 'react-router-dom';
 
 const CategoriesSection = () => {
   const [categories, setCategories] = useState([]);
@@ -21,11 +22,12 @@ const CategoriesSection = () => {
       window.removeEventListener('categoriesUpdated', fetchCategories);
     };
   }, []);
-
-  const showToast = () => {
-    toast({
-      title: "🚧 এই ফিচারটি এখনও চালু হয়নি—তবে চিন্তা করবেন না! আপনি পরবর্তী প্রম্পটে এটি যোগ করার জন্য অনুরোধ করতে পারেন! 🚀"
-    });
+  const navigate = useNavigate();
+  const showToast = (path) => {
+    // toast({
+    //   title: "🚧 এই ফিচারটি এখনও চালু হয়নি—তবে চিন্তা করবেন না! আপনি পরবর্তী প্রম্পটে এটি যোগ করার জন্য অনুরোধ করতে পারেন! 🚀"
+    // });
+    navigate(`/products/${path}`);
   };
 
   return (
@@ -44,7 +46,7 @@ const CategoriesSection = () => {
               <CarouselItem key={category._id} className="basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6 xl:basis-1/8">
                 <motion.button
                   className="w-full"
-                  onClick={showToast}
+                  onClick={() => showToast(category?.name)}
                   whileHover={{ scale: 1.05 }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
