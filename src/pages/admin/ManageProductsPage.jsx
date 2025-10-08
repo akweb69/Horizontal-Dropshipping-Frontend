@@ -20,10 +20,22 @@ const ManageProductsPage = () => {
   const [currentProduct, setCurrentProduct] = useState(null);
   const [formData, setFormData] = useState({ name: '', price: '', category: '', stock: '', thumbnail: '' });
   const [selectedFile, setSelectedFile] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${base_url}/categories`);
+      const data = await res.json();
+      setCategories(data);
+    } catch (error) {
+      toast({ title: "ত্রুটি", description: "বিভাগ লোড করতে ব্যর্থ হয়েছে।", variant: "destructive" });
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -76,7 +88,7 @@ const ManageProductsPage = () => {
     setFormData({
       name: product.name,
       price: product.price,
-      category: product.category,
+      category: product.category || '', // Ensure category is set properly
       stock: product.stock,
       thumbnail: product.thumbnail || '',
     });
@@ -239,7 +251,19 @@ const ManageProductsPage = () => {
             </div>
             <div>
               <Label htmlFor="category">ক্যাটাগরি</Label>
-              <Input id="category" name="category" value={formData.category} onChange={handleFormChange} required />
+              <select
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleFormChange}
+                className="p-2 rounded-lg outline outline-accent w-full"
+                required
+              >
+                <option value="" disabled>ক্যাটাগরি নির্বাচন করুন</option>
+                {categories?.map((cat) => (
+                  <option key={cat._id} value={cat._id}>{cat.name}</option>
+                ))}
+              </select>
             </div>
             <div>
               <Label htmlFor="stock">স্টক</Label>
