@@ -38,6 +38,7 @@ import ManageUsersPage from '@/pages/admin/ManageUsersPage';
 import ManageOrdersPage from '@/pages/admin/ManageOrdersPage';
 import AdminLoginPage from '@/pages/admin/AdminLoginPage';
 import ManageHomepagePage from '@/pages/admin/ManageHomepagePage';
+import CategoryProduct from './pages/CategoryProduct';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
+          <Route path="products/:category" element={<CategoryProduct />} />
           <Route path="about" element={<AboutUsPage />} />
           <Route path="contact" element={<ContactPage />} />
           <Route path="referral" element={<ReferralPage />} />
