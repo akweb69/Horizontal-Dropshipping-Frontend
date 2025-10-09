@@ -18,10 +18,28 @@ const ManageProductsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
-  const [formData, setFormData] = useState({ name: '', price: '', category: '', stock: '', thumbnail: '' });
+  const [formData, setFormData] = useState({
+    name: '',
+    price: '',
+    category: '',
+    stock: '',
+    thumbnail: '',
+    sectionName: ''
+  });
   const [selectedFile, setSelectedFile] = useState(null);
   const [categories, setCategories] = useState([]);
   const [btnLoading, setBtnLoading] = useState(false);
+
+  const sectionOptions = [
+    'অফার প্যাক',
+    'ছেলেদের ফ্যাশন',
+    'মেয়েদের ফ্যাশন',
+    'ঘর ও লাইফস্টাইল',
+    'যাজেট ও ইলেকট্রনিক্স',
+    'কিডস জোন',
+    'কম্বো প্যাক ও গিফট প্যাক',
+    'কাস্টমার গিফট জোন'
+  ];
 
   useEffect(() => {
     fetchProducts();
@@ -51,7 +69,6 @@ const ManageProductsPage = () => {
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    console.log("form data----<>>", formData)
   };
 
   const handleFileChange = (e) => {
@@ -80,7 +97,7 @@ const ManageProductsPage = () => {
 
   const handleAddNew = () => {
     setCurrentProduct(null);
-    setFormData({ name: '', price: '', category: '', stock: '', thumbnail: '' });
+    setFormData({ name: '', price: '', category: '', stock: '', thumbnail: '', sectionName: '' });
     setSelectedFile(null);
     setIsDialogOpen(true);
   };
@@ -90,9 +107,10 @@ const ManageProductsPage = () => {
     setFormData({
       name: product.name,
       price: product.price,
-      category: product.category || '', // Ensure category is set properly
+      category: product.category || '',
       stock: product.stock,
       thumbnail: product.thumbnail || '',
+      sectionName: product.sectionName || ''
     });
     setSelectedFile(null);
     setIsDialogOpen(true);
@@ -101,7 +119,7 @@ const ManageProductsPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setBtnLoading(true);
-    if (!formData.name || !formData.price || !formData.category || !formData.stock) {
+    if (!formData.name || !formData.price || !formData.category || !formData.stock || !formData.sectionName) {
       toast({ title: "ত্রুটি", description: "অনুগ্রহ করে সমস্ত ঘর পূরণ করুন।", variant: "destructive" });
       setBtnLoading(false);
       return;
@@ -113,7 +131,7 @@ const ManageProductsPage = () => {
       if (uploadedUrl) {
         thumbnailUrl = uploadedUrl;
       } else {
-        return; // Upload failed, abort
+        return;
       }
     }
 
@@ -133,9 +151,7 @@ const ManageProductsPage = () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(productData),
-
         });
-
       }
       if (res.ok) {
         toast({ title: "সফল", description: currentProduct ? "পণ্য সফলভাবে আপডেট করা হয়েছে।" : "নতুন পণ্য সফলভাবে যোগ করা হয়েছে।" });
@@ -201,6 +217,7 @@ const ManageProductsPage = () => {
                 <TableHead>নাম</TableHead>
                 <TableHead>মূল্য</TableHead>
                 <TableHead>ক্যাটাগরি</TableHead>
+                <TableHead>সেকশন</TableHead>
                 <TableHead>স্টক</TableHead>
                 <TableHead className="text-right">অ্যাকশন</TableHead>
               </TableRow>
@@ -218,6 +235,7 @@ const ManageProductsPage = () => {
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>৳{product.price}</TableCell>
                   <TableCell>{product.category}</TableCell>
+                  <TableCell>{product.sectionName}</TableCell>
                   <TableCell>{product.stock}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}><Edit className="h-4 w-4" /></Button>
@@ -271,6 +289,22 @@ const ManageProductsPage = () => {
                 <option value="" disabled>ক্যাটাগরি নির্বাচন করুন</option>
                 {categories?.map((cat) => (
                   <option key={cat._id} value={cat.name}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="sectionName">পণ্যের সেকশন</Label>
+              <select
+                id="sectionName"
+                name="sectionName"
+                value={formData.sectionName}
+                onChange={handleFormChange}
+                className="p-2 rounded-lg outline outline-accent w-full"
+                required
+              >
+                <option value="" disabled>সেকশন নির্বাচন করুন</option>
+                {sectionOptions.map((option) => (
+                  <option key={option} value={option}>{option}</option>
                 ))}
               </select>
             </div>
