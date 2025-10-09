@@ -1,5 +1,11 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from 'firebase/auth';
+import auth from '../firebase';
 
 const AuthContext = createContext(null);
 
@@ -8,91 +14,68 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const storedUser = sessionStorage.getItem('user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        // Firebase ইউজার থেকে ডেটা নাও (যেমন email, uid)
+        const userData = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          name: firebaseUser.displayName || 'User', // ডিসপ্লে নেম সেট করতে পারো
+          isMember: true, // তোমার লজিক অনুযায়ী কাস্টমাইজ করো (Firestore থেকে নিতে পারো)
+          isAdmin: firebaseUser.email === 'a@a.com', // অ্যাডমিন চেক
+          referralCode: 'DEFAULTREF', // Firestore থেকে লোড করো পরে
+          subscription: {
+            plan: "Starter Plan",
+            validUntil: new Date().toISOString(),
+            importsRemaining: 100,
+            importsTotal: 100,
+            storeConnected: false,
+            storeType: null
+          }
+        };
+        setUser(userData);
+        // অপশনাল: Firestore থেকে অতিরিক্ত ডেটা লোড করো যদি দরকার হয়
+      } else {
+        setUser(null);
       }
-    } catch (error) {
-      console.error("Failed to parse user from sessionStorage", error);
-      sessionStorage.removeItem('user');
-    } finally {
       setLoading(false);
-    }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const login = (email, password) => {
-    let userData = null;
-    const isAdmin = email === 'a@a.com' && password === '1234567';
-    const isTestUser = email === 'testuser@letsdropship.com' && password === 'Demo@1234';
+    return signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // লগিন সাকসেস, onAuthStateChanged অটো হ্যান্ডেল করবে
+        return true;
+      })
+      .catch((error) => {
+        console.error("Login error:", error);
+        return false;
+      });
+  };
 
-    if (isAdmin) {
-      userData = {
-        email,
-        name: 'অ্যাডমিন',
-        isMember: true,
-        isAdmin: true,
-        referralCode: 'ADMINREF123',
-        subscription: {
-          plan: "Admin Access",
-          validUntil: "2025-12-31T00:00:00.000Z",
-          importsRemaining: Infinity,
-          importsTotal: Infinity,
-          storeConnected: true,
-          storeType: "Shopify"
-        }
-      };
-    } else if (isTestUser) {
-      userData = {
-        email,
-        name: 'টেস্ট ব্যবহারকারী',
-        isMember: true,
-        isAdmin: false,
-        referralCode: 'LETSDROP123',
-        subscription: {
-          plan: "Starter Plan",
-          validUntil: "2025-12-31T00:00:00.000Z",
-          importsRemaining: 85,
-          importsTotal: 100,
-          storeConnected: true,
-          storeType: "Shopify"
-        }
-      };
-    }
-
-    if (userData) {
-      sessionStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
-      return true;
-    }
-
-    return false;
+  const signup = (email, password, name) => {
+    return createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // অতিরিক্ত: ডিসপ্লে নেম আপডেট করো
+        // updateProfile(userCredential.user, { displayName: name });
+        return true;
+      })
+      .catch((error) => {
+        console.error("Signup error:", error);
+        return false;
+      });
   };
 
   const logout = () => {
-    sessionStorage.removeItem('user');
-    setUser(null);
-    window.location.href = '/';
+    return signOut(auth).then(() => {
+      window.location.href = '/';
+    });
   };
 
-  const becomeMember = () => {
-    if (user && !user.isMember) {
-      const updatedUser = {
-        ...user,
-        isMember: true,
-        subscription: {
-          plan: "Starter Plan",
-          validUntil: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(),
-          importsRemaining: 85,
-          importsTotal: 100,
-          storeConnected: false,
-          storeType: null
-        }
-      };
-      sessionStorage.setItem('user', JSON.stringify(updatedUser));
-      setUser(updatedUser);
-    }
-  };
+  // becomeMember ফাংশনটা রাখো, কিন্তু Firestore দিয়ে আপডেট করো যদি দরকার হয়
 
   const value = {
     user,
@@ -101,13 +84,12 @@ export const AuthProvider = ({ children }) => {
     isAdmin: user?.isAdmin || false,
     loading,
     login,
+    signup, // নতুন যোগ করা
     logout,
-    becomeMember,
+    becomeMember: () => { }, // তোমার লজিক
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);

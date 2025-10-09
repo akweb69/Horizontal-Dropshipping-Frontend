@@ -86,17 +86,17 @@ const Header = () => {
                 <span className="text-gray-900">ship</span>
               </Link>
             </div>
-            
+
             <nav className="flex space-x-6">
               <NavLink to="/" onClick={scrollToTop} className={({ isActive }) => `${navLinkClasses} ${isActive ? activeLinkClasses : ''}`}>হোম</NavLink>
               <NavLink to="/about" className={({ isActive }) => `${navLinkClasses} ${isActive ? activeLinkClasses : ''}`}>আমাদের সম্পর্কে</NavLink>
               <NavLink to="/contact" className={({ isActive }) => `${navLinkClasses} ${isActive ? activeLinkClasses : ''}`}>যোগাযোগ</NavLink>
               <NavLink to="/membership" className={({ isActive }) => `${navLinkClasses} ${isActive ? activeLinkClasses : ''}`}>মেম্বারশিপ</NavLink>
             </nav>
-            
+
             <div className="flex items-center space-x-4">
               <button onClick={openSearch} className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                 <FontAwesomeIcon icon={faSearch} className="text-gray-600 w-5 h-5" />
+                <FontAwesomeIcon icon={faSearch} className="text-gray-600 w-5 h-5" />
               </button>
               <Link to="/wishlist" className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                 <Heart className="text-gray-600 w-5 h-5" />
@@ -121,7 +121,7 @@ const Header = () => {
             </Link>
             <div className="flex items-center space-x-3">
               <button onClick={openSearch} className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                 <FontAwesomeIcon icon={faSearch} className="text-gray-600 w-5 h-5" />
+                <FontAwesomeIcon icon={faSearch} className="text-gray-600 w-5 h-5" />
               </button>
               <Link to="/wishlist" className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                 <Heart className="text-gray-600 w-5 h-5" />
