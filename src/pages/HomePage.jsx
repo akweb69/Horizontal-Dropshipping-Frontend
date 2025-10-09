@@ -36,7 +36,7 @@ const HomePage = () => {
 
       <CategoriesSection />
       {
-        loading ? <div>Loading...</div> : null
+        loading ? <div className='flex justify-center items-center py-30'>Loading...</div> : null
       }
       <div className="max-w-7xl mx-auto px-4 py-8">
         <ProductSection
@@ -47,55 +47,55 @@ const HomePage = () => {
 
         <ProductSection
           title="সর্বাধিক বিক্রিত পণ্য"
-          products={product.slice(2, 6)}
+          products={product.sort((a, b) => b.totalSell - a.totalSell).slice(0, 4)}
           emoji="📈"
         />
 
         <ProductSection
           title="অফার প্যাক"
-          products={product.slice(1, 5)}
+          products={product.filter(p => p.sectionName === "অফার প্যাক")}
           emoji="🎁"
         />
 
         <ProductSection
           title="ছেলেদের ফ্যাশন"
-          products={product.filter(p => p.category === 'men' || p.id <= 2).slice(0, 4)}
+          products={product.filter(p => p.sectionName === "ছেলেদের ফ্যাশন").slice(0, 4)}
           emoji="👕"
         />
 
         <ProductSection
           title="মেয়েদের ফ্যাশন"
-          products={product.filter(p => p.category === 'women' || (p.id >= 3 && p.id <= 4)).slice(0, 4)}
+          products={product.filter(p => p.sectionName === "মেয়েদের ফ্যাশন").slice(0, 4)}
           emoji="👗"
         />
 
         <ProductSection
           title="ঘর ও লাইফস্টাইল"
-          products={product.slice(3, 7)}
+          products={product.filter(p => p.sectionName === "ঘর ও লাইফস্টাইল").slice(0, 4)}
           emoji="🏡"
         />
 
         <ProductSection
           title="গ্যাজেট ও ইলেকট্রনিক্স"
-          products={product.filter(p => p.category === 'electronics').slice(0, 4)}
+          products={product.filter(p => p.sectionName === "গ্যাজেট ও ইলেকট্রনিক্স").slice(0, 4)}
           emoji="📱"
         />
 
         <ProductSection
           title="কিডস জোন"
-          products={product.filter(p => p.category === 'kids' || p.id === 5).slice(0, 4)}
+          products={product.filter(p => p.sectionName === "কিডস জোন").slice(0, 4)}
           emoji="👶"
         />
 
         <ProductSection
           title="কম্বো প্যাক ও গিফট প্যাক"
-          products={product.slice(0, 4)}
+          products={product.filter(p => p.sectionName === "কম্বো প্যাক ও গিফট প্যাক").slice(0, 4)}
           emoji="🎀"
         />
 
         <ProductSection
           title="কাস্টমার গিফট জোন"
-          products={product.slice(4, 8)}
+          products={product.filter(p => p.sectionName === "কাস্টমার গিফট জোন").slice(0, 4)}
           emoji="🛍"
         />
       </div>
