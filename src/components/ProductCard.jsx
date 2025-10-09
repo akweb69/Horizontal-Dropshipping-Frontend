@@ -16,12 +16,12 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="bg-white rounded-lg card-shadow p-4 transition-all duration-300 hover:scale-105"
       whileHover={{ y: -2 }}
     >
       <div className="aspect-square bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
-        <img  alt={product.name} className="w-full h-full object-cover rounded-lg" src="https://images.unsplash.com/photo-1635865165118-917ed9e20936" />
+        <img alt={product.name} className="w-full h-full object-cover rounded-lg" src={product?.thumbnail} />
       </div>
       <h3 className="font-semibold text-sm mb-2 line-clamp-2">{product.name}</h3>
       <div className="flex items-center justify-between mb-3 min-h-[28px]">
@@ -39,7 +39,7 @@ const ProductCard = ({ product }) => {
         </div>
       </div>
       {isMember ? (
-        <Button 
+        <Button
           className="w-full"
           onClick={showToast}
         >

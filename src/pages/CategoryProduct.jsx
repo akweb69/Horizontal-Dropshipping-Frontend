@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import ProductCard from "../components/ProductCard";
 
 const CategoryProduct = () => {
     const [loading, setLoading] = useState(true);
@@ -37,11 +38,7 @@ const CategoryProduct = () => {
                 {/* main content card */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {product.map(product => (
-                        <div key={product?._id} className="bg-white p-4 rounded-md shadow-md flex flex-col items-center justify-center">
-                            <img src={product?.thumbnail} alt={product?.name} className="w-24 h-24 object-cover rounded-md" />
-                            <h2 className="text-lg font-bold text-gray-800">{product?.name}</h2>
-                            <p className="text-sm text-gray-600">${product?.price}</p>
-                        </div>
+                        <ProductCard key={product?._id} product={product} />
                     ))}
                 </div>
             </div>
