@@ -21,6 +21,7 @@ const ManageProductsPage = () => {
   const [formData, setFormData] = useState({ name: '', price: '', category: '', stock: '', thumbnail: '' });
   const [selectedFile, setSelectedFile] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [btnLoading, setBtnLoading] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -50,6 +51,7 @@ const ManageProductsPage = () => {
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    console.log("form data----<>>", formData)
   };
 
   const handleFileChange = (e) => {
@@ -98,8 +100,10 @@ const ManageProductsPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setBtnLoading(true);
     if (!formData.name || !formData.price || !formData.category || !formData.stock) {
       toast({ title: "ত্রুটি", description: "অনুগ্রহ করে সমস্ত ঘর পূরণ করুন।", variant: "destructive" });
+      setBtnLoading(false);
       return;
     }
 
@@ -123,22 +127,27 @@ const ManageProductsPage = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(productData),
         });
+        setBtnLoading(false);
       } else {
         res = await fetch(`${base_url}/products`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(productData),
+
         });
+
       }
       if (res.ok) {
         toast({ title: "সফল", description: currentProduct ? "পণ্য সফলভাবে আপডেট করা হয়েছে।" : "নতুন পণ্য সফলভাবে যোগ করা হয়েছে।" });
         setIsDialogOpen(false);
         fetchProducts();
+        setBtnLoading(false);
       } else {
-        toast({ title: "ত্রুটি", description: "অপারেশন ব্যর্থ হয়েছে।", variant: "destructive" });
+        toast({ title: "ত্রুটি", description: "অপারেশন ব্যর্থ হয়েছে।", variant: "destructive" });
       }
     } catch (error) {
-      toast({ title: "ত্রুটি", description: "এরর হয়েছে।", variant: "destructive" });
+      toast({ title: "ত্রুটি", description: "এরর হয়েছে।", variant: "destructive" });
+      setBtnLoading(false);
     }
   };
 
@@ -261,7 +270,7 @@ const ManageProductsPage = () => {
               >
                 <option value="" disabled>ক্যাটাগরি নির্বাচন করুন</option>
                 {categories?.map((cat) => (
-                  <option key={cat._id} value={cat._id}>{cat.name}</option>
+                  <option key={cat._id} value={cat.name}>{cat.name}</option>
                 ))}
               </select>
             </div>
@@ -278,7 +287,7 @@ const ManageProductsPage = () => {
             </div>
             <DialogFooter>
               <Button type="button" variant="secondary" onClick={() => setIsDialogOpen(false)}>বাতিল</Button>
-              <Button type="submit">সংরক্ষণ করুন</Button>
+              <Button type="submit">{btnLoading ? "Loading..." : "সংরক্ষণ করুন"}</Button>
             </DialogFooter>
           </form>
         </DialogContent>

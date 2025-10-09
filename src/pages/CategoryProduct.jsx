@@ -10,10 +10,12 @@ const CategoryProduct = () => {
     useEffect(() => {
         axios.get(`${import.meta.env.VITE_BASE_URL}/products`)
             .then(res => {
+                console.log(category)
+                console.log(res.data, "data------->")
                 setProduct(res.data.filter(p => p.category === category));
                 setLoading(false);
                 console.log(res.data.filter(p => p.category === category));
-                console.log(res.data)
+
             })
             .catch(err => console.log(err));
     }, [category])
