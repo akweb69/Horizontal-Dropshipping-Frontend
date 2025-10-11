@@ -16,14 +16,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        // Firebase ইউজার থেকে ডেটা নাও (যেমন email, uid)
         const userData = {
           uid: firebaseUser.uid,
           email: firebaseUser.email,
-          name: firebaseUser.displayName || 'User', // ডিসপ্লে নেম সেট করতে পারো
-          isMember: true, // তোমার লজিক অনুযায়ী কাস্টমাইজ করো (Firestore থেকে নিতে পারো)
-          isAdmin: firebaseUser.email === 'a@a.com', // অ্যাডমিন চেক
-          referralCode: 'DEFAULTREF', // Firestore থেকে লোড করো পরে
+          name: firebaseUser.displayName || 'User',
+          isMember: true,
+          isAdmin: firebaseUser.email === 'a@a.com',
+          referralCode: 'DEFAULTREF',
           subscription: {
             plan: "Starter Plan",
             validUntil: new Date().toISOString(),
@@ -34,7 +33,7 @@ export const AuthProvider = ({ children }) => {
           }
         };
         setUser(userData);
-        // অপশনাল: Firestore থেকে অতিরিক্ত ডেটা লোড করো যদি দরকার হয়
+
       } else {
         setUser(null);
       }
@@ -47,7 +46,6 @@ export const AuthProvider = ({ children }) => {
   const login = (email, password) => {
     return signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // লগিন সাকসেস, onAuthStateChanged অটো হ্যান্ডেল করবে
         return true;
       })
       .catch((error) => {

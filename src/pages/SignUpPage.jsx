@@ -20,7 +20,7 @@ const SignUpPage = () => {
   const handleSignUp = async (e) => {
     e.preventDefault();
     try {
-      const success = await signup(email, password, name); // Firebase signup ফাংশন কল
+      const success = await signup(email, password, name);
       if (success) {
         // send user data to database--->
         axios.post(`${import.meta.env.VITE_BASE_URL}/users`, {
@@ -45,7 +45,7 @@ const SignUpPage = () => {
             storeConnected: false,
             storeType: null
           },
-          myReferralCode: null,
+          myReferralCode: name + Math.floor(1000 + Math.random() * 9000),
           myReferralUser: [],
           referIncome: 0,
           myStore: null,
