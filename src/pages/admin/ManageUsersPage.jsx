@@ -51,7 +51,7 @@ const ManageUsersPage = () => {
       name: user.name,
       email: user.email,
       role: user.role,
-      subscription: user.subscription || 'Basic',
+      subscription: user.subscription?.plan || user.subscription || 'Basic',
       status: user.status,
     });
     setIsDialogOpen(true);
@@ -71,6 +71,7 @@ const ManageUsersPage = () => {
       } else {
         res = await axios.post(`${base_url}/users`, formData);
       }
+
       if (res.status === 200 || res.status === 201) {
         toast({ title: "সফল", description: currentUser ? "ব্যবহারকারী সফলভাবে আপডেট করা হয়েছে।" : "নতুন ব্যবহারকারী সফলভাবে যোগ করা হয়েছে।" });
         setIsDialogOpen(false);
@@ -122,8 +123,8 @@ const ManageUsersPage = () => {
   };
 
   const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -131,6 +132,7 @@ const ManageUsersPage = () => {
       <Helmet>
         <title>ব্যবহারকারী ম্যানেজ করুন - অ্যাডমিন</title>
       </Helmet>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>ব্যবহারকারী ম্যানেজমেন্ট</CardTitle>
@@ -150,6 +152,7 @@ const ManageUsersPage = () => {
             </Button>
           </div>
         </CardHeader>
+
         <CardContent>
           <Table>
             <TableHeader>
@@ -172,12 +175,27 @@ const ManageUsersPage = () => {
                       {user.role}
                     </Badge>
                   </TableCell>
-                  <TableCell>{user.subscription || 'No Plan'}</TableCell>
+
+                  {/* ✅ Fixed subscription rendering */}
+                  <TableCell>
+                    {typeof user.subscription === 'object' ? (
+                      <div className="flex flex-col">
+                        <span>Plan: {user.subscription.plan || 'N/A'}</span>
+                        {user.subscription.validUntil && (
+                          <span>Valid: {user.subscription.validUntil}</span>
+                        )}
+                      </div>
+                    ) : (
+                      user.subscription || 'No Plan'
+                    )}
+                  </TableCell>
+
                   <TableCell>
                     <Badge variant={user.status === 'Active' ? 'success' : 'outline'}>
                       {user.status}
                     </Badge>
                   </TableCell>
+
                   <TableCell className="text-right">
                     <Button
                       variant="ghost"
@@ -192,13 +210,11 @@ const ManageUsersPage = () => {
                         <ShieldCheck className="h-4 w-4 text-green-600" />
                       )}
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEdit(user)}
-                    >
+
+                    <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
                       <Edit className="h-4 w-4" />
                     </Button>
+
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
@@ -236,32 +252,21 @@ const ManageUsersPage = () => {
         </CardContent>
       </Card>
 
+      {/* ✅ Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{currentUser ? 'ব্যবহারকারী সম্পাদনা করুন' : 'নতুন ব্যবহারকারী যোগ করুন'}</DialogTitle>
           </DialogHeader>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="name">নাম</Label>
-              <Input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleFormChange}
-                required
-              />
+              <Input id="name" name="name" value={formData.name} onChange={handleFormChange} required />
             </div>
             <div>
               <Label htmlFor="email">ইমেল</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleFormChange}
-                required
-              />
+              <Input id="email" name="email" type="email" value={formData.email} onChange={handleFormChange} required />
             </div>
             <div>
               <Label htmlFor="role">ভূমিকা</Label>

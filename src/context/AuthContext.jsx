@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  // becomeMember ফাংশনটা রাখো, কিন্তু Firestore দিয়ে আপডেট করো যদি দরকার হয়
+
 
   const value = {
     user,
@@ -82,9 +82,9 @@ export const AuthProvider = ({ children }) => {
     isAdmin: user?.isAdmin || false,
     loading,
     login,
-    signup, // নতুন যোগ করা
+    signup,
     logout,
-    becomeMember: () => { }, // তোমার লজিক
+    becomeMember: () => { },
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
