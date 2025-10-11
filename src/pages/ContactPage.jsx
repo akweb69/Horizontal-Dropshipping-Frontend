@@ -21,7 +21,7 @@ const ContactPage = () => {
         <title>যোগাযোগ - LetsDropship</title>
         <meta name="description" content="সাহায্য প্রয়োজন? আমাদের সাপোর্ট টিমের সাথে যোগাযোগ করুন। আমরা আপনাকে সহায়তা করার জন্য ২৪/৭ আছি।" />
       </Helmet>
-      
+
       <div className="bg-slate-50">
         <section className="py-20 text-center px-4">
           <motion.div
@@ -40,21 +40,21 @@ const ContactPage = () => {
               <h2 className="text-2xl font-bold text-gray-800 mb-6">যোগাযোগ করুন</h2>
               <div className="space-y-6">
                 <div className="flex items-center">
-                  <Phone className="w-6 h-6 text-orange-500 mr-4"/>
+                  <Phone className="w-6 h-6 text-orange-500 mr-4" />
                   <div>
                     <h3 className="font-semibold">ফোন</h3>
                     <a href="tel:+880-XXXX-XXXXXX" className="text-gray-600 hover:text-orange-500">+৮৮০-XXXX-XXXXXX</a>
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <Mail className="w-6 h-6 text-orange-500 mr-4"/>
+                  <Mail className="w-6 h-6 text-orange-500 mr-4" />
                   <div>
                     <h3 className="font-semibold">ইমেইল</h3>
                     <a href="mailto:support@letsdropship.com" className="text-gray-600 hover:text-orange-500">support@letsdropship.com</a>
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <Clock className="w-6 h-6 text-orange-500 mr-4"/>
+                  <Clock className="w-6 h-6 text-orange-500 mr-4" />
                   <div>
                     <h3 className="font-semibold">সাপোর্ট সময়</h3>
                     <p className="text-gray-600">২৪/৭ উপলব্ধ - উত্তর দেওয়ার সময়: ২ ঘন্টার মধ্যে</p>
@@ -62,14 +62,14 @@ const ContactPage = () => {
                 </div>
               </div>
               <div className="mt-8">
-                 <iframe 
-                    src="https://www.openstreetmap.org/export/embed.html?bbox=90.3802,23.7497,90.3832,23.7527&layer=mapnik&marker=23.7512,90.3817" 
-                    className="w-full h-64 rounded-xl border-0"
-                    allowFullScreen="" 
-                    loading="lazy" 
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="অফিসের অবস্থান"
-                  ></iframe>
+                <iframe
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=90.3802,23.7497,90.3832,23.7527&layer=mapnik&marker=23.7512,90.3817"
+                  className="w-full h-64 rounded-xl border-0"
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="অফিসের অবস্থান"
+                ></iframe>
               </div>
             </div>
 
@@ -78,11 +78,11 @@ const ContactPage = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700">নাম</label>
-                  <input type="text" id="name" name="name" required className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"/>
+                  <input type="text" id="name" name="name" required className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500" />
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700">ইমেইল</label>
-                  <input type="email" id="email" name="email" required className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"/>
+                  <input type="email" id="email" name="email" required className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500" />
                 </div>
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700">বার্তা</label>

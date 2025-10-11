@@ -35,46 +35,46 @@ const BillingPage = () => {
                     </CardHeader>
                     <CardContent>
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 border rounded-lg bg-primary/5">
-                           <div>
-                             <h3 className="text-xl font-bold text-primary">{plan}</h3>
-                             <p className="text-muted-foreground">আপনার প্ল্যানটি {new Date(validUntil).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })} পর্যন্ত বৈধ।</p>
-                           </div>
-                           <Button asChild className="mt-4 sm:mt-0">
+                            <div>
+                                <h3 className="text-xl font-bold text-primary">{plan}</h3>
+                                <p className="text-muted-foreground">আপনার প্ল্যানটি {new Date(validUntil).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })} পর্যন্ত বৈধ।</p>
+                            </div>
+                            <Button asChild className="mt-4 sm:mt-0">
                                 <NavLink to="/membership">প্ল্যান আপগ্রেড করুন</NavLink>
-                           </Button>
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>
-                 <Card>
+                <Card>
                     <CardHeader>
                         <CardTitle>বিলিং ইতিহাস</CardTitle>
                         <CardDescription>আপনার পূর্ববর্তী লেনদেন দেখুন।</CardDescription>
                     </CardHeader>
                     <CardContent>
-                       <Table>
-                           <TableHeader>
-                               <TableRow>
-                                   <TableHead>ইনভয়েস</TableHead>
-                                   <TableHead>তারিখ</TableHead>
-                                   <TableHead>পরিমাণ</TableHead>
-                                   <TableHead>স্ট্যাটাস</TableHead>
-                                   <TableHead className="text-right">অ্যাকশন</TableHead>
-                               </TableRow>
-                           </TableHeader>
-                           <TableBody>
-                               {billingHistory.map((item) => (
-                                   <TableRow key={item.invoice}>
-                                       <TableCell className="font-medium">{item.invoice}</TableCell>
-                                       <TableCell>{item.date}</TableCell>
-                                       <TableCell>{item.amount}</TableCell>
-                                       <TableCell><Badge variant="success">{item.status}</Badge></TableCell>
-                                       <TableCell className="text-right">
-                                           <Button variant="outline" size="sm"><Download className="mr-2 h-4 w-4"/>ডাউনলোড</Button>
-                                       </TableCell>
-                                   </TableRow>
-                               ))}
-                           </TableBody>
-                       </Table>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>ইনভয়েস</TableHead>
+                                    <TableHead>তারিখ</TableHead>
+                                    <TableHead>পরিমাণ</TableHead>
+                                    <TableHead>স্ট্যাটাস</TableHead>
+                                    <TableHead className="text-right">অ্যাকশন</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {billingHistory.map((item) => (
+                                    <TableRow key={item.invoice}>
+                                        <TableCell className="font-medium">{item.invoice}</TableCell>
+                                        <TableCell>{item.date}</TableCell>
+                                        <TableCell>{item.amount}</TableCell>
+                                        <TableCell><Badge variant="success">{item.status}</Badge></TableCell>
+                                        <TableCell className="text-right">
+                                            <Button variant="outline" size="sm"><Download className="mr-2 h-4 w-4" />ডাউনলোড</Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
                     </CardContent>
                 </Card>
             </div>
