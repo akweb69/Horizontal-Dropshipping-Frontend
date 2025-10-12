@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
 import { Heart, ShoppingCart, User, LogOut, LayoutDashboard } from 'lucide-react';
@@ -8,11 +8,26 @@ import { useSearch } from '@/context/SearchContext';
 import { useAuth } from '@/context/AuthContext';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import axios from 'axios';
 
 const Header = () => {
   const { openSearch } = useSearch();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, loveData, setLoveData, loading } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // load love data
+    axios.get(`${import.meta.env.VITE_BASE_URL}/love`)
+      .then(res => {
+        console.log(res.data);
+        console.log(user?.email);
+        setLoveData(res.data.filter(item => item.email === user?.email));
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }, [user?.email])
+
 
   const showToast = () => {
     toast({
@@ -74,6 +89,7 @@ const Header = () => {
     );
   };
 
+
   return (
     <>
       <header className="hidden md:block bg-white shadow-sm sticky top-0 z-40">
@@ -98,8 +114,9 @@ const Header = () => {
               <button onClick={openSearch} className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                 <FontAwesomeIcon icon={faSearch} className="text-gray-600 w-5 h-5" />
               </button>
-              <Link to="/wishlist" className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+              <Link to="/wishlist" className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors relative">
                 <Heart className="text-gray-600 w-5 h-5" />
+                <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{loveData?.length || 0}</span>
               </Link>
               <button onClick={showToast} className="relative flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                 <ShoppingCart className="text-gray-600 w-5 h-5" />

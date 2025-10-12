@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 const ProductCard = ({ product }) => {
-  const { isMember } = useAuth();
+  const { isMember, user, setLoveData } = useAuth();
 
   const showToast = () => {
     toast({
@@ -17,14 +17,30 @@ const ProductCard = ({ product }) => {
   };
   // handleLoveClick
   const handleLoveClick = (productId) => {
-    console.log(productId);
-    axios.post(`${import.meta.env.VITE_BASE_URL}/love`, { productId })
+    // check login
+    if (!user?.email) {
+      toast({
+        title: "অনুগ্রহ করে লগইন করুন!",
+        className: "bg-red-500 text-white"
+      });
+      return;
+    }
+    axios.post(`${import.meta.env.VITE_BASE_URL}/love`, { productId, email: user?.email })
       .then(res => {
-        if (res.data.success) {
+        if (res.data.acknowledged) {
+          // update love data
+          axios.get(`${import.meta.env.VITE_BASE_URL}/love`)
+            .then(res => {
+              setLoveData(res.data);
+            })
+            .catch(err => {
+              console.log(err);
+            })
           toast({
             title: "ফাইভে যোগ করা হয়েছে!",
             className: "bg-green-500 text-white"
           });
+
         }
       })
       .catch(err => {

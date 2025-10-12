@@ -6,12 +6,14 @@ import {
   onAuthStateChanged
 } from 'firebase/auth';
 import auth from '../firebase';
+import axios from 'axios';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loveData, setLoveData] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -42,6 +44,8 @@ export const AuthProvider = ({ children }) => {
 
     return () => unsubscribe();
   }, []);
+
+
 
   const login = (email, password) => {
     return signInWithEmailAndPassword(auth, email, password)
@@ -85,6 +89,8 @@ export const AuthProvider = ({ children }) => {
     signup,
     logout,
     becomeMember: () => { },
+    setLoveData,
+    loveData,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
