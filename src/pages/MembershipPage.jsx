@@ -100,7 +100,7 @@ const MembershipPage = () => {
                             </div>
                         </div>
                         <div>
-                            <img  alt="একজন ব্যক্তি ল্যাপটপে কাজ করছেন" className="rounded-xl shadow-lg" src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3" />
+                            <img alt="একজন ব্যক্তি ল্যাপটপে কাজ করছেন" className="rounded-xl shadow-lg" src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3" />
                         </div>
                     </div>
 

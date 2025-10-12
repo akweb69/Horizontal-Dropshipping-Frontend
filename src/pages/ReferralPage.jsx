@@ -121,8 +121,8 @@ const ReferralPage = () => {
 
       <div className="container mx-auto px-4 py-16 md:py-24">
         <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold">কিভাবে কাজ করে?</h2>
-            <p className="text-gray-600 mt-2">মাত্র ৩টি সহজ ধাপে আয় শুরু করুন।</p>
+          <h2 className="text-3xl font-bold">কিভাবে কাজ করে?</h2>
+          <p className="text-gray-600 mt-2">মাত্র ৩টি সহজ ধাপে আয় শুরু করুন।</p>
         </div>
         <div className="grid md:grid-cols-3 gap-8">
           <motion.div
@@ -132,7 +132,7 @@ const ReferralPage = () => {
             className="text-center p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow border"
           >
             <div className="p-4 bg-orange-100 rounded-full inline-block mb-4">
-                <Share2 className="w-8 h-8 text-orange-500" />
+              <Share2 className="w-8 h-8 text-orange-500" />
             </div>
             <h3 className="text-xl font-semibold mb-2">শেয়ার করুন</h3>
             <p className="text-gray-600">আপনার অনন্য রেফারেল লিংক বন্ধু এবং পরিবারের সাথে শেয়ার করুন।</p>
@@ -143,8 +143,8 @@ const ReferralPage = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="text-center p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow border"
           >
-             <div className="p-4 bg-blue-100 rounded-full inline-block mb-4">
-                <img alt="People signing up" class="w-8 h-8 text-blue-500" src="https://images.unsplash.com/photo-1643101447193-9c59d5db2771" />
+            <div className="p-4 bg-blue-100 rounded-full inline-block mb-4">
+              <img alt="People signing up" class="w-8 h-8 text-blue-500" src="https://images.unsplash.com/photo-1643101447193-9c59d5db2771" />
             </div>
             <h3 className="text-xl font-semibold mb-2">তারা সাইনআপ করুক</h3>
             <p className="text-gray-600">আপনার রেফারেল লিংক ব্যবহার করে যখন কেউ সাইনআপ করবে।</p>
@@ -156,7 +156,7 @@ const ReferralPage = () => {
             className="text-center p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow border"
           >
             <div className="p-4 bg-green-100 rounded-full inline-block mb-4">
-                <img alt="Money bag icon" class="w-8 h-8 text-green-500" src="https://images.unsplash.com/photo-1638913971789-667874197280" />
+              <img alt="Money bag icon" class="w-8 h-8 text-green-500" src="https://images.unsplash.com/photo-1638913971789-667874197280" />
             </div>
             <h3 className="text-xl font-semibold mb-2">উপার্জন করুন</h3>
             <p className="text-gray-600">প্রতিটি সফল রেফারেলে নগদ টাকা বা ডিসকাউন্ট পান।</p>
