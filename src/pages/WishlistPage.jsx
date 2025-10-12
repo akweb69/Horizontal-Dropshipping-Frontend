@@ -1,22 +1,36 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+
 
 const WishlistPage = () => {
+  const { loveData, loading, user } = useAuth();
+  const [wishlistItems, setWishlistItems] = useState([]);
+
+
+  // load data--->
+  useEffect(() => {
+    if (user) {
+      const myWishlist = loveData.filter(item => item.email === user.email);
+      setWishlistItems(myWishlist);
+    }
+  }, [user, loveData])
+
+  if (loading) {
+    return <div className='w-full min-h-[90vh] flex justify-center items-center text-center text-2xl'>Loading...</div>;
+  }
+
   const showToast = () => {
     toast({
       title: "🚧 এই ফিচারটি এখনও চালু হয়নি—তবে চিন্তা করবেন না! আপনি পরবর্তী প্রম্পটে এটি যোগ করার জন্য অনুরোধ করতে পারেন! 🚀"
     });
   };
 
-  const wishlistItems = [
-    { id: 2, name: "ওয়্যারলেস ইয়ারবাডস প্রো", price: "৳৭৯৯", image: "নয়েজ ক্যান্সেলেশন সহ উচ্চ মানের ওয়্যারলেস ইয়ারবাড", inStock: true },
-    { id: 4, name: "স্মার্ট ওয়াচ সিরিজ", price: "৳১৯৯৯", image: "স্বাস্থ্য ট্র্যাকিং সহ উন্নত স্মার্টওয়াচ", inStock: true },
-    { id: 7, name: "গেমিং হেডসেট", price: "৳১২৯৯", image: "আরজিবি লাইটিং সহ পেশাদার গেমিং হেডসেট", inStock: false },
-  ];
+
 
   return (
     <>
@@ -37,21 +51,21 @@ const WishlistPage = () => {
             <div className="bg-white rounded-xl shadow-lg p-6">
               <div className="space-y-6">
                 {wishlistItems.map(item => (
-                  <div key={item.id} className="flex flex-col md:flex-row items-center gap-6 border-b pb-6 last:border-b-0 last:pb-0">
+                  <div key={item?._id} className="flex flex-col md:flex-row items-center gap-6 border-b pb-6 last:border-b-0 last:pb-0">
                     <div className="w-32 h-32 bg-gray-100 rounded-lg flex-shrink-0">
-                      <img  alt={item.name} className="w-full h-full object-cover rounded-lg" src="https://images.unsplash.com/photo-1635865165118-917ed9e20936" />
+                      <img alt={item?.name} className="w-full h-full object-cover rounded-lg" src={item?.thumbnail} />
                     </div>
                     <div className="flex-grow text-center md:text-left">
-                      <h2 className="text-lg font-semibold text-gray-800">{item.name}</h2>
-                      <p className="text-xl font-bold text-gray-900 my-1">{item.price}</p>
-                      <span className={`text-sm font-semibold ${item.inStock ? 'text-green-600' : 'text-red-600'}`}>
-                        {item.inStock ? 'স্টকে আছে' : 'স্টক আউট'}
+                      <h2 className="text-lg font-semibold text-gray-800">{item?.name}</h2>
+                      <p className="text-xl font-bold text-gray-900 my-1">{item?.price}</p>
+                      <span className={`text-sm font-semibold ${item?.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {parseInt(item?.stock) > 0 ? 'স্টকে আছে' : 'স্টক আউট'}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
-                      <Button 
-                        onClick={showToast} 
-                        disabled={!item.inStock}
+                      <Button
+                        onClick={showToast}
+                        disabled={parseInt(item?.stock) <= 0}
                         className="flex items-center gap-2"
                       >
                         <ShoppingCart className="w-4 h-4" />
