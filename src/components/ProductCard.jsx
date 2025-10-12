@@ -1,10 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Star, Lock } from 'lucide-react';
+import { Star, Lock, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const ProductCard = ({ product }) => {
   const { isMember } = useAuth();
@@ -14,12 +15,38 @@ const ProductCard = ({ product }) => {
       title: "🚧 এই ফিচারটি এখনও চালু হয়নি—তবে চিন্তা করবেন না! আপনি পরবর্তী প্রম্পটে এটি যোগ করার জন্য অনুরোধ করতে পারেন! 🚀"
     });
   };
+  // handleLoveClick
+  const handleLoveClick = (productId) => {
+    console.log(productId);
+    axios.post(`${import.meta.env.VITE_BASE_URL}/love`, { productId })
+      .then(res => {
+        if (res.data.success) {
+          toast({
+            title: "ফাইভে যোগ করা হয়েছে!",
+            className: "bg-green-500 text-white"
+          });
+        }
+      })
+      .catch(err => {
+        toast({
+          title: "কিছু সমস্যা হয়েছে!",
+          className: "bg-red-500 text-white"
+        });
+      });
+
+  };
 
   return (
     <motion.div
       className="bg-white rounded-lg card-shadow p-4 transition-all duration-300 hover:scale-105"
       whileHover={{ y: -2 }}
     >
+      {/* love icon */}
+      <div
+        onClick={(() => handleLoveClick(product._id))}
+        className="absolute top-6 right-6">
+        <Heart className="w-6 h-6 text-red-400 cursor-pointer" />
+      </div>
       <div className="aspect-square bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
         <img alt={product.name} className="w-full h-full object-cover rounded-lg" src={product?.thumbnail} />
       </div>
