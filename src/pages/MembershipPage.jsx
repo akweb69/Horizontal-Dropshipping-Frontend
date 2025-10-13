@@ -131,7 +131,7 @@ const MembershipPage = () => {
     };
 
     const copyReferralLink = () => {
-        navigator.clipboard.writeText(`https://letsdropship.com/signup?ref=${user.referralCode}`);
+        navigator.clipboard.writeText(`https://letsdropship.com/signup?ref=${user.myReferralCode}`);
         toast({
             title: "✅ লিঙ্ক কপি করা হয়েছে!",
             description: "আপনার বন্ধুদের সাথে রেফারেল লিঙ্ক শেয়ার করুন।",
@@ -190,7 +190,7 @@ const MembershipPage = () => {
                                 <div className="relative w-full max-w-md">
                                     <input
                                         type="text"
-                                        value={`https://letsdropship.com/signup?ref=${user.referralCode}`}
+                                        value={`https://letsdropship.com/signup?ref=${user.myReferralCode}`}
                                         readOnly
                                         className="w-full bg-slate-100 border border-gray-300 rounded-lg py-3 pl-4 pr-12 text-gray-700"
                                     />
