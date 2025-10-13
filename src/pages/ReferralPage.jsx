@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,12 +8,39 @@ import { Share2, Copy } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
+import axios from 'axios';
 
 const ReferralPage = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
   const navigate = useNavigate();
   const [referralLink, setReferralLink] = useState('');
+  // load user name --->
+  useEffect(() => {
 
+    if (user) {
+      const email = user?.email;
+      axios.get(`${import.meta.env.VITE_BASE_URL}/users`)
+        .then(res => {
+          const data = res.data;
+          const myData = data.find(item => item.email === email);
+          const reffercode = myData?.myReferralCode;
+          setReferralLink(`${window.location.origin}/signup?ref=${reffercode}`);
+        })
+        .catch(err => {
+          console.error('Failed to fetch user data: ', err);
+          setReferralLink(`${window.location.origin}/signup`);
+        });
+
+    }
+  }, [user])
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">
+      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white">
+
+      </div>
+    </div>;
+  }
   const handleGenerateLink = () => {
     if (!isAuthenticated) {
       toast({
