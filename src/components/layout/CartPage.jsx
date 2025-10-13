@@ -1,9 +1,10 @@
 import { useAuth } from '@/context/AuthContext';
 import { Loader, Trash2, Minus, Plus, ShoppingBag, Copy } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { toast } from '@/components/ui/use-toast';
 
 const CartPage = () => {
-    const { loading, cartData } = useAuth();
+    const { loading, cartData, fetchCart } = useAuth(); // Assumes fetchCart is available in AuthContext to refresh cart
     const [quantities, setQuantities] = useState({});
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedItems, setSelectedItems] = useState(null);
@@ -22,18 +23,80 @@ const CartPage = () => {
         }
     }, [cartData]);
 
-    const handleIncrement = (id) => {
+    const handleIncrement = async (id) => {
         const item = cartData.find((i) => i._id === id);
-        const current = quantities[id];
-        if (current < parseInt(item.stock)) {
-            setQuantities((prev) => ({ ...prev, [id]: current + 1 }));
+        const current = quantities[id] || 1;
+        if (current >= parseInt(item.stock)) {
+            toast({
+                title: "স্টক সীমা",
+                description: "এই পণ্যের জন্য আরও স্টক উপলব্ধ নেই।",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        try {
+            const newQuantity = current + 1;
+            const res = await fetch(`${import.meta.env.VITE_BASE_URL}/cart/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: newQuantity }),
+            });
+            if (res.ok) {
+                setQuantities((prev) => ({ ...prev, [id]: newQuantity }));
+                if (fetchCart) fetchCart(); // Refresh cart data
+                toast({
+                    title: "সফল",
+                    description: "পণ্যের পরিমাণ আপডেট করা হয়েছে।",
+                });
+            } else {
+                throw new Error("Failed to update quantity");
+            }
+        } catch (e) {
+            console.error(e);
+            toast({
+                title: "ত্রুটি",
+                description: "পরিমাণ আপডেট করতে ব্যর্থ হয়েছে।",
+                variant: "destructive",
+            });
         }
     };
 
-    const handleDecrement = (id) => {
-        const current = quantities[id];
-        if (current > 1) {
-            setQuantities((prev) => ({ ...prev, [id]: current - 1 }));
+    const handleDecrement = async (id) => {
+        const current = quantities[id] || 1;
+        if (current <= 1) {
+            toast({
+                title: "সীমা",
+                description: "পরিমাণ ১-এর কম হতে পারে না।",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        try {
+            const newQuantity = current - 1;
+            const res = await fetch(`${import.meta.env.VITE_BASE_URL}/cart/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: newQuantity }),
+            });
+            if (res.ok) {
+                setQuantities((prev) => ({ ...prev, [id]: newQuantity }));
+                if (fetchCart) fetchCart(); // Refresh cart data
+                toast({
+                    title: "সফল",
+                    description: "পণ্যের পরিমাণ আপডেট করা হয়েছে।",
+                });
+            } else {
+                throw new Error("Failed to update quantity");
+            }
+        } catch (e) {
+            console.error(e);
+            toast({
+                title: "ত্রুটি",
+                description: "পরিমাণ আপডেট করতে ব্যর্থ হয়েছে।",
+                variant: "destructive",
+            });
         }
     };
 
@@ -43,17 +106,30 @@ const CartPage = () => {
                 method: 'DELETE',
             });
             if (res.ok) {
-                window.location.reload();
+                if (fetchCart) fetchCart();
+                toast({
+                    title: "সফল",
+                    description: "পণ্য কার্ট থেকে মুছে ফেলা হয়েছে।",
+                });
+            } else {
+                throw new Error("Failed to delete item");
             }
         } catch (e) {
             console.error(e);
+            toast({
+                title: "ত্রুটি",
+                description: "কার্ট থেকে পণ্য মুছতে ব্যর্থ হয়েছে।",
+                variant: "destructive",
+            });
         }
     };
 
     const calculateTotal = (items) => {
         if (!items) return 0;
         if (Array.isArray(items)) {
-            return items.reduce((sum, item) => sum + quantities[item._id] * parseFloat(item.price), 0).toFixed(2);
+            return items
+                .reduce((sum, item) => sum + quantities[item._id] * parseFloat(item.price), 0)
+                .toFixed(2);
         }
         return (quantities[items._id] * parseFloat(items.price)).toFixed(2);
     };
@@ -123,26 +199,37 @@ const CartPage = () => {
                 body: JSON.stringify(orderData),
             });
             if (res.ok) {
-                alert('Order placed successfully! Status: Pending');
+                toast({
+                    title: "সফল",
+                    description: "অর্ডার সফলভাবে প্লেস করা হয়েছে! স্ট্যাটাস: পেন্ডিং",
+                });
                 setIsModalOpen(false);
                 if (Array.isArray(selectedItems)) {
-                    // Optionally clear cart
                     for (const item of selectedItems) {
                         await handleDelete(item._id);
                     }
                 } else {
                     await handleDelete(selectedItems._id);
                 }
-                window.location.reload();
+            } else {
+                throw new Error("Failed to place order");
             }
         } catch (e) {
             console.error(e);
+            toast({
+                title: "ত্রুটি",
+                description: "অর্ডার প্লেস করতে ব্যর্থ হয়েছে।",
+                variant: "destructive",
+            });
         }
     };
 
     const copyMerchantNumber = () => {
         navigator.clipboard.writeText(merchantNumber);
-        alert('Number copied to clipboard!');
+        toast({
+            title: "সফল",
+            description: "নম্বর কপি করা হয়েছে!",
+        });
     };
 
     if (loading) {
@@ -156,7 +243,9 @@ const CartPage = () => {
     if (!cartData || cartData.length === 0) {
         return (
             <div className="w-full max-w-7xl mx-auto py-8 px-4 min-h-[90vh]">
-                <h1 className="text-2xl md:text-3xl font-bold text-center text-primary pb-4">আপনার কার্ট</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-center text-primary pb-4">
+                    আপনার কার্ট
+                </h1>
                 <p className="text-center text-gray-500 text-base md:text-lg">Your cart is empty.</p>
             </div>
         );
@@ -180,7 +269,9 @@ const CartPage = () => {
                                 className="w-16 h-16 sm:w-20 sm:h-20 rounded-md object-cover"
                             />
                             <div className="ml-4 flex-1">
-                                <h2 className="font-semibold text-lg sm:text-xl text-gray-800">{item?.name}</h2>
+                                <h2 className="font-semibold text-lg sm:text-xl text-gray-800">
+                                    {item?.name}
+                                </h2>
                                 <p className="text-gray-600 text-sm sm:text-base mt-1">${item?.price}</p>
                             </div>
                         </div>
@@ -193,7 +284,7 @@ const CartPage = () => {
                                     <Minus size={16} />
                                 </button>
                                 <span className="px-3 py-2 text-center min-w-[40px] bg-gray-50 text-sm">
-                                    {quantities[item._id]}
+                                    {quantities[item._id] || 1}
                                 </span>
                                 <button
                                     onClick={() => handleIncrement(item._id)}
@@ -224,7 +315,9 @@ const CartPage = () => {
                 ))}
             </div>
             <div className="mt-6 p-4 sm:p-6 bg-gray-50 rounded-lg shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Total: ${calculateTotal(cartData)}</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+                    Total: ${calculateTotal(cartData)}
+                </h2>
                 <button
                     onClick={handleCheckout}
                     className="px-6 py-2 sm:px-8 sm:py-3 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm sm:text-base transition-colors"
@@ -237,8 +330,12 @@ const CartPage = () => {
             {isModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                     <div className="bg-white rounded-lg p-6 sm:p-8 w-full max-w-md mx-4 shadow-2xl">
-                        <h2 className="text-2xl font-bold text-center text-primary mb-4">Checkout Payment</h2>
-                        <p className="text-center text-gray-600 mb-6">Complete your payment using bKash or Nagad</p>
+                        <h2 className="text-2xl font-bold text-center text-primary mb-4">
+                            Checkout Payment
+                        </h2>
+                        <p className="text-center text-gray-600 mb-6">
+                            Complete your payment using bKash or Nagad
+                        </p>
 
                         {/* Payment Method Selection */}
                         <div className="flex justify-center mb-6">
@@ -258,7 +355,9 @@ const CartPage = () => {
 
                         {/* Instructions */}
                         <div className="mb-6">
-                            <h3 className="text-lg font-semibold text-gray-800 mb-2">Payment Instructions</h3>
+                            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                                Payment Instructions
+                            </h3>
                             <p className="text-gray-600 mb-2">আপনাকে টাকা পাঠাতে হবে।</p>
                             <p className="text-gray-600 mb-2">Send money to: {merchantNumber}</p>
                             <button
@@ -272,7 +371,9 @@ const CartPage = () => {
                         {/* Input Fields */}
                         <div className="space-y-4 mb-6">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Your {paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1)} Number</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Your {paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1)} Number
+                                </label>
                                 <input
                                     type="text"
                                     value={paymentNumber}
@@ -282,7 +383,9 @@ const CartPage = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Transaction ID (TxID)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Transaction ID (TxID)
+                                </label>
                                 <input
                                     type="text"
                                     value={tnxId}
@@ -292,7 +395,9 @@ const CartPage = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Amount
+                                </label>
                                 <input
                                     type="text"
                                     value={`$${calculateTotal(selectedItems)}`}
