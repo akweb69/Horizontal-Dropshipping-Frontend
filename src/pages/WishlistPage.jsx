@@ -5,6 +5,7 @@ import { toast } from '@/components/ui/use-toast';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 
 
 const WishlistPage = () => {
@@ -23,12 +24,46 @@ const WishlistPage = () => {
   if (loading) {
     return <div className='w-full min-h-[90vh] flex justify-center items-center text-center text-2xl'>Loading...</div>;
   }
-
   const showToast = () => {
     toast({
-      title: "🚧 এই ফিচারটি এখনও চালু হয়নি—তবে চিন্তা করবেন না! আপনি পরবর্তী প্রম্পটে এটি যোগ করার জন্য অনুরোধ করতে পারেন! 🚀"
+      title: "Successfully deleted from wishlist 🚀"
     });
   };
+  const showToast1 = () => {
+    toast({
+      title: "Successfully added to cart 🚀"
+    });
+  };
+  // handle delete love item-->
+  const handleDelete = (itemId) => {
+    axios.delete(`${import.meta.env.VITE_BASE_URL}/love/${itemId}`)
+      .then(res => {
+        if (res.data.deletedCount > 0) {
+          axios.get(`${import.meta.env.VITE_BASE_URL}/love`)
+            .then(res => {
+              const myWishlist = res.data.filter(item => item.email === user.email);
+              setWishlistItems(myWishlist);
+              showToast();
+            })
+            .catch(err => console.error(err));
+        }
+      })
+      .catch(err => console.error(err));
+  };
+  // handle add to cart-->
+  const handleAddToCart = (itemId) => {
+    axios.post(`${import.meta.env.VITE_BASE_URL}/cart`, {
+      email: user.email,
+      productId: itemId
+    })
+      .then(res => {
+        if (res.data.insertedId) {
+          showToast1();
+        }
+      })
+      .catch(err => console.error(err));
+  };
+
 
 
 
@@ -64,14 +99,14 @@ const WishlistPage = () => {
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
                       <Button
-                        onClick={showToast}
+                        onClick={() => handleAddToCart(item?._id)}
                         disabled={parseInt(item?.stock) <= 0}
                         className="flex items-center gap-2"
                       >
                         <ShoppingCart className="w-4 h-4" />
                         কার্টে যোগ করুন
                       </Button>
-                      <Button variant="outline" size="icon" onClick={showToast}>
+                      <Button variant="outline" size="icon" onClick={() => handleDelete(item?._id)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
