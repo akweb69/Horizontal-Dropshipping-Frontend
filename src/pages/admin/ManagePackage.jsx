@@ -49,7 +49,7 @@ const ManagePackage = () => {
         try {
             const response = await axios.patch(
                 `${import.meta.env.VITE_BASE_URL}/buy-package/${selectedPackage._id}`,
-                { packageStatus: newStatus }
+                { packageStatus: newStatus, email: selectedPackage.email, planName: selectedPackage.planName }
             );
             if (response.data.modifiedCount > 0) {
                 // Update local state
