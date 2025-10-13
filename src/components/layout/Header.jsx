@@ -12,7 +12,7 @@ import axios from 'axios';
 
 const Header = () => {
   const { openSearch } = useSearch();
-  const { isAuthenticated, user, logout, loveData, setLoveData, loading } = useAuth();
+  const { isAuthenticated, user, logout, loveData, setLoveData, loading, cartData, setCartData } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,6 +22,14 @@ const Header = () => {
         console.log(res.data);
         console.log(user?.email);
         setLoveData(res.data.filter(item => item.email === user?.email));
+      })
+      .catch(err => {
+        console.log(err);
+      })
+    // load cart data
+    axios.get(`${import.meta.env.VITE_BASE_URL}/cart`)
+      .then(res => {
+        setCartData(res.data.filter(item => item.email === user?.email));
       })
       .catch(err => {
         console.log(err);
@@ -120,7 +128,7 @@ const Header = () => {
               </Link>
               <button onClick={showToast} className="relative flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                 <ShoppingCart className="text-gray-600 w-5 h-5" />
-                <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">0</span>
+                <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{cartData?.length || 0}</span>
               </button>
               {renderUserActions()}
             </div>

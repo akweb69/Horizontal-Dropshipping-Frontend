@@ -14,6 +14,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loveData, setLoveData] = useState([]);
+  const [cartData, setCartData] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -91,6 +92,8 @@ export const AuthProvider = ({ children }) => {
     becomeMember: () => { },
     setLoveData,
     loveData,
+    setCartData,
+    cartData,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
