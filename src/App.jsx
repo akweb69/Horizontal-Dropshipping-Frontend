@@ -39,6 +39,7 @@ import ManageOrdersPage from '@/pages/admin/ManageOrdersPage';
 import AdminLoginPage from '@/pages/admin/AdminLoginPage';
 import ManageHomepagePage from '@/pages/admin/ManageHomepagePage';
 import CategoryProduct from './pages/CategoryProduct';
+import CartPage from './components/layout/CartPage';
 
 function App() {
   return (
@@ -61,6 +62,7 @@ function App() {
           <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="track-order" element={<TrackOrderPage />} />
           <Route path="support" element={<SupportPage />} />
+          <Route path="cart" element={<CartPage />} />
         </Route>
 
         <Route
