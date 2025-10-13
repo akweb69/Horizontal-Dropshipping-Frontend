@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,8 @@ const SignUpPage = () => {
   const location = useLocation();
   const from = location.search.split('?redirect=')[1] || '/';
 
+
+
   const handleSignUp = async (e) => {
     e.preventDefault();
     try {
@@ -27,7 +29,7 @@ const SignUpPage = () => {
           name,
           email,
           phone,
-          reference: null,
+          reference: location.search.split("=")[1],
           isAdmin: false,
           isMember: false,
           storeConnected: false,
@@ -45,10 +47,12 @@ const SignUpPage = () => {
             storeConnected: false,
             storeType: null
           },
-          myReferralCode: name + Math.floor(1000 + Math.random() * 9000),
+          myReferralCode: name.slice(0, 2) + Math.floor(1000 + Math.random() * 9000),
           myReferralUser: [],
           referIncome: 0,
           myStore: null,
+          role: "user",
+
 
         })
           .then((response) => {
