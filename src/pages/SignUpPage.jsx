@@ -29,6 +29,7 @@ const SignUpPage = () => {
           name,
           email,
           phone,
+          isAuthenticated: true,
           reference: location.search.split("=")[1],
           isAdmin: false,
           isMember: false,

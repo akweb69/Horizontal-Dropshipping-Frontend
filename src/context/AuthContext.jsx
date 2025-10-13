@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
           name: firebaseUser.displayName || 'User',
           isMember: true,
           isAdmin: firebaseUser.email === 'a@a.com',
-          referralCode: 'DEFAULTREF',
+          referralCode: '',
           subscription: {
             plan: "Starter Plan",
             validUntil: new Date().toISOString(),
@@ -78,13 +78,26 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  // load userdata
+  const [userData, setUserData] = useState(null);
+  useEffect(() => {
+    if (user) {
+      axios.get(`${import.meta.env.VITE_BASE_URL}/users`)
+        .then(response => {
+          setUserData(response.data.find(u => u.email === user.email));
+        })
+        .catch(error => {
+          console.error("Error fetching user data:", error);
+        });
+    }
+  }, [user]);
 
 
   const value = {
     user,
     isAuthenticated: !!user,
-    isMember: user?.isMember || false,
-    isAdmin: user?.isAdmin || false,
+    isMember: userData?.isMember || false,
+    isAdmin: userData?.isAdmin || false,
     loading,
     login,
     signup,
