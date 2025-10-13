@@ -120,7 +120,7 @@ const ManagePackage = () => {
                             </p>
                             <p className="flex items-center gap-2">
                                 <User className="w-5 h-5 text-orange-500" />
-                                <strong>ইউজার নাম:</strong> {modalData?.userName}
+                                <strong>ইউজার ইমেইল:</strong> {modalData?.email}
                             </p>
                             <p className="flex items-center gap-2">
                                 <BadgeCheck className="w-5 h-5 text-indigo-500" />
