@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
-import { CheckCircle, Star, Package, Truck, Zap, Gift, Copy } from 'lucide-react';
+import { CheckCircle, Star, Package, Truck, Zap, Gift, Copy, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const MembershipPlan = ({ plan, onBuyNow }) => (
     <motion.div
@@ -38,6 +41,15 @@ const MembershipPlan = ({ plan, onBuyNow }) => (
 const MembershipPage = () => {
     const { isAuthenticated, user, becomeMember } = useAuth();
     const navigate = useNavigate();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState(null);
+    const [paymentMethod, setPaymentMethod] = useState('');
+    const [transactionId, setTransactionId] = useState('');
+    const [paymentNumber, setPaymentNumber] = useState('');
+    const [amount, setAmount] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const sendNumber = '01768037870';
 
     const plans = [
         { name: 'বেসিক মেম্বার', price: '৪৯৯', benefits: ['সকল পণ্যের দাম দেখুন', 'সাধারণ গ্রাহক সাপোর্ট', 'মাসিক নিউজলেটার'], recommended: false },
@@ -49,11 +61,71 @@ const MembershipPage = () => {
         if (!isAuthenticated) {
             navigate('/login?redirect=/membership');
         } else {
-            becomeMember();
+            setSelectedPlan(plan);
+            setAmount(plan.price);
+            setIsModalOpen(true);
+        }
+    };
+
+    const copyPaymentNumber = () => {
+        navigator.clipboard.writeText(sendNumber);
+        toast({
+            title: "✅ পেমেন্ট নাম্বার কপি করা হয়েছে!",
+            description: `নাম্বার: ${sendNumber}`,
+        });
+    };
+
+    const handlePaymentSubmit = async () => {
+        if (!paymentMethod || !transactionId || !amount) {
             toast({
-                title: `🎉 অভিনন্দন, ${user.name}!`,
-                description: `আপনি সফলভাবে "${plan.name}" প্ল্যানটি কিনেছেন।`,
+                title: "❌ ত্রুটি",
+                description: "সকল ফিল্ড পূরণ করুন",
+                variant: "destructive"
             });
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const paymentData = {
+                email: user.email,
+                planName: selectedPlan.name,
+                amount: amount,
+                paymentMethod: paymentMethod,
+                transactionId: transactionId,
+                paymentNumber: paymentNumber,
+                timestamp: new Date().toISOString()
+            };
+
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/buy-package`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(paymentData),
+            });
+
+            if (response.ok) {
+                becomeMember();
+                toast({
+                    title: `🎉 অভিনন্দন, ${user.name}!`,
+                    description: `আপনি সফলভাবে "${selectedPlan.name}" প্ল্যানটি কিনেছেন।`,
+                });
+                setIsModalOpen(false);
+                setPaymentMethod('');
+                setTransactionId('');
+                setAmount('');
+            } else {
+                throw new Error('Payment submission failed');
+            }
+        } catch (error) {
+            toast({
+                title: "❌ পেমেন্ট ব্যর্থ",
+                description: "দয়া করে আবার চেষ্টা করুন অথবা সাপোর্ট টিমের সাথে যোগাযোগ করুন",
+                variant: "destructive"
+            });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -130,6 +202,72 @@ const MembershipPage = () => {
                     )}
                 </div>
             </div>
+
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>পেমেন্ট সম্পন্ন করুন</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="font-semibold">পেমেন্ট নাম্বার: {sendNumber}</h3>
+                                <p className="text-sm text-gray-600">এই নাম্বারে পেমেন্ট পাঠান - সেন্ড মানি করতে হবে।</p>
+                            </div>
+                            <Button onClick={copyPaymentNumber} size="sm">
+                                <Copy className="w-4 h-4 mr-2" /> কপি
+                            </Button>
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="plan">প্ল্যান</Label>
+                            <Input id="plan" value={selectedPlan?.name} readOnly />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="amount">পরিমাণ</Label>
+                            <Input id="amount" value={amount} readOnly />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="paymentMethod">পেমেন্ট পদ্ধতি</Label>
+                            <select
+                                id="paymentMethod"
+                                value={paymentMethod}
+                                onChange={(e) => setPaymentMethod(e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            >
+                                <option value="">পেমেন্ট পদ্ধতি নির্বাচন করুন</option>
+                                <option value="bKash">bKash</option>
+                                <option value="Nagad">Nagad</option>
+                            </select>
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="transactionId">আপনার পেমেন্ট নাম্বার লিখুন</Label>
+                            <Input
+                                id="transactionId"
+                                value={paymentNumber}
+                                onChange={(e) => setPaymentNumber(e.target.value)}
+                                placeholder="আপনার পেমেন্ট নাম্বার লিখুন"
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="transactionId">ট্রানজেকশন আইডি</Label>
+                            <Input
+                                id="transactionId"
+                                value={transactionId}
+                                onChange={(e) => setTransactionId(e.target.value)}
+                                placeholder="ট্রানজেকশন আইডি লিখুন"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                            বাতিল
+                        </Button>
+                        <Button onClick={handlePaymentSubmit} disabled={isLoading}>
+                            {isLoading ? 'প্রসেসিং...' : 'পেমেন্ট নিশ্চিত করুন'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 };
