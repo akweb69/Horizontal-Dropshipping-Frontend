@@ -52,6 +52,7 @@ const SignUpPage = () => {
           referIncome: 0,
           myStore: null,
           role: "user",
+          date: new Date().toISOString(),
 
 
         })
