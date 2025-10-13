@@ -94,7 +94,8 @@ const MembershipPage = () => {
                 paymentMethod: paymentMethod,
                 transactionId: transactionId,
                 paymentNumber: paymentNumber,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                packageStatus: 'pending'
             };
 
             const response = await fetch(`${import.meta.env.VITE_BASE_URL}/buy-package`, {

@@ -40,6 +40,7 @@ import AdminLoginPage from '@/pages/admin/AdminLoginPage';
 import ManageHomepagePage from '@/pages/admin/ManageHomepagePage';
 import CategoryProduct from './pages/CategoryProduct';
 import CartPage from './components/layout/CartPage';
+import ManagePackage from './pages/admin/ManagePackage';
 
 function App() {
   return (
@@ -99,6 +100,7 @@ function App() {
           <Route path="users" element={<ManageUsersPage />} />
           <Route path="orders" element={<ManageOrdersPage />} />
           <Route path="homepage" element={<ManageHomepagePage />} />
+          <Route path="packages" element={<ManagePackage />} />
         </Route>
 
       </Routes>
