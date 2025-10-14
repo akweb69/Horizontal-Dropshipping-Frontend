@@ -51,7 +51,7 @@ const ManagePackage = () => {
                 `${import.meta.env.VITE_BASE_URL}/buy-package/${selectedPackage._id}`,
                 { packageStatus: newStatus, email: selectedPackage.email, planName: selectedPackage.planName }
             );
-            if (response.data.modifiedCount > 0) {
+            if (response.data) {
                 // Update local state
                 setPackages(packages.map(pkg =>
                     pkg._id === selectedPackage._id ? { ...pkg, packageStatus: newStatus } : pkg
