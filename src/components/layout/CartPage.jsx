@@ -2,9 +2,10 @@ import { useAuth } from '@/context/AuthContext';
 import { Loader, Trash2, Minus, Plus, ShoppingBag, Copy } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from '@/components/ui/use-toast';
+import axios from 'axios';
 
 const CartPage = () => {
-    const { loading, cartData, fetchCart } = useAuth(); // Assumes fetchCart is available in AuthContext to refresh cart
+    const { loading, cartData, fetchCart, setCartData, user } = useAuth();
     const [quantities, setQuantities] = useState({});
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedItems, setSelectedItems] = useState(null);
@@ -106,6 +107,13 @@ const CartPage = () => {
                 method: 'DELETE',
             });
             if (res.ok) {
+                axios.get(`${import.meta.env.VITE_BASE_URL}/cart`)
+                    .then(res => {
+                        setCartData(res.data.filter(item => item.email === user.email));
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    })
                 if (fetchCart) fetchCart();
                 toast({
                     title: "সফল",
