@@ -9,7 +9,7 @@ import axios from 'axios';
 
 
 const WishlistPage = () => {
-  const { loveData, loading, user } = useAuth();
+  const { loveData, loading, user, setCartData } = useAuth();
   const [wishlistItems, setWishlistItems] = useState([]);
 
 
@@ -34,35 +34,42 @@ const WishlistPage = () => {
       title: "Successfully added to cart 🚀"
     });
   };
-  // handle delete love item-->
-  const handleDelete = (itemId) => {
-    axios.delete(`${import.meta.env.VITE_BASE_URL}/love/${itemId}`)
-      .then(res => {
-        if (res.data.deletedCount > 0) {
-          axios.get(`${import.meta.env.VITE_BASE_URL}/love`)
-            .then(res => {
-              const myWishlist = res.data.filter(item => item.email === user.email);
-              setWishlistItems(myWishlist);
-              showToast();
-            })
-            .catch(err => console.error(err));
-        }
-      })
-      .catch(err => console.error(err));
+  const handleDelete = async (itemId) => {
+    try {
+      const res = await axios.delete(`${import.meta.env.VITE_BASE_URL}/love/${itemId}`);
+      if (res.data.deletedCount > 0) {
+        setWishlistItems(prev => prev.filter(item => item._id !== itemId));
+        showToast();
+
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
-  // handle add to cart-->
-  const handleAddToCart = (itemId) => {
-    axios.post(`${import.meta.env.VITE_BASE_URL}/cart`, {
-      email: user.email,
-      productId: itemId
-    })
-      .then(res => {
-        if (res.data.insertedId) {
-          showToast1();
-        }
-      })
-      .catch(err => console.error(err));
+
+  const handleAddToCart = async (itemId) => {
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/cart`, {
+        email: user.email,
+        productId: itemId
+      });
+      if (res.data.insertedId) {
+        showToast1();
+        axios.get(`${import.meta.env.VITE_BASE_URL}/cart`)
+          .then(res => {
+            setCartData(res.data.filter(item => item.email === user.email));
+          })
+          .catch(err => {
+            console.error(err);
+          })
+      } else if (res.data.message === "Already in cart") {
+        toast({ title: "এই পণ্যটি ইতিমধ্যেই কার্টে আছে 🛒" });
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
+
 
 
 
@@ -99,7 +106,7 @@ const WishlistPage = () => {
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
                       <Button
-                        onClick={() => handleAddToCart(item?._id)}
+                        onClick={() => handleAddToCart(item?.productId)}
                         disabled={parseInt(item?.stock) <= 0}
                         className="flex items-center gap-2"
                       >
