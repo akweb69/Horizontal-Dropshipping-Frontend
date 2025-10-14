@@ -59,11 +59,11 @@ const AdminDashboardPage = () => {
         const fetchData = async () => {
             try {
                 // Fetch users
-                const usersResponse = await axios.get('/users');
+                const usersResponse = await axios.get(`${import.meta.env.VITE_BASE_URL}/users`);
                 const usersCount = usersResponse?.data?.length ?? 0;
 
                 // Fetch orders
-                const ordersResponse = await axios.get('/orders');
+                const ordersResponse = await axios.get(`${import.meta.env.VITE_BASE_URL}/orders`);
                 const orders = ordersResponse?.data ?? [];
 
                 // Calculate order statistics
@@ -103,7 +103,7 @@ const AdminDashboardPage = () => {
                     ?.slice?.(0, 5)
                     ?.map(order => ({
                         id: order?._id,
-                        customer: order?.customerName ?? 'Unknown',
+                        customer: order?.email ?? 'Unknown',
                         total: order?.total ?? 0,
                         status: order?.status ?? 'Unknown'
                     })) ?? [];
