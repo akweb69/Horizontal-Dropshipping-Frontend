@@ -17,34 +17,28 @@ export const AuthProvider = ({ children }) => {
   const [cartData, setCartData] = useState([]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        const userData = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          name: firebaseUser.displayName || 'User',
-          isMember: true,
-          isAdmin: firebaseUser.email === 'a@a.com',
-          referralCode: '',
-          subscription: {
-            plan: "Starter Plan",
-            validUntil: new Date().toISOString(),
-            importsRemaining: 100,
-            importsTotal: 100,
-            storeConnected: false,
-            storeType: null
-          }
-        };
-        setUser(userData);
-
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        try {
+          setLoading(true);
+          const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/users`);
+          const userData = response.data.find(u => u.email === currentUser.email);
+          setUser(userData || null);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          setUser(null);
+        } finally {
+          setLoading(false);
+        }
       } else {
         setUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
+
 
 
 
@@ -78,26 +72,14 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  // load userdata
-  const [userData, setUserData] = useState(null);
-  useEffect(() => {
-    if (user) {
-      axios.get(`${import.meta.env.VITE_BASE_URL}/users`)
-        .then(response => {
-          setUserData(response.data.find(u => u.email === user.email));
-        })
-        .catch(error => {
-          console.error("Error fetching user data:", error);
-        });
-    }
-  }, [user]);
+
 
 
   const value = {
     user,
-    isAuthenticated: !!user,
-    isMember: userData?.isMember || false,
-    isAdmin: userData?.isAdmin || false,
+    isAuthenticated: user,
+    isMember: user?.isMember || false,
+    isAdmin: user?.isAdmin || false,
     loading,
     login,
     signup,

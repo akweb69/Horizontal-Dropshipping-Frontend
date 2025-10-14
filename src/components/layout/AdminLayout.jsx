@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const AdminSidebar = ({ isOpen, setIsOpen }) => {
-  const { logout } = useAuth();
+  const { logout, loading } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -27,7 +27,9 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { icon: ShoppingCart, label: 'অর্ডার ম্যানেজ করুন', path: '/admin/orders' },
     { icon: PackageIcon, label: 'প্যাকেজ ম্যানেজ করুন', path: '/admin/packages' },
   ];
-
+  if (loading) {
+    return null;
+  }
   return (
     <>
       <aside className={`fixed top-0 left-0 z-40 w-64 h-screen bg-gray-900 text-white border-r border-gray-700 transition-transform md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
