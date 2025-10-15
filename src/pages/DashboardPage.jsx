@@ -20,7 +20,7 @@ const salesData = [
 ];
 
 const DashboardPage = () => {
-    const { user } = useAuth();
+    const { user, setLoading, loading } = useAuth();
     const { subscription } = user;
     const { plan, validUntil } = subscription;
     const [name, setName] = useState(' ');
@@ -33,7 +33,28 @@ const DashboardPage = () => {
                 console.error(error);
             });
     }, [user?.email])
+    // load sell data
+    const [sells, setSells] = useState([]);
+    useEffect(() => {
+        axios.get(`${import.meta.env.VITE_BASE_URL}/sell-product`)
+            .then(response => {
+                if (response.data) {
+                    setSells(response.data.filter(item => item.sellarEmail === user?.email));
+                    // console.log(response.data.filter(item => item.sellarEmail === user?.email));
+                }
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Error fetching sell product data:', error);
+                setLoading(false);
+            });
+    }, [user?.email])
 
+    if (loading) {
+        return <div className="flex justify-center items-center h-screen">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
+        </div>
+    }
     return (
         <>
             <Helmet>
@@ -58,7 +79,7 @@ const DashboardPage = () => {
                     <CardContent className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 bg-primary/5 rounded-lg">
                         <div>
                             <h3 className="text-xl font-bold text-primary">{plan}</h3>
-                            <p className="text-muted-foreground">আপনার প্ল্যানটি {new Date(validUntil).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })} পর্যন্ত বৈধ।</p>
+                            <p className="text-muted-foreground">আপনার প্ল্যানটি {new Date(new Date(validUntil).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })} পর্যন্ত বৈধ।</p>
                         </div>
                         <Button asChild className="mt-4 sm:mt-0">
                             <NavLink to="/membership">প্ল্যান আপগ্রেড করুন</NavLink>
@@ -66,47 +87,38 @@ const DashboardPage = () => {
                     </CardContent>
                 </Card>
 
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     <CircleStatCard
                         title="মোট রেভিনিউ"
-                        value="৳৪,৫০,০০০"
+                        value={`৳${sells.reduce((acc, item) => acc + (item.sellPrice - item.buyPrice), 0).toLocaleString('bn-BD')}`}
                         percentage={75}
-                        description="258 অর্ডার"
+                        description={`${sells.length} অর্ডার`}
                         primaryColor="hsl(142.1 76.2% 41.2%)"
                         secondaryColor="hsl(142.1 76.2% 41.2% / 0.1)"
                         icon={<DollarSign className="h-5 w-5 text-muted-foreground" />}
                     />
                     <CircleStatCard
-                        title="মোট লাভ"
-                        value="৳১,২০,৫০০"
-                        percentage={60}
-                        description="গত মাস থেকে +১৮.৩%"
-                        primaryColor="hsl(262.1 83.3% 57.8%)"
-                        secondaryColor="hsl(262.1 83.3% 57.8% / 0.1)"
-                        icon={<DollarSign className="h-5 w-5 text-muted-foreground" />}
-                    />
-                    <CircleStatCard
                         title="মোট সেলস"
-                        value="+১২৫০"
+                        value={`৳${sells.reduce((acc, item) => acc + item.sellPrice, 0).toLocaleString('bn-BD')}`}
                         percentage={85}
-                        description="গত মাস থেকে +১৯%"
+                        description={`${sells.length} অর্ডার`}
                         primaryColor="hsl(34.9 91.6% 58.4%)"
                         secondaryColor="hsl(34.9 91.6% 58.4% / 0.1)"
                         icon={<ShoppingCart className="h-5 w-5 text-muted-foreground" />}
                     />
                     <CircleStatCard
                         title="ইম্পোর্ট করা পণ্য"
-                        value="২৩৫০"
-                        percentage={40}
-                        description="গত মাস থেকে -২%"
+                        value={`${sells.length}`}
+                        percentage={`${sells.length}`}
+                        description={`গত মাস থেকে ${sells.length} পণ্য ইম্পোর্ট করা হয়েছে।`}
                         primaryColor="hsl(217.2 91.2% 59.8%)"
                         secondaryColor="hsl(217.2 91.2% 59.8% / 0.1)"
                         icon={<Package className="h-5 w-5 text-muted-foreground" />}
                     />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                    <Card className="lg:col-span-3">
+                <div className="grid grid-cols-1 gap-6">
+                    <Card className="">
                         <CardHeader>
                             <CardTitle>বিক্রয় সারসংক্ষেপ</CardTitle>
                             <CardDescription>গত ৬ মাসের বিক্রয় ডেটা দেখুন।</CardDescription>
@@ -122,30 +134,7 @@ const DashboardPage = () => {
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
-                    <Card className="lg:col-span-2">
-                        <CardHeader>
-                            <CardTitle>সাম্প্রতিক অর্ডার</CardTitle>
-                            <CardDescription>আপনার সাম্প্রতিক ৫টি অর্ডার দেখুন।</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {[
-                                { name: "আরিফ হোসেন", email: "arif@example.com", amount: "৳২,৫০০" },
-                                { name: "সুমি আক্তার", email: "sumi@example.com", amount: "৳১,২০০" },
-                                { name: "রাকিবুল ইসলাম", email: "rakib@example.com", amount: "৳৪,৮০০" },
-                                { name: "ফারজানা চৌধুরী", email: "farzana@example.com", amount: "৳৮৫০" },
-                                { name: "ইমরান খান", email: "imran@example.com", amount: "৳৩,২০০" },
-                            ].map(order => (
-                                <div key={order.email} className="flex items-center">
-                                    <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center font-bold text-muted-foreground">{order.name.charAt(0)}</div>
-                                    <div className="ml-4 space-y-1">
-                                        <p className="text-sm font-medium leading-none">{order.name}</p>
-                                        <p className="text-sm text-muted-foreground">{order.email}</p>
-                                    </div>
-                                    <div className="ml-auto font-medium">{order.amount}</div>
-                                </div>
-                            ))}
-                        </CardContent>
-                    </Card>
+
                 </div>
             </div>
         </>
