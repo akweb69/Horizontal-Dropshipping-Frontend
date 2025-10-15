@@ -108,8 +108,8 @@ const DashboardPage = () => {
                     />
                     <CircleStatCard
                         title="ইম্পোর্ট করা পণ্য"
-                        value={`${sells.length}`}
-                        percentage={`${sells.length}`}
+                        value={`${sells.reduce((acc, item) => acc + item.buyPrice, 0).toLocaleString('bn-BD')}`}
+                        percentage={70}
                         description={`গত মাস থেকে ${sells.length} পণ্য ইম্পোর্ট করা হয়েছে।`}
                         primaryColor="hsl(217.2 91.2% 59.8%)"
                         secondaryColor="hsl(217.2 91.2% 59.8% / 0.1)"
