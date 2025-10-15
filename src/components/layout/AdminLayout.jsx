@@ -4,7 +4,8 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import {
   LayoutDashboard, Package, Users, ShoppingCart, Tag, Menu, X, LogOut, User, Home,
-  PackageIcon
+  PackageIcon,
+  DollarSignIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -26,6 +27,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { icon: Users, label: 'ব্যবহারকারী ম্যানেজ করুন', path: '/admin/users' },
     { icon: ShoppingCart, label: 'অর্ডার ম্যানেজ করুন', path: '/admin/orders' },
     { icon: PackageIcon, label: 'প্যাকেজ ম্যানেজ করুন', path: '/admin/packages' },
+    { icon: DollarSignIcon, label: 'ওয়াইথড্র ম্যানেজ করুন', path: '/admin/withdraw' },
   ];
   if (loading) {
     return null;

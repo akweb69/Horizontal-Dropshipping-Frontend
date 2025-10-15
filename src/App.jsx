@@ -41,6 +41,7 @@ import ManageHomepagePage from '@/pages/admin/ManageHomepagePage';
 import CategoryProduct from './pages/CategoryProduct';
 import CartPage from './components/layout/CartPage';
 import ManagePackage from './pages/admin/ManagePackage';
+import ManageWithdraw from './pages/admin/ManageWithdraw';
 
 function App() {
   return (
@@ -101,6 +102,7 @@ function App() {
           <Route path="orders" element={<ManageOrdersPage />} />
           <Route path="homepage" element={<ManageHomepagePage />} />
           <Route path="packages" element={<ManagePackage />} />
+          <Route path="withdraw" element={<ManageWithdraw />} />
         </Route>
 
       </Routes>
