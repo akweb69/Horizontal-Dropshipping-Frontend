@@ -24,7 +24,7 @@ const AccountSettingsPage = () => {
             description: "আপনার প্রোফাইল তথ্য সেভ করা হয়েছে। (সিমুলেটেড)",
         });
     };
-    
+
     const handlePasswordChange = (e) => {
         e.preventDefault();
         if (newPassword !== confirmPassword) {
@@ -36,7 +36,7 @@ const AccountSettingsPage = () => {
             return;
         }
         if (newPassword.length < 6) {
-             toast({
+            toast({
                 variant: "destructive",
                 title: "ত্রুটি!",
                 description: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।",
@@ -66,7 +66,7 @@ const AccountSettingsPage = () => {
                 <title>অ্যাকাউন্ট সেটিংস - LetsDropship</title>
             </Helmet>
             <div className="space-y-6">
-                 <div>
+                <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800">অ্যাকাউন্ট সেটিংস</h1>
                     <p className="text-muted-foreground">আপনার প্রোফাইল, স্টোর এবং বিলিং তথ্য পরিচালনা করুন।</p>
                 </div>
@@ -83,7 +83,7 @@ const AccountSettingsPage = () => {
                                 <CardDescription>আপনার ব্যক্তিগত তথ্য এখানে পরিবর্তন করুন।</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-8">
-                               <form onSubmit={handleProfileUpdate} className="space-y-4 max-w-lg">
+                                <form onSubmit={handleProfileUpdate} className="space-y-4 max-w-lg">
                                     <div>
                                         <Label htmlFor="name">পুরো নাম</Label>
                                         <Input id="name" value={name} onChange={e => setName(e.target.value)} />
@@ -93,23 +93,23 @@ const AccountSettingsPage = () => {
                                         <Input id="email" type="email" value={user?.email} disabled />
                                     </div>
                                     <Button type="submit">পরিবর্তন সেভ করুন</Button>
-                               </form>
-                               <form onSubmit={handlePasswordChange} className="space-y-4 max-w-lg border-t pt-8 mt-8">
+                                </form>
+                                <form onSubmit={handlePasswordChange} className="space-y-4 max-w-lg border-t pt-8 mt-8">
                                     <h3 className="text-lg font-medium">পাসওয়ার্ড পরিবর্তন করুন</h3>
                                     <div>
                                         <Label htmlFor="current_password">বর্তমান পাসওয়ার্ড</Label>
-                                        <Input id="current_password" type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required/>
+                                        <Input id="current_password" type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required />
                                     </div>
                                     <div>
                                         <Label htmlFor="new_password">নতুন পাসওয়ার্ড</Label>
-                                        <Input id="new_password" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required/>
+                                        <Input id="new_password" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required />
                                     </div>
-                                     <div>
+                                    <div>
                                         <Label htmlFor="confirm_password">নতুন পাসওয়ার্ড নিশ্চিত করুন</Label>
-                                        <Input id="confirm_password" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required/>
+                                        <Input id="confirm_password" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
                                     </div>
                                     <Button type="submit">পাসওয়ার্ড পরিবর্তন করুন</Button>
-                               </form>
+                                </form>
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -138,8 +138,8 @@ const AccountSettingsPage = () => {
                             </CardHeader>
                             <CardContent>
                                 <div className="text-center py-12 text-muted-foreground">
-                                   আপনার কোনো বিলিং ইতিহাস নেই।
-                               </div>
+                                    আপনার কোনো বিলিং ইতিহাস নেই।
+                                </div>
                             </CardContent>
                         </Card>
                     </TabsContent>
