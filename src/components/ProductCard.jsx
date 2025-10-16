@@ -8,16 +8,10 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 const ProductCard = ({ product }) => {
-  const { isMember, user, setLoveData } = useAuth();
+  const { isMember, user, setLoveData, setCartData } = useAuth();
 
-  const showToast = () => {
-    toast({
-      title: "🚧 এই ফিচারটি এখনও চালু হয়নি—তবে চিন্তা করবেন না! আপনি পরবর্তী প্রম্পটে এটি যোগ করার জন্য অনুরোধ করতে পারেন! 🚀"
-    });
-  };
-
+  // ❤️ প্রিয় তালিকায় যোগ করা
   const handleLoveClick = async (productId) => {
-    console.log(productId);
     if (!user?.email) {
       toast({
         title: "অনুগ্রহ করে লগইন করুন!",
@@ -33,10 +27,8 @@ const ProductCard = ({ product }) => {
       });
 
       if (res.data?.acknowledged) {
-        // reload loved data
         const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/love`);
         setLoveData(data);
-
         toast({
           title: "❤️ প্রিয় তালিকায় যুক্ত হয়েছে!",
           className: "bg-green-500 text-white"
@@ -48,9 +40,42 @@ const ProductCard = ({ product }) => {
         });
       }
     } catch (err) {
-      console.error(err);
       toast({
         title: "❌ কিছু সমস্যা হয়েছে!",
+        className: "bg-red-500 text-white"
+      });
+    }
+  };
+
+  // 🛒 কার্টে যোগ করার ফাংশন
+  const handleAddToCart = async (productId) => {
+    if (!user?.email) {
+      toast({
+        title: "অনুগ্রহ করে লগইন করুন!",
+        className: "bg-red-500 text-white"
+      });
+      return;
+    }
+
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/cart`, {
+        productId,
+        email: user.email,
+      });
+
+      if (res.data) {
+        // নতুন করে কার্ট ডেটা লোড
+        const data = await axios.get(`${import.meta.env.VITE_BASE_URL}/cart`);
+        console.log(data);
+        setCartData(data.data.filter(item => item.email === user.email));
+        toast({
+          title: "🛒 প্রোডাক্ট কার্টে যুক্ত হয়েছে!",
+          className: "bg-green-500 text-white"
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "❌ কার্টে যোগ করতে সমস্যা হয়েছে!",
         className: "bg-red-500 text-white"
       });
     }
@@ -94,8 +119,8 @@ const ProductCard = ({ product }) => {
       </div>
 
       {isMember ? (
-        <Button className="w-full" onClick={showToast}>
-          অর্ডার করুন
+        <Button className="w-full" onClick={() => handleAddToCart(product._id)}>
+          কার্টে যোগ করুন
         </Button>
       ) : (
         <Button asChild className="w-full bg-orange-500 hover:bg-orange-600">
