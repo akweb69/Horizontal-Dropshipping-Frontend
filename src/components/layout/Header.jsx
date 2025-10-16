@@ -103,9 +103,12 @@ const Header = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-8">
               <Link to="/" onClick={scrollToTop} className="text-3xl font-extrabold tracking-tight">
-                <span className="text-gray-900">Lets</span>
+                {/* <span className="text-gray-900">Lets</span>
                 <span className="text-red-500">Drop</span>
-                <span className="text-gray-900">ship</span>
+                <span className="text-gray-900">ship</span> */}
+                <img
+                  className='max-h-16'
+                  src="https://i.ibb.co.com/LzRbfxn4/Gemini-Generated-Image-76ulpp76ulpp76ul-removebg-preview.png" alt="" />
               </Link>
             </div>
 
