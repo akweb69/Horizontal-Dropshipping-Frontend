@@ -9,7 +9,7 @@ import axios from 'axios';
 
 
 const WishlistPage = () => {
-  const { loveData, loading, user, setCartData } = useAuth();
+  const { loveData, loading, user, setCartData, setLoveData } = useAuth();
   const [wishlistItems, setWishlistItems] = useState([]);
 
 
@@ -38,7 +38,15 @@ const WishlistPage = () => {
     try {
       const res = await axios.delete(`${import.meta.env.VITE_BASE_URL}/love/${itemId}`);
       if (res.data.deletedCount > 0) {
-        setWishlistItems(prev => prev.filter(item => item._id !== itemId));
+        axios.get(`${import.meta.env.VITE_BASE_URL}/love`)
+          .then(res => {
+            console.log(res.data);
+            console.log(user?.email);
+            setLoveData(res.data.filter(item => item.email === user?.email));
+          })
+          .catch(err => {
+            console.log(err);
+          })
         showToast();
 
       }
