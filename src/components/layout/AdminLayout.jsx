@@ -5,7 +5,8 @@ import { useAuth } from '@/context/AuthContext';
 import {
   LayoutDashboard, Package, Users, ShoppingCart, Tag, Menu, X, LogOut, User, Home,
   PackageIcon,
-  DollarSignIcon
+  DollarSignIcon,
+  LucideDollarSign
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -28,6 +29,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { icon: ShoppingCart, label: 'অর্ডার ম্যানেজ করুন', path: '/admin/orders' },
     { icon: PackageIcon, label: 'প্যাকেজ ম্যানেজ করুন', path: '/admin/packages' },
     { icon: DollarSignIcon, label: 'ওয়াইথড্র ম্যানেজ করুন', path: '/admin/withdraw' },
+    { icon: LucideDollarSign, label: 'বিলিং ম্যানেজ করুন', path: '/admin/billing' },
   ];
   if (loading) {
     return null;
