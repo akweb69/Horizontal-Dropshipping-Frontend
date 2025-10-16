@@ -26,9 +26,9 @@ const ProductCard = ({ product }) => {
         email: user.email
       });
 
-      if (res.data?.acknowledged) {
-        const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/love`);
-        setLoveData(data);
+      if (res.data.acknowledged) {
+        const data = await axios.get(`${import.meta.env.VITE_BASE_URL}/love`);
+        setLoveData(data.data.filter(item => item.email === user.email));
         toast({
           title: "❤️ প্রিয় তালিকায় যুক্ত হয়েছে!",
           className: "bg-green-500 text-white"
