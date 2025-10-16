@@ -140,9 +140,9 @@ const CartPage = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!confirm('আপনি কি এই পণ্যটি কার্ট থেকে মুছে ফেলতে চান?')) {
-            return;
-        }
+        // if (!confirm('আপনি কি এই পণ্যটি কার্ট থেকে মুছে ফেলতে চান?')) {
+        //     return;
+        // }
 
         try {
             const res = await fetch(`${import.meta.env.VITE_BASE_URL}/cart/${id}`, {
@@ -150,7 +150,16 @@ const CartPage = () => {
             });
 
             if (res.ok) {
-                if (fetchCart) await fetchCart();
+                axios.get(`${import.meta.env.VITE_BASE_URL}/cart`)
+                    .then(res => {
+                        console.log(res.data);
+                        console.log(user?.email);
+                        setCartData(res.data.filter(item => item.email === user?.email));
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    })
+
                 toast({
                     title: "✅ সফল",
                     description: "পণ্য কার্ট থেকে মুছে ফেলা হয়েছে।",
