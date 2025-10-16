@@ -385,148 +385,236 @@ const MembershipPage = () => {
                 </div>
             </div>
 
+            {/* Enhanced Payment Dialog */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl">পেমেন্ট সম্পন্ন করুন</DialogTitle>
-                    </DialogHeader>
+                <DialogContent className="sm:max-w-lg md:max-w-3xl w-full max-h-[95vh] overflow-y-scroll bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+                    {/* Custom Header */}
+                    <div className="bg-gradient-to-r from-orange-600 to-red-600 text-white p-6 rounded-t-2xl relative overflow-hidden">
+                        <div className="absolute inset-0 bg-black/10"></div>
+                        <div className="relative z-10 flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                                <div className="p-2 bg-white/20 rounded-full">
+                                    <Star className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold">💳 মেম্বারশিপ পেমেন্ট সম্পন্ন করুন</h2>
+                                    <p className="text-orange-100 text-sm opacity-90">আপনার ব্যবসাকে পরবর্তী স্তরে নিয়ে যান</p>
+                                </div>
+                            </div>
+                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center animate-pulse">
+                                <CheckCircle className="w-8 h-8" />
+                            </div>
+                        </div>
+                    </div>
 
-                    <div className="space-y-4 py-4">
-                        {/* Payment Numbers Section */}
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                            <h3 className="font-semibold mb-2 text-gray-800">আমাদের পেমেন্ট নাম্বার:</h3>
+                    <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(95vh-200px)]">
+                        {/* Payment Info Card */}
+                        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-orange-100 shadow-xl hover:shadow-2xl transition-all duration-300">
+                            <div className="flex items-center mb-4">
+                                <div className="p-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl">
+                                    <Gift className="w-5 h-5 text-white" />
+                                </div>
+                                <h3 className="ml-3 font-bold text-lg text-gray-800">আমাদের পেমেন্ট নাম্বার</h3>
+                            </div>
+
                             {isPaymentInfoLoading ? (
-                                <div className="text-center py-4">লোড হচ্ছে...</div>
+                                <div className="text-center py-4">
+                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500 mx-auto mb-2"></div>
+                                    <p className="text-gray-500">লোড হচ্ছে...</p>
+                                </div>
                             ) : adminPaymentNumber ? (
-                                <>
-                                    <div className="flex items-center justify-between py-2 border-b">
-                                        <span className="text-sm">বিকাশ:</span>
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-mono text-sm">{adminPaymentNumber.bkashNumber}</span>
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={() => navigator.clipboard.writeText(adminPaymentNumber.bkashNumber)}
-                                                className="h-6 w-6 p-0"
-                                            >
-                                                <Copy className="w-3 h-3" />
-                                            </Button>
+                                <div className="space-y-4">
+                                    <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-xl border-l-4 border-blue-500">
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-semibold text-blue-800 flex items-center">🟢 bKash</span>
+                                            <div className="flex items-center bg-white px-3 py-2 rounded-lg shadow-sm">
+                                                <span className="font-mono text-sm font-bold text-gray-700 mr-2">
+                                                    {adminPaymentNumber.bkashNumber}
+                                                </span>
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() => navigator.clipboard.writeText(adminPaymentNumber.bkashNumber)}
+                                                    className="h-8 w-8 p-0 bg-blue-600 hover:bg-blue-700 text-white"
+                                                >
+                                                    <Copy className="w-4 h-4" />
+                                                </Button>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center justify-between py-2">
-                                        <span className="text-sm">নগদ:</span>
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-mono text-sm">{adminPaymentNumber.nagadNumber}</span>
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={() => navigator.clipboard.writeText(adminPaymentNumber.nagadNumber)}
-                                                className="h-6 w-6 p-0"
-                                            >
-                                                <Copy className="w-3 h-3" />
-                                            </Button>
+
+                                    <div className="bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-xl border-l-4 border-orange-500">
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-semibold text-orange-800 flex items-center">🔴 Nagad</span>
+                                            <div className="flex items-center bg-white px-3 py-2 rounded-lg shadow-sm">
+                                                <span className="font-mono text-sm font-bold text-gray-700 mr-2">
+                                                    {adminPaymentNumber.nagadNumber}
+                                                </span>
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() => navigator.clipboard.writeText(adminPaymentNumber.nagadNumber)}
+                                                    className="h-8 w-8 p-0 bg-orange-600 hover:bg-orange-700 text-white"
+                                                >
+                                                    <Copy className="w-4 h-4" />
+                                                </Button>
+                                            </div>
                                         </div>
                                     </div>
-                                    <p className="text-xs text-gray-500 mt-2">
-                                        📱 "Send Money" অপশন ব্যবহার করে পেমেন্ট করুন
-                                    </p>
-                                </>
+
+                                    <div className="mt-4 p-3 bg-yellow-50 rounded-xl border border-yellow-200">
+                                        <p className="text-sm text-yellow-800 flex items-center">
+                                            📱 <span className="ml-2">"Send Money" অপশন ব্যবহার করে পেমেন্ট করুন এবং TxID সংরক্ষণ করুন</span>
+                                        </p>
+                                    </div>
+                                </div>
                             ) : (
-                                <div className="text-red-500 text-sm">পেমেন্ট তথ্য লোড করা যায়নি</div>
+                                <div className="text-center py-4 text-red-500 bg-red-50 p-3 rounded-lg">
+                                    ❌ পেমেন্ট তথ্য লোড করা যায়নি
+                                </div>
                             )}
                         </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="plan">নির্বাচিত প্ল্যান</Label>
-                            <Input id="plan" value={selectedPlan?.name || ''} readOnly className="bg-gray-50" />
+                        {/* Selected Plan & Amount Summary Card */}
+                        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-2xl border border-emerald-200 shadow-lg">
+                            <div className="flex items-center mb-4">
+                                <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl">
+                                    <Package className="w-5 h-5 text-white" />
+                                </div>
+                                <h3 className="ml-3 font-bold text-lg text-gray-800">📋 নির্বাচিত প্ল্যান তথ্য</h3>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <div className="bg-white p-4 rounded-xl shadow-inner">
+                                    <Label className="text-sm font-semibold text-gray-600 mb-2 block">প্ল্যানের নাম</Label>
+                                    <Input
+                                        value={selectedPlan?.name || ''}
+                                        readOnly
+                                        className="bg-gray-50 border-gray-200 text-lg font-semibold text-gray-800"
+                                    />
+                                </div>
+                                <div className="bg-white p-4 rounded-xl shadow-inner">
+                                    <Label className="text-sm font-semibold text-gray-600 mb-2 block">পরিমাণ</Label>
+                                    <div className="text-center space-y-2">
+                                        <p className="text-3xl font-bold text-emerald-600">৳{amount}</p>
+                                        <p className="text-xs text-gray-500">/বছর</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="amount">পরিমাণ</Label>
-                            <Input id="amount" value={`৳${amount}`} readOnly className="bg-gray-50" />
-                        </div>
+                        {/* Payment Method Selection */}
+                        <div className="bg-white p-5 rounded-2xl shadow-lg border border-gray-200">
+                            <Label className="text-sm font-semibold text-gray-700 mb-3 block flex items-center">
+                                💰 পেমেন্ট পদ্ধতি নির্বাচন করুন
+                            </Label>
+                            <div className="grid grid-cols-2 gap-3 mb-4">
+                                <button
+                                    onClick={() => setPaymentMethod('bKash')}
+                                    className={`p-4 rounded-xl border-2 transition-all duration-300 flex items-center space-x-3 ${paymentMethod === 'bKash'
+                                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg transform scale-105'
+                                        : 'bg-gray-50 hover:bg-blue-50 border-gray-200 hover:border-blue-300'
+                                        }`}
+                                    disabled={isPaymentInfoLoading}
+                                >
+                                    <div className={`w-3 h-3 rounded-full border-2 ${paymentMethod === 'bKash' ? 'bg-white border-white' : 'bg-transparent border-gray-400'
+                                        }`}></div>
+                                    <span className="font-semibold">bKash</span>
+                                </button>
+                                <button
+                                    onClick={() => setPaymentMethod('Nagad')}
+                                    className={`p-4 rounded-xl border-2 transition-all duration-300 flex items-center space-x-3 ${paymentMethod === 'Nagad'
+                                        ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg transform scale-105'
+                                        : 'bg-gray-50 hover:bg-orange-50 border-gray-200 hover:border-orange-300'
+                                        }`}
+                                    disabled={isPaymentInfoLoading}
+                                >
+                                    <div className={`w-3 h-3 rounded-full border-2 ${paymentMethod === 'Nagad' ? 'bg-white border-white' : 'bg-transparent border-gray-400'
+                                        }`}></div>
+                                    <span className="font-semibold">Nagad</span>
+                                </button>
+                            </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="paymentMethod">পেমেন্ট পদ্ধতি</Label>
-                            <select
-                                id="paymentMethod"
-                                value={paymentMethod}
-                                onChange={(e) => setPaymentMethod(e.target.value)}
-                                className="w-full border border-gray-300 rounded-lg py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
-                                disabled={isPaymentInfoLoading}
-                            >
-                                <option value="">পেমেন্ট পদ্ধতি নির্বাচন করুন</option>
-                                <option value="bKash">bKash</option>
-                                <option value="Nagad">Nagad</option>
-                            </select>
-                            {paymentMethod && (
+                            {paymentMethod && adminPaymentNumber && (
                                 <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
                                     onClick={copyPaymentNumber}
-                                    className="mt-1"
-                                    disabled={!adminPaymentNumber}
+                                    className="w-full bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 border-gray-300 text-gray-700 font-semibold"
                                 >
-                                    📋 নাম্বার কপি করুন
+                                    📋 {getPaymentNumberForMethod().slice(0, 4)}**** নাম্বার কপি করুন
                                 </Button>
                             )}
                         </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="paymentRef">পেমেন্ট রেফারেন্স নাম্বার</Label>
-                            <Input
-                                id="paymentRef"
-                                value={paymentNumber}
-                                onChange={(e) => setPaymentNumber(e.target.value)}
-                                placeholder="Send Money এর পর পাওয়া রেফারেন্স নাম্বার"
-                                className="text-sm"
-                            />
-                            <p className="text-xs text-gray-500">
-                                Send Money করার সময় পাওয়া রেফারেন্স নাম্বার লিখুন
-                            </p>
-                        </div>
+                        {/* Payment Details Form */}
+                        <div className="space-y-4">
+                            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                                <Label htmlFor="paymentRef" className="text-sm font-semibold text-gray-700 mb-2 block flex items-center">
+                                    🔗 পেমেন্ট রেফারেন্স নাম্বার
+                                </Label>
+                                <Input
+                                    id="paymentRef"
+                                    value={paymentNumber}
+                                    onChange={(e) => setPaymentNumber(e.target.value)}
+                                    placeholder="Send Money এর পর পাওয়া রেফারেন্স নাম্বার"
+                                    className="text-lg p-4 border-2 border-gray-200 focus:border-orange-500 rounded-xl"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">Send Money করার সময় পাওয়া রেফারেন্স নাম্বার লিখুন</p>
+                            </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="transactionId">ট্রানজেকশন আইডি</Label>
-                            <Input
-                                id="transactionId"
-                                value={transactionId}
-                                onChange={(e) => setTransactionId(e.target.value)}
-                                placeholder="ট্রানজেকশন আইডি (১৬ অঙ্কের)"
-                                className="text-sm"
-                            />
-                            <p className="text-xs text-gray-500">
-                                bKash/Nagad থেকে পাওয়া ১৬ অঙ্কের ট্রানজেকশন আইডি
-                            </p>
+                            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                                <Label htmlFor="transactionId" className="text-sm font-semibold text-gray-700 mb-2 block flex items-center">
+                                    🔑 ট্রানজেকশন আইডি
+                                </Label>
+                                <Input
+                                    id="transactionId"
+                                    value={transactionId}
+                                    onChange={(e) => setTransactionId(e.target.value)}
+                                    placeholder="ট্রানজেকশন আইডি (১৬ অঙ্কের)"
+                                    className="text-lg p-4 border-2 border-gray-200 focus:border-green-500 rounded-xl"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">bKash/Nagad থেকে পাওয়া ১৬ অঙ্কের ট্রানজেকশন আইডি</p>
+                            </div>
                         </div>
                     </div>
 
-                    <DialogFooter className="gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={handleCloseModal}
-                            disabled={isLoading}
-                        >
-                            বাতিল
-                        </Button>
-                        <Button
-                            onClick={handlePaymentSubmit}
-                            disabled={isLoading || !paymentMethod}
-                            className="flex-1"
-                        >
-                            {isLoading ? (
-                                <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                    প্রসেসিং...
-                                </>
-                            ) : (
-                                'পেমেন্ট নিশ্চিত করুন'
-                            )}
-                        </Button>
-                    </DialogFooter>
+                    {/* Enhanced Footer */}
+                    <div className="bg-white/80 backdrop-blur-sm px-6 py-4 border-t border-gray-200 rounded-b-2xl">
+                        <div className="flex gap-3">
+                            <Button
+                                variant="outline"
+                                onClick={handleCloseModal}
+                                disabled={isLoading}
+                                className="flex-1 h-12 text-gray-700 border-gray-300 hover:bg-gray-50 rounded-xl font-semibold"
+                            >
+                                ❌ বাতিল করুন
+                            </Button>
+                            <Button
+                                onClick={handlePaymentSubmit}
+                                disabled={isLoading || !paymentMethod}
+                                className="flex-1 h-12 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center space-x-2"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                        <span>প্রসেসিং...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <CheckCircle className="w-5 h-5" />
+                                        <span>পেমেন্ট নিশ্চিত করুন</span>
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                        <p className="text-xs text-gray-500 text-center mt-2">
+                            🔒 আপনার তথ্য সম্পূর্ণ নিরাপদে সংরক্ষিত হবে
+                        </p>
+                    </div>
                 </DialogContent>
             </Dialog>
         </>
