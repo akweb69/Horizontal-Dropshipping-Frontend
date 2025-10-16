@@ -10,7 +10,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 const CartPage = () => {
-    const { loading, cartData, setCartData, user } = useAuth();
+    const { loading, cartData, setCartData, user, fetchCart } = useAuth();
     const [quantities, setQuantities] = useState({});
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedItems, setSelectedItems] = useState(null);
