@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
 import { Heart, ShoppingCart, User, LogOut, LayoutDashboard } from 'lucide-react';
@@ -14,6 +14,7 @@ const Header = () => {
   const { openSearch } = useSearch();
   const { isAuthenticated, user, logout, loveData, setLoveData, loading, cartData, setCartData } = useAuth();
   const navigate = useNavigate();
+  const [runningLogo, setRunningLogo] = useState('');
 
   useEffect(() => {
     // load love data
@@ -30,6 +31,14 @@ const Header = () => {
     axios.get(`${import.meta.env.VITE_BASE_URL}/cart`)
       .then(res => {
         setCartData(res.data.filter(item => item.email === user?.email));
+      })
+      .catch(err => {
+        console.log(err);
+      })
+    // load logo
+    axios.get(`${import.meta.env.VITE_BASE_URL}/website-logo`)
+      .then(res => {
+        setRunningLogo(res.data.logo);
       })
       .catch(err => {
         console.log(err);
@@ -108,7 +117,7 @@ const Header = () => {
                 <span className="text-gray-900">ship</span> */}
                 <img
                   className='max-h-16'
-                  src="https://i.ibb.co.com/LzRbfxn4/Gemini-Generated-Image-76ulpp76ulpp76ul-removebg-preview.png" alt="" />
+                  src={runningLogo} alt="" />
               </Link>
             </div>
 
