@@ -30,6 +30,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { icon: PackageIcon, label: 'প্যাকেজ ম্যানেজ করুন', path: '/admin/packages' },
     { icon: DollarSignIcon, label: 'ওয়াইথড্র ম্যানেজ করুন', path: '/admin/withdraw' },
     { icon: LucideDollarSign, label: 'বিলিং ম্যানেজ করুন', path: '/admin/billing' },
+    { icon: User, label: 'ওয়েবসাইট ডাটা ম্যানেজ করুন', path: '/admin/webdata' },
   ];
   if (loading) {
     return null;
