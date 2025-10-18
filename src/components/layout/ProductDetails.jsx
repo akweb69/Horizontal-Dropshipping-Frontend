@@ -1,13 +1,15 @@
 import axios from "axios";
-import { Loader, Copy, Download } from "lucide-react";
+import { Loader, Copy, Download, Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import { useAuth } from "@/context/AuthContext";
 
 const ProductDetails = () => {
     const { id } = useParams();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState({});
+    const { user, setLoveData, setCartData } = useAuth();
 
     // ✅ Load product data by ID
     useEffect(() => {
@@ -15,8 +17,9 @@ const ProductDetails = () => {
             try {
                 setLoading(true);
                 const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/products`);
-                setData(res.data.find(item => item._id === id) || {});
-                console.log(res.data.find(item => item._id === id));
+                const found = res.data.find((item) => item._id === id);
+                setData(found || {});
+                if (!found) toast.warning("Product not found");
             } catch (error) {
                 console.error(error);
                 toast.error("Failed to load product details");
@@ -24,11 +27,10 @@ const ProductDetails = () => {
                 setLoading(false);
             }
         };
-
         fetchProduct();
     }, [id]);
 
-    // ✅ Handle thumbnail download
+    // ✅ Download product thumbnail
     const handleDownload = async () => {
         try {
             const response = await fetch(data.thumbnail);
@@ -41,14 +43,14 @@ const ProductDetails = () => {
             link.click();
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
-            toast.success("Thumbnail downloaded successfully");
+            toast.success("Thumbnail downloaded successfully!");
         } catch (error) {
             console.error(error);
             toast.error("Failed to download thumbnail");
         }
     };
 
-    // ✅ Handle copy product details
+    // ✅ Copy product details
     const handleCopy = () => {
         const details = `
 Name: ${data.name}
@@ -63,25 +65,61 @@ Total Sales: ${data.totalSell}
 
         navigator.clipboard
             .writeText(details)
-            .then(() => toast.success("Product details copied to clipboard"))
-            .catch(() => toast.error("Failed to copy product details"));
+            .then(() => toast.success("Product details copied!"))
+            .catch(() => toast.error("Failed to copy details"));
     };
 
-    // ✅ Handle Add to Cart
-    const handleAddToCart = async () => {
+    // ❤️ Add to Wishlist
+    const handleLoveClick = async (productId) => {
+        if (!user?.email) {
+            toast.warning("অনুগ্রহ করে লগইন করুন!");
+            return;
+        }
+
         try {
-            await axios.post(`${import.meta.env.VITE_BASE_URL}/cart`, {
-                productId: id,
-                quantity: 1,
+            const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/love`, {
+                productId,
+                email: user.email,
             });
-            toast.success("Added to cart successfully");
+
+            if (res.data?.acknowledged) {
+                const loveRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/love`);
+                setLoveData(loveRes.data.filter((item) => item.email === user.email));
+                toast.success("❤️ প্রিয় তালিকায় যুক্ত হয়েছে!");
+            } else if (res.data?.message === "Already in favorites") {
+                toast.info("⚠️ ইতিমধ্যেই প্রিয় তালিকায় আছে!");
+            }
         } catch (error) {
             console.error(error);
-            toast.error("Failed to add to cart");
+            toast.error("❌ কিছু সমস্যা হয়েছে!");
         }
     };
 
-    // ✅ Loading State
+    // 🛒 Add to Cart
+    const handleAddToCart = async (productId) => {
+        if (!user?.email) {
+            toast.warning("অনুগ্রহ করে লগইন করুন!");
+            return;
+        }
+
+        try {
+            const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/cart`, {
+                productId,
+                email: user.email,
+            });
+
+            if (res.data) {
+                const cartRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/cart`);
+                setCartData(cartRes.data.filter((item) => item.email === user.email));
+                toast.success("🛒 প্রোডাক্ট কার্টে যুক্ত হয়েছে!");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("❌ কার্টে যোগ করতে সমস্যা হয়েছে!");
+        }
+    };
+
+    // ✅ Loading
     if (loading) {
         return (
             <div className="flex w-full min-h-[80vh] items-center justify-center">
@@ -99,11 +137,12 @@ Total Sales: ${data.totalSell}
         );
     }
 
+    // ✅ Main UI
     return (
         <div className="container mx-auto px-4 py-8 max-w-7xl">
-            <ToastContainer />
+            <ToastContainer position="top-center" autoClose={2500} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-                {/* ✅ Product Image Section */}
+                {/* 🖼️ Product Image Section */}
                 <div className="relative">
                     <img
                         src={data.thumbnail}
@@ -120,7 +159,7 @@ Total Sales: ${data.totalSell}
                     </button>
                 </div>
 
-                {/* ✅ Product Details Section */}
+                {/* 📄 Product Details Section */}
                 <div className="space-y-6">
                     <div className="flex justify-between items-start">
                         <h1 className="text-3xl font-bold text-gray-800">{data.name}</h1>
@@ -162,16 +201,19 @@ Total Sales: ${data.totalSell}
                         </div>
                     </div>
 
-                    {/* ✅ Action Buttons */}
+                    {/* ⚙️ Action Buttons */}
                     <div className="flex flex-wrap gap-4">
                         <button
-                            onClick={handleAddToCart}
+                            onClick={() => handleAddToCart(data._id)}
                             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                         >
                             Add to Cart
                         </button>
-                        <button className="border border-gray-300 px-6 py-2 rounded-lg hover:bg-gray-100 transition-colors">
-                            Add to Wishlist
+                        <button
+                            onClick={() => handleLoveClick(data._id)}
+                            className="border border-gray-300 px-6 py-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-2"
+                        >
+                            <Heart size={18} /> Add to Wishlist
                         </button>
                     </div>
                 </div>
