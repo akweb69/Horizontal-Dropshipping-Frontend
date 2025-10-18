@@ -100,106 +100,115 @@ const SignUpPage = () => {
         <title>সাইন আপ - LetsDropship</title>
         <meta name="description" content="একটি নতুন অ্যাকাউন্ট তৈরি করুন এবং আমাদের সাথে আপনার যাত্রা শুরু করুন।" />
       </Helmet>
-      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center bg-slate-50 p-4">
-        <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-lg">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-800 mt-4">নতুন অ্যাকাউন্ট তৈরি করুন</h1>
-            <p className="text-gray-600">আমাদের কমিউনিটিতে যোগ দিন!</p>
+      <div className="grid md:grid-cols-5 items-center min-h-[80vh]">
+        <div className="col-span-3 w-full h-full">
+          <img
+            className='w-full h-full object-cover'
+            src="https://i.ibb.co.com/0VrsnRK6/young-women-are-happy-shopping-with-many-bags-of-many-colors-free-photo.jpg" alt="" />
+        </div>
+        <div className="col-span-2">
+          <div className="min-h-[95vh] flex items-center justify-center p-4">
+            <div className="max-w-md w-full bg-white p-8 rounded-2xl ">
+              <div className="text-center mb-8">
+                <h1 className="text-2xl font-bold text-gray-800 mt-4">নতুন অ্যাকাউন্ট তৈরি করুন</h1>
+                <p className="text-gray-600">আমাদের কমিউনিটিতে যোগ দিন!</p>
+              </div>
+
+              <form onSubmit={handleSignUp} className="space-y-6">
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    placeholder="আপনার পুরো নাম"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  />
+                </div>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="আপনার ইমেইল"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  />
+                </div>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="আপনার ফোন নম্বর"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  />
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="নতুন পাসওয়ার্ড"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  />
+                </div>
+                <div className="flex items-start">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="terms"
+                      name="terms"
+                      type="checkbox"
+                      required
+                      className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                    />
+                  </div>
+                  <div className="ml-3 text-sm">
+                    <label htmlFor="terms" className="text-gray-600">
+                      আমি{' '}
+                      <button
+                        type="button"
+                        onClick={() => toast({ title: "🚧 এই ফিচারটি এখনও চালু হয়নি।" })}
+                        className="font-medium text-orange-600 hover:underline"
+                      >
+                        শর্তাবলী
+                      </button>{' '}
+                      এর সাথে একমত
+                    </label>
+                  </div>
+                </div>
+                <Button
+                  size="lg"
+                  className="w-full flex items-center justify-center gap-2"
+                  type="submit"
+                >
+                  <UserPlus className="w-5 h-5" />
+                  সাইন আপ
+                </Button>
+              </form>
+
+              <p className="mt-8 text-center text-sm text-gray-600">
+                ইতিমধ্যে একটি অ্যাকাউন্ট আছে?{' '}
+                <Link to={`/login?redirect=${from}`} className="font-semibold text-orange-600 hover:underline">
+                  লগইন করুন
+                </Link>
+              </p>
+            </div>
           </div>
-
-          <form onSubmit={handleSignUp} className="space-y-6">
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="আপনার পুরো নাম"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="আপনার ইমেইল"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                placeholder="আপনার ফোন নম্বর"
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="নতুন পাসওয়ার্ড"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-            <div className="flex items-start">
-              <div className="flex items-center h-5">
-                <input
-                  id="terms"
-                  name="terms"
-                  type="checkbox"
-                  required
-                  className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
-                />
-              </div>
-              <div className="ml-3 text-sm">
-                <label htmlFor="terms" className="text-gray-600">
-                  আমি{' '}
-                  <button
-                    type="button"
-                    onClick={() => toast({ title: "🚧 এই ফিচারটি এখনও চালু হয়নি।" })}
-                    className="font-medium text-orange-600 hover:underline"
-                  >
-                    শর্তাবলী
-                  </button>{' '}
-                  এর সাথে একমত
-                </label>
-              </div>
-            </div>
-            <Button
-              size="lg"
-              className="w-full flex items-center justify-center gap-2"
-              type="submit"
-            >
-              <UserPlus className="w-5 h-5" />
-              সাইন আপ
-            </Button>
-          </form>
-
-          <p className="mt-8 text-center text-sm text-gray-600">
-            ইতিমধ্যে একটি অ্যাকাউন্ট আছে?{' '}
-            <Link to={`/login?redirect=${from}`} className="font-semibold text-orange-600 hover:underline">
-              লগইন করুন
-            </Link>
-          </p>
         </div>
       </div>
     </>
