@@ -83,14 +83,14 @@ const ProductCard = ({ product }) => {
 
   // প্রোডাক্টের বিস্তারিত পেজে নেভিগেট করার ফাংশন
   const navigetee = useNavigate()
-  const handleProductDetails = (product) => {
-    navigetee(`/product/${product}`)
+  const handleProductDetails = (productId) => {
+    navigetee(`/product/${productId}`)
 
   };
 
   return (
     <motion.div
-      onClick={() => handleProductDetails(product)}
+      onClick={() => handleProductDetails(product._id)}
       className="bg-white cursor-pointer rounded-lg card-shadow p-4 transition-all duration-300 hover:scale-105 relative"
       whileHover={{ y: -2 }}
     >
