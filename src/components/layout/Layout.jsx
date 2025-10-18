@@ -3,7 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
-import FloatingActionButtons from '@/components/FloatingActionButtons';
+// import FloatingActionButtons from '@/components/FloatingActionButtons';
 
 const Layout = () => {
   const location = useLocation();
@@ -29,7 +29,7 @@ const Layout = () => {
       </main>
       <Footer />
       <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
-      <FloatingActionButtons />
+      {/* <FloatingActionButtons /> */}
     </div>
   );
 };
