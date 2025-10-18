@@ -88,14 +88,8 @@ const ContactPage = () => {
                 </div>
               </div>
               <div className="mt-8">
-                <iframe
-                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${contactInfo?.mapBbox}&layer=mapnik&marker=${contactInfo?.mapMarker}`}
-                  className="w-full h-64 rounded-xl border-0"
-                  allowFullScreen=""
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="অফিসের অবস্থান"
-                ></iframe>
+                <h3 className="font-semibold">অফিসের অবস্থান</h3>
+                <p className="text-gray-600">{contactInfo?.location || 'অনুগ্রহ করে আমাদের সাথে যোগাযোগ করুন।'}</p>
               </div>
             </div>
 
