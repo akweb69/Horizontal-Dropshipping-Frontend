@@ -104,7 +104,7 @@ const SignUpPage = () => {
         <div className="col-span-3 w-full h-full">
           <img
             className='w-full h-full object-cover'
-            src="https://i.ibb.co.com/0VrsnRK6/young-women-are-happy-shopping-with-many-bags-of-many-colors-free-photo.jpg" alt="" />
+            src="https://i.ibb.co.com/Y7Jp5QFH/stock-photo-smiling-stylish-asian-woman-shopping-bags-yellow-background.webp" alt="" />
         </div>
         <div className="col-span-2">
           <div className="min-h-[95vh] flex items-center justify-center p-4">

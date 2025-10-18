@@ -37,7 +37,7 @@ const HomePage = () => {
 
   if (!loading && !loading1) {
     if (!user && !user?.email) {
-      navigate('/login');
+      navigate('/signup');
     }
   }
   return (
