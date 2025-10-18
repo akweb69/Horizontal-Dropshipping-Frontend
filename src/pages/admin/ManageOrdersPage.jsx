@@ -62,7 +62,7 @@ const ManageOrdersPage = () => {
         id: order._id,
         customer: order.email || "Unknown Customer",
         date: order.order_date,
-        total: order.total || order.amount,
+        total: order.grand_total || order.amount,
         status: order.status,
         payment_method: order.payment_method,
         payment_number: order.payment_number,
@@ -76,6 +76,7 @@ const ManageOrdersPage = () => {
             subtotal: order.total,
           },
         ],
+        delivery_details: order.delivery_details,
       }));
       setOrders(formattedOrders);
     } catch (error) {
@@ -143,46 +144,46 @@ const ManageOrdersPage = () => {
         <title>অর্ডার ম্যানেজ করুন - অ্যাডমিন</title>
       </Helmet>
 
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card className="shadow-lg border rounded-2xl overflow-hidden">
-          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gradient-to-r from-slate-50 to-slate-100 p-4 sm:p-6">
-            <CardTitle className="text-xl sm:text-2xl font-semibold text-slate-800">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <Card className="shadow-xl border border-gray-100 rounded-3xl overflow-hidden bg-white">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
+            <CardTitle className="text-2xl sm:text-3xl font-bold text-gray-900">
               অর্ডার ম্যানেজমেন্ট
             </CardTitle>
-            <div className="relative w-full sm:w-64 md:w-72">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <div className="relative w-full sm:w-80">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input
                 type="search"
-                placeholder="অর্ডার খুঁজুন..."
-                className="pl-8 text-sm sm:text-base"
+                placeholder="অর্ডার আইডি বা গ্রাহকের নাম দিয়ে খুঁজুন..."
+                className="pl-10 py-2 text-sm rounded-lg border-gray-200 focus:ring-2 focus:ring-indigo-500 transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </CardHeader>
 
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-6">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-10 text-slate-500">
-                <Loader2 className="h-6 w-6 animate-spin mb-2" />
-                <p>অর্ডার লোড হচ্ছে...</p>
+              <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                <Loader2 className="h-8 w-8 animate-spin mb-3" />
+                <p className="text-lg">অর্ডার লোড হচ্ছে...</p>
               </div>
             ) : filteredOrders.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-slate-500">
-                <PackageSearch className="h-10 w-10 mb-2" />
-                <p>কোন অর্ডার পাওয়া যায়নি।</p>
+              <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                <PackageSearch className="h-12 w-12 mb-3" />
+                <p className="text-lg">কোন অর্ডার পাওয়া যায়নি।</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-xs sm:text-sm">অর্ডার আইডি</TableHead>
-                      <TableHead className="text-xs sm:text-sm">গ্রাহক</TableHead>
-                      <TableHead className="text-xs sm:text-sm">তারিখ</TableHead>
-                      <TableHead className="text-xs sm:text-sm">মোট (৳)</TableHead>
-                      <TableHead className="text-xs sm:text-sm">স্ট্যাটাস</TableHead>
-                      <TableHead className="text-right text-xs sm:text-sm">অ্যাকশন</TableHead>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="text-sm font-semibold text-gray-700">অর্ডার আইডি</TableHead>
+                      <TableHead className="text-sm font-semibold text-gray-700">গ্রাহক</TableHead>
+                      <TableHead className="text-sm font-semibold text-gray-700">তারিখ</TableHead>
+                      <TableHead className="text-sm font-semibold text-gray-700">মোট (৳)</TableHead>
+                      <TableHead className="text-sm font-semibold text-gray-700">স্ট্যাটাস</TableHead>
+                      <TableHead className="text-right text-sm font-semibold text-gray-700">অ্যাকশন</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -190,58 +191,60 @@ const ManageOrdersPage = () => {
                       {filteredOrders.map((order) => (
                         <motion.tr
                           key={order?._id}
-                          initial={{ opacity: 0, y: 10 }}
+                          initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
+                          exit={{ opacity: 0, y: -20 }}
                           transition={{ duration: 0.3 }}
-                          className="hover:bg-slate-50 transition-all text-xs sm:text-sm"
+                          className="hover:bg-gray-50 transition-all text-sm"
                         >
-                          <TableCell className="font-mono">{order?.id.slice(-6)}</TableCell>
-                          <TableCell>{order?.customer}</TableCell>
-                          <TableCell>
+                          <TableCell className="font-mono text-gray-800">{order?.id.slice(-6)}</TableCell>
+                          <TableCell className="text-gray-800">{order?.customer}</TableCell>
+                          <TableCell className="text-gray-600">
                             {new Date(order?.date).toLocaleDateString("bn-BD", {
                               day: "2-digit",
                               month: "short",
                               year: "numeric",
                             })}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="text-gray-800">
                             {Number(order?.total).toLocaleString("bn-BD")} ৳
                           </TableCell>
                           <TableCell>
                             <Badge
                               variant={getStatusVariant(order?.status)}
-                              className="transition-all duration-300 text-xs sm:text-sm"
+                              className="px-3 py-1 text-xs font-medium rounded-full transition-all duration-300"
                             >
                               {order?.status.charAt(0).toUpperCase() + order?.status.slice(1)}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-right flex justify-end gap-1 sm:gap-2">
+                          <TableCell className="text-right flex justify-end gap-2">
                             <Button
-                              variant="ghost"
-                              size="icon"
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleViewOrder(order?._id)}
-                              className="h-8 w-8 sm:h-10 sm:w-10"
+                              className="h-9   rounded-full border-gray-200 hover:bg-indigo-500"
                             >
-                              <Eye className="h-4 w-4" />
+                              view
+                              {/* <Eye className="h-4 w-4 text-lg bg-indigo-400 text-indigo-600" /> */}
                             </Button>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 sm:h-10 sm:w-10"
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-9  rounded-full border-gray-200 hover:bg-indigo-500"
                                 >
-                                  <Truck className="h-4 w-4" />
+                                  Update
+                                  {/* <Truck className="h-4 w-4 text-indigo-600" /> */}
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
+                              <DropdownMenuContent align="end" className="rounded-lg shadow-lg">
                                 {["pending", "Processing", "Shipped", "Delivered", "Returned"].map(
                                   (status) => (
                                     <DropdownMenuItem
                                       key={status}
                                       onClick={() => handleStatusChange(order?._id, status)}
-                                      className="text-xs sm:text-sm"
+                                      className="text-sm text-gray-700 hover:bg-indigo-50"
                                     >
                                       {status.charAt(0).toUpperCase() + status.slice(1)}
                                     </DropdownMenuItem>
@@ -263,36 +266,36 @@ const ManageOrdersPage = () => {
 
       {/* Order Details Modal */}
       {isModalOpen && selectedOrder && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="bg-white rounded-lg p-6 sm:p-8 w-full max-w-md sm:max-w-lg mx-4 shadow-2xl"
+            transition={{ duration: 0.3 }}
+            className="bg-white rounded-2xl p-8 w-full max-w-lg mx-4 shadow-2xl"
           >
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl sm:text-2xl font-bold text-primary">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
                 অর্ডার বিস্তারিত #{selectedOrder._id.slice(-6)}
               </h2>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={closeModal}
-                className="h-8 w-8"
+                className="h-8 w-8 rounded-full hover:bg-gray-100"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5 text-gray-600" />
               </Button>
             </div>
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm sm:text-base">
-                  <strong>গ্রাহক:</strong> {selectedOrder.email || "Unknown"}
+            <div className="space-y-4 text-sm text-gray-700">
+              <div className="border-b pb-3">
+                <p>
+                  <strong className="font-semibold">গ্রাহক:</strong> {selectedOrder.email || "Unknown"}
                 </p>
               </div>
-              <div>
-                <p className="text-sm sm:text-base">
-                  <strong>তারিখ:</strong>{" "}
+              <div className="border-b pb-3">
+                <p>
+                  <strong className="font-semibold">তারিখ:</strong>{" "}
                   {new Date(selectedOrder.order_date).toLocaleDateString("bn-BD", {
                     day: "2-digit",
                     month: "short",
@@ -300,52 +303,62 @@ const ManageOrdersPage = () => {
                   })}
                 </p>
               </div>
-              <div>
-                <p className="text-sm sm:text-base">
-                  <strong>মোট:</strong> ${selectedOrder.total || selectedOrder.amount}
+              <div className="border-b pb-3">
+                <p>
+                  <strong className="font-semibold">মোট:</strong> {Number(selectedOrder.grand_total).toLocaleString("bn-BD")} ৳
                 </p>
               </div>
-              <div>
-                <p className="text-sm sm:text-base">
-                  <strong>পেমেন্ট মেথড:</strong>{" "}
+              <div className="border-b pb-3">
+                <p>
+                  <strong className="font-semibold">পেমেন্ট মেথড:</strong>{" "}
                   {selectedOrder.payment_method.charAt(0).toUpperCase() +
                     selectedOrder.payment_method.slice(1)}
                 </p>
               </div>
-              <div>
-                <p className="text-sm sm:text-base">
-                  <strong>পেমেন্ট নম্বর:</strong> {selectedOrder.payment_number}
+              <div className="border-b pb-3">
+                <p>
+                  <strong className="font-semibold">পেমেন্ট নম্বর:</strong> {selectedOrder.payment_number}
                 </p>
               </div>
-              <div>
-                <p className="text-sm sm:text-base">
-                  <strong>ট্রানজাকশন আইডি:</strong> {selectedOrder.tnx_id}
+              <div className="border-b pb-3">
+                <p>
+                  <strong className="font-semibold">ট্রানজাকশন আইডি:</strong> {selectedOrder.tnx_id}
                 </p>
               </div>
-              <div>
-                <p className="text-sm sm:text-base">
-                  <strong>আইটেম:</strong>{" "}
+              <div className="border-b pb-3">
+                <p>
+                  <strong className="font-semibold">ডেলিভারি বিস্তারিত:</strong>{" "}
+                  {selectedOrder.delivery_details
+                    ? `${selectedOrder.delivery_details.name}, ${selectedOrder.delivery_details.address}, ${selectedOrder.delivery_details.location}, ${selectedOrder.delivery_details.phone}`
+                    : "N/A"}
+                </p>
+              </div>
+              <div className="border-b pb-3">
+                <p>
+                  <strong className="font-semibold">আইটেম:</strong>{" "}
                   {selectedOrder.items
                     ? selectedOrder.items
                       .map(
                         (item) =>
-                          `${item.name} (Qty: ${item.quantity}, Price: $${item.price}, Subtotal: $${item.subtotal})`
+                          `${item.name} (পরিমাণ: ${item.quantity}, মূল্য: ${Number(item.price).toLocaleString("bn-BD")} ৳, সাবটোটাল: ${Number(item.subtotal).toLocaleString("bn-BD")} ৳)`
                       )
                       .join(", ")
-                    : `${selectedOrder.name} (Qty: ${selectedOrder.quantity}, Price: $${selectedOrder.price}, Subtotal: $${selectedOrder.total})`}
+                    : "N/A"}
                 </p>
               </div>
               <div>
-                <p className="text-sm sm:text-base">
-                  <strong>স্ট্যাটাস:</strong>{" "}
-                  {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
+                <p>
+                  <strong className="font-semibold">স্ট্যাটাস:</strong>{" "}
+                  <Badge variant={getStatusVariant(selectedOrder.status)} className="ml-2">
+                    {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
+                  </Badge>
                 </p>
               </div>
             </div>
-            <div className="mt-6 flex justify-end">
+            <div className="mt-8 flex justify-end">
               <Button
                 onClick={closeModal}
-                className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors"
+                className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
               >
                 বন্ধ করুন
               </Button>
