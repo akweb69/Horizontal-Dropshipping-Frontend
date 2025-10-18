@@ -29,7 +29,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     { icon: Gift, label: 'রেফারেল প্রোগ্রাম', path: '/dashboard/referral-program' },
     { icon: Plus, label: 'নতুন সেল ', path: '/dashboard/connect-store' },
     { icon: FileText, label: 'বিলিং ও সাবস্ক্রিপশন', path: '/dashboard/billing' },
-    // { icon: Settings, label: 'অ্যাকাউন্ট সেটিংস', path: '/dashboard/settings' },
+    { icon: Settings, label: 'অ্যাকাউন্ট সেটিংস', path: '/dashboard/settings' },
     { icon: LifeBuoy, label: 'সহায়তা কেন্দ্র', path: '/dashboard/support' },
   ];
 

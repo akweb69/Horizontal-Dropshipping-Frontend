@@ -1,64 +1,119 @@
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader } from 'lucide-react';
+import axios from 'axios';
 
 const AccountSettingsPage = () => {
     const { user } = useAuth();
-    const { toast } = useToast();
-    const [name, setName] = useState(user?.name || '');
-    const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const { toast } = useToast(); // Fix: Properly destructure toast
+    const [formData, setFormData] = useState({});
+    const [loading, setLoading] = useState(false);
 
-    const handleProfileUpdate = (e) => {
-        e.preventDefault();
-        toast({
-            title: "সফল!",
-            description: "আপনার প্রোফাইল তথ্য সেভ করা হয়েছে। (সিমুলেটেড)",
-        });
+    // Load user data
+    useEffect(() => {
+        setLoading(true);
+        axios
+            .get(`${import.meta.env.VITE_BASE_URL}/users`)
+            .then((res) => {
+                const data = res.data;
+                const myData = data.find((item) => item.email === user.email);
+                setFormData(myData || {});
+                setLoading(false);
+                console.log('User data:', myData);
+            })
+            .catch((err) => {
+                setLoading(false);
+                console.error('Error fetching user data:', err);
+                toast({
+                    title: 'ত্রুটি',
+                    description: 'ব্যবহারকারীর তথ্য লোড করা যায়নি।',
+                    variant: 'destructive',
+                });
+            });
+    }, [user, toast]);
+
+    // Handle image upload to ImgBB
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const imgBBFormData = new FormData();
+        imgBBFormData.append('image', file);
+
+        setLoading(true);
+        axios
+            .post(`https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMGBB_API_KEY}`, imgBBFormData)
+            .then((res) => {
+                const imageUrl = res.data.data.url;
+                setFormData((prev) => ({ ...prev, profileImage: imageUrl }));
+                setLoading(false);
+                toast({
+                    title: 'সফল',
+                    description: 'প্রোফাইল ছবি সফলভাবে আপলোড হয়েছে!',
+                    variant: 'success',
+                });
+            })
+            .catch((err) => {
+                setLoading(false);
+                console.error('Error uploading image:', err);
+                toast({
+                    title: 'ত্রুটি',
+                    description: 'ছবি আপলোড করা যায়নি।',
+                    variant: 'destructive',
+                });
+            });
     };
 
-    const handlePasswordChange = (e) => {
+    // Handle profile photo update
+    const handleSubmit = (e) => {
         e.preventDefault();
-        if (newPassword !== confirmPassword) {
+        if (!formData?._id || !formData?.profileImage) {
             toast({
-                variant: "destructive",
-                title: "ত্রুটি!",
-                description: "নতুন পাসওয়ার্ড এবং নিশ্চিতকরণ পাসওয়ার্ড মিলছে না।",
+                title: 'ত্রুটি',
+                description: 'প্রোফাইল ছবি বা ব্যবহারকারী আইডি অনুপস্থিত।',
+                variant: 'destructive',
             });
             return;
         }
-        if (newPassword.length < 6) {
-            toast({
-                variant: "destructive",
-                title: "ত্রুটি!",
-                description: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।",
+
+        setLoading(true);
+        axios
+            .patch(`${import.meta.env.VITE_BASE_URL}/update-profile-photo/${formData._id}`, {
+                formData: { profileImage: formData.profileImage },
+            })
+            .then((res) => {
+                setLoading(false);
+                console.log('Update response:', res.data);
+                toast({
+                    title: 'সফল',
+                    description: 'আপনার প্রোফাইল ছবি সফলভাবে আপডেট হয়েছে!',
+                    variant: 'success',
+                });
+            })
+            .catch((err) => {
+                setLoading(false);
+                console.error('Error updating profile:', err);
+                toast({
+                    title: 'ত্রুটি',
+                    description: 'প্রোফাইল ছবি আপডেট করা যায়নি।',
+                    variant: 'destructive',
+                });
             });
-            return;
-        }
-        toast({
-            title: "সফল!",
-            description: "আপনার পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে। (সিমুলেটেড)",
-        });
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
     };
 
-    const handleConnectStore = (e) => {
-        e.preventDefault();
-        toast({
-            title: "স্টোর সংযুক্ত!",
-            description: "আপনার Shopify API কী সফলভাবে সেভ করা হয়েছে। (সিমুলেটেড)",
-        });
-    };
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center w-full min-h-[60vh]">
+                <Loader className="animate-spin w-8 h-8 text-primary" />
+            </div>
+        );
+    }
 
     return (
         <>
@@ -70,80 +125,101 @@ const AccountSettingsPage = () => {
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800">অ্যাকাউন্ট সেটিংস</h1>
                     <p className="text-muted-foreground">আপনার প্রোফাইল, স্টোর এবং বিলিং তথ্য পরিচালনা করুন।</p>
                 </div>
-                <Tabs defaultValue="profile">
-                    <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="profile">প্রোফাইল</TabsTrigger>
-                        <TabsTrigger value="store">স্টোর কানেকশন</TabsTrigger>
-                        <TabsTrigger value="billing">বিলিং</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="profile">
-                        <Card>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    {/* Left side: Account info */}
+                    <div>
+                        {/* Profile photo upload */}
+                        <Card className="mb-6">
                             <CardHeader>
-                                <CardTitle>প্রোফাইল তথ্য</CardTitle>
-                                <CardDescription>আপনার ব্যক্তিগত তথ্য এখানে পরিবর্তন করুন।</CardDescription>
+                                <CardTitle>প্রোফাইল ছবি পরিবর্তন</CardTitle>
+                                <CardDescription>আপনার প্রোফাইল ছবি পরিবর্তন করুন।</CardDescription>
                             </CardHeader>
-                            <CardContent className="space-y-8">
-                                <form onSubmit={handleProfileUpdate} className="space-y-4 max-w-lg">
-                                    <div>
-                                        <Label htmlFor="name">পুরো নাম</Label>
-                                        <Input id="name" value={name} onChange={e => setName(e.target.value)} />
+                            <CardContent>
+                                <form onSubmit={handleSubmit}>
+                                    <div className="flex flex-col items-center">
+                                        {formData.profileImage ? (
+                                            <img
+                                                referrerPolicy='no-referrer'
+                                                src={formData?.profileImage} alt="Profile" className="w-24 h-24 rounded-full" />
+
+                                        ) : (
+                                            <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                                                <span className="text-2xl font-bold text-gray-500">
+                                                    {formData?.name?.charAt(0) || '?'}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <p className="text-sm text-muted-foreground mt-2">নতুন ছবি আপলোড করুন।</p>
+                                        <Input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageUpload}
+                                            className="mt-2 border border-yellow-300 p-2 rounded-lg w-full"
+                                        />
+                                        <Button type="submit" className="mt-4" disabled={loading || !formData?.profileImage}>
+                                            {loading ? <Loader className="animate-spin w-5 h-5" /> : 'ছবি আপডেট করুন'}
+                                        </Button>
                                     </div>
-                                    <div>
-                                        <Label htmlFor="email">ইমেল অ্যাড্রেস</Label>
-                                        <Input id="email" type="email" value={user?.email} disabled />
-                                    </div>
-                                    <Button type="submit">পরিবর্তন সেভ করুন</Button>
-                                </form>
-                                <form onSubmit={handlePasswordChange} className="space-y-4 max-w-lg border-t pt-8 mt-8">
-                                    <h3 className="text-lg font-medium">পাসওয়ার্ড পরিবর্তন করুন</h3>
-                                    <div>
-                                        <Label htmlFor="current_password">বর্তমান পাসওয়ার্ড</Label>
-                                        <Input id="current_password" type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required />
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="new_password">নতুন পাসওয়ার্ড</Label>
-                                        <Input id="new_password" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required />
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="confirm_password">নতুন পাসওয়ার্ড নিশ্চিত করুন</Label>
-                                        <Input id="confirm_password" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
-                                    </div>
-                                    <Button type="submit">পাসওয়ার্ড পরিবর্তন করুন</Button>
                                 </form>
                             </CardContent>
                         </Card>
-                    </TabsContent>
-                    <TabsContent value="store">
+                        {/* Account info */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>স্টোর কানেকশন</CardTitle>
-                                <CardDescription>আপনার Shopify বা WooCommerce স্টোরের সাথে সংযোগ স্থাপন করুন।</CardDescription>
+                                <CardTitle>অ্যাকাউন্ট তথ্য</CardTitle>
+                                <CardDescription>আপনার প্রোফাইল তথ্য পরিচালনা করুন।</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <form onSubmit={handleConnectStore} className="space-y-4 max-w-lg">
-                                    <div>
-                                        <Label htmlFor="shopify_api_key">Shopify API কী</Label>
-                                        <Input id="shopify_api_key" placeholder="আপনার Shopify API কী লিখুন" />
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div className="flex flex-col">
+                                        <Label htmlFor="name">নাম</Label>
+                                        <Input disabled id="name" value={formData.name || ''} />
                                     </div>
-                                    <Button type="submit">সংযুক্ত করুন</Button>
-                                </form>
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-                    <TabsContent value="billing">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>বিলিং ও পেমেন্ট</CardTitle>
-                                <CardDescription>আপনার পেমেন্ট পদ্ধতি এবং বিলিং ইতিহাস দেখুন।</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-center py-12 text-muted-foreground">
-                                    আপনার কোনো বিলিং ইতিহাস নেই।
+                                    <div className="flex flex-col">
+                                        <Label htmlFor="email">ইমেইল</Label>
+                                        <Input disabled id="email" value={formData.email || ''} />
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
-                    </TabsContent>
-                </Tabs>
+                    </div>
+                    {/* Right side: Store info */}
+                    <div>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>স্টোর তথ্য</CardTitle>
+                                <CardDescription>আপনার স্টোর তথ্য পরিচালনা করুন।</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div>
+                                        {formData?.storeInfo?.shopImage ? (
+                                            <img src={formData?.storeInfo?.shopImage}
+                                                referrerPolicy='no-referrer'
+                                                alt="StoreImage" className="h-full w-full  rounded-t-lg" />
+                                        ) : (
+                                            <div className="w-24 h-24 rounded bg-gray-200 flex items-center justify-center">
+                                                <span className="text-2xl font-bold text-gray-500">S</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <Label htmlFor="store_name">স্টোর নাম</Label>
+                                        <Input disabled id="store_name" value={formData?.storeInfo?.shopName || ''} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <Label htmlFor="store_address">স্টোর ঠিকানা</Label>
+                                        <Input disabled id="store_address" value={formData?.storeInfo?.shopAddress || ''} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <Label htmlFor="store_contact">স্টোর যোগাযোগ</Label>
+                                        <Input disabled id="store_contact" value={formData?.storeInfo?.shopContact || ''} />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
             </div>
         </>
     );
