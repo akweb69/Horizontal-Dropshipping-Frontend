@@ -45,6 +45,7 @@ import ManageWithdraw from './pages/admin/ManageWithdraw';
 import Billing from './pages/admin/Billing';
 import WebsiteData from './pages/admin/WebsiteData';
 import ProductDetails from './components/layout/ProductDetails';
+import ManagePackageData from './pages/admin/ManagePackageData';
 
 function App() {
   return (
@@ -109,6 +110,7 @@ function App() {
           <Route path="withdraw" element={<ManageWithdraw />} />
           <Route path="billing" element={<Billing />} />
           <Route path="webdata" element={<WebsiteData />} />
+          <Route path="packagesdata" element={<ManagePackageData />} />
         </Route>
 
       </Routes>
