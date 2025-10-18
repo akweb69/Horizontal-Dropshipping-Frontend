@@ -44,6 +44,7 @@ import ManagePackage from './pages/admin/ManagePackage';
 import ManageWithdraw from './pages/admin/ManageWithdraw';
 import Billing from './pages/admin/Billing';
 import WebsiteData from './pages/admin/WebsiteData';
+import ProductDetails from './components/layout/ProductDetails';
 
 function App() {
   return (
@@ -67,6 +68,7 @@ function App() {
           <Route path="track-order" element={<TrackOrderPage />} />
           <Route path="support" element={<SupportPage />} />
           <Route path="cart" element={<CartPage />} />
+          <Route path="product/:id" element={<ProductDetails />} />
         </Route>
 
         <Route

@@ -4,7 +4,7 @@ import { Star, Lock, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const ProductCard = ({ product }) => {
@@ -81,9 +81,17 @@ const ProductCard = ({ product }) => {
     }
   };
 
+  // প্রোডাক্টের বিস্তারিত পেজে নেভিগেট করার ফাংশন
+  const navigetee = useNavigate()
+  const handleProductDetails = (product) => {
+    navigetee(`/product/${product}`)
+
+  };
+
   return (
     <motion.div
-      className="bg-white rounded-lg card-shadow p-4 transition-all duration-300 hover:scale-105 relative"
+      onClick={() => handleProductDetails(product)}
+      className="bg-white cursor-pointer rounded-lg card-shadow p-4 transition-all duration-300 hover:scale-105 relative"
       whileHover={{ y: -2 }}
     >
       {/* love icon */}
