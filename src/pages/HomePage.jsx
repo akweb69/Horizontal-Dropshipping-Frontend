@@ -7,20 +7,39 @@ import ProductSection from '@/components/sections/ProductSection';
 import ReferralSection from '@/components/sections/ReferralSection';
 import { allProducts as products } from '@/data/products';
 import axios from 'axios';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading1, setLoading1] = useState(true);
   const [product, setProduct] = useState([]);
   const base_url = import.meta.env.VITE_BASE_URL;
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
   useEffect(() => {
     axios.get(`${base_url}/products`)
       .then(res => {
         setProduct(res.data);
-        setLoading(false);
+        setLoading1(false);
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err)
+        setLoading1(false);
+      });
+    setLoading1(false);
   }, []);
 
+  if (loading1 && loading) {
+    return <div className="flex justify-center  w-full min-h-screen items-center py-30">
+      -
+    </div>
+  }
+
+  if (!loading && !loading1) {
+    if (!user && !user?.email) {
+      navigate('/login');
+    }
+  }
   return (
     <>
       <Helmet>
