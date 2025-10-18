@@ -24,7 +24,8 @@ const ManageProductsPage = () => {
     category: '',
     stock: '',
     thumbnail: '',
-    sectionName: ''
+    sectionName: '',
+    description: '' // Added description field
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -97,7 +98,7 @@ const ManageProductsPage = () => {
 
   const handleAddNew = () => {
     setCurrentProduct(null);
-    setFormData({ name: '', price: '', category: '', stock: '', thumbnail: '', sectionName: '' });
+    setFormData({ name: '', price: '', category: '', stock: '', thumbnail: '', sectionName: '', description: '' });
     setSelectedFile(null);
     setIsDialogOpen(true);
   };
@@ -110,7 +111,8 @@ const ManageProductsPage = () => {
       category: product.category || '',
       stock: product.stock,
       thumbnail: product.thumbnail || '',
-      sectionName: product.sectionName || ''
+      sectionName: product.sectionName || '',
+      description: product.description || '' // Added description
     });
     setSelectedFile(null);
     setIsDialogOpen(true);
@@ -119,7 +121,7 @@ const ManageProductsPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setBtnLoading(true);
-    if (!formData.name || !formData.price || !formData.category || !formData.stock || !formData.sectionName) {
+    if (!formData.name || !formData.price || !formData.category || !formData.stock || !formData.sectionName || !formData.description) {
       toast({ title: "ত্রুটি", description: "অনুগ্রহ করে সমস্ত ঘর পূরণ করুন।", variant: "destructive" });
       setBtnLoading(false);
       return;
@@ -219,6 +221,7 @@ const ManageProductsPage = () => {
                 <TableHead>ক্যাটাগরি</TableHead>
                 <TableHead>সেকশন</TableHead>
                 <TableHead>স্টক</TableHead>
+                <TableHead>বিবরণ</TableHead> {/* Added description column */}
                 <TableHead className="text-right">অ্যাকশন</TableHead>
               </TableRow>
             </TableHeader>
@@ -237,6 +240,7 @@ const ManageProductsPage = () => {
                   <TableCell>{product.category}</TableCell>
                   <TableCell>{product.sectionName}</TableCell>
                   <TableCell>{product.stock}</TableCell>
+                  <TableCell>{product?.description?.slice(0, 50) + " ..." || 'নেই'}</TableCell> {/* Display description */}
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}><Edit className="h-4 w-4" /></Button>
                     <AlertDialog>
@@ -311,6 +315,18 @@ const ManageProductsPage = () => {
             <div>
               <Label htmlFor="stock">স্টক</Label>
               <Input id="stock" name="stock" type="number" value={formData.stock} onChange={handleFormChange} required />
+            </div>
+            <div>
+              <Label htmlFor="description">বিবরণ</Label> {/* Added description input */}
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleFormChange}
+                className="p-2 rounded-lg outline outline-accent w-full"
+                rows="4"
+                required
+              />
             </div>
             <div>
               <Label>থাম্বনেইল</Label>
