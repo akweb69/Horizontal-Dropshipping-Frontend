@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const MembershipPlan = ({ plan, onBuyNow }) => (
     <motion.div
@@ -314,10 +315,15 @@ const MembershipPage = () => {
             }
 
             await becomeMember();
-            toast({
+
+            Swal.fire({
                 title: `🎉 অভিনন্দন, ${user.name}!`,
-                description: `আপনি সফলভাবে "${selectedPlan.name}" প্ল্যানটি কিনেছেন। আমরা আপনার পেমেন্ট এবং স্টোর তথ্য যাচাই করব।`,
+                text: `আপনি সফলভাবে "${selectedPlan.name}" প্ল্যানটি কিনেছেন। আমরা আগামী ২৪ ঘন্টার মধ্যে
+                 আপনার পেমেন্ট এবং স্টোর তথ্য যাচাই করব।`,
+                icon: "success",
+                draggable: true
             });
+
 
             handleCloseModal();
         } catch (error) {
