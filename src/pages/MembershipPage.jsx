@@ -124,7 +124,7 @@ const MembershipPage = () => {
     //         recommended: false
     //     },
     // ];
-
+    ``
     const [plans, setPlans] = useState([]);
     useEffect(() => {
         axios.get(`${import.meta.env.VITE_BASE_URL}/manage-package`)
