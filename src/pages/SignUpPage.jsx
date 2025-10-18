@@ -70,6 +70,7 @@ const SignUpPage = () => {
         });
         navigate(from, { replace: true });
 
+
       } else {
         toast({
           variant: "destructive",

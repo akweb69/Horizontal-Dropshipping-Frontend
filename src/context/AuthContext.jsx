@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [loveData, setLoveData] = useState([]);
   const [cartData, setCartData] = useState([]);
+  const [showHomePage, setShowHomePage] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -24,6 +25,9 @@ export const AuthProvider = ({ children }) => {
           const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/users`);
           const userData = response.data.find(u => u.email === currentUser.email);
           setUser(userData || null);
+          if (userData && userData.email) {
+            setShowHomePage(true);
+          }
         } catch (error) {
           console.error("Error fetching user data:", error);
           setUser(null);
@@ -45,6 +49,7 @@ export const AuthProvider = ({ children }) => {
   const login = (email, password) => {
     return signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
+        setShowHomePage(true);
         return true;
       })
       .catch((error) => {
@@ -58,6 +63,7 @@ export const AuthProvider = ({ children }) => {
       .then((userCredential) => {
         // অতিরিক্ত: ডিসপ্লে নেম আপডেট করো
         // updateProfile(userCredential.user, { displayName: name });
+        setShowHomePage(true);
         return true;
       })
       .catch((error) => {
@@ -89,6 +95,7 @@ export const AuthProvider = ({ children }) => {
     loveData,
     setCartData,
     cartData,
+    showHomePage,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

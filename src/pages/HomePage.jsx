@@ -14,7 +14,7 @@ const HomePage = () => {
   const [loading1, setLoading1] = useState(true);
   const [product, setProduct] = useState([]);
   const base_url = import.meta.env.VITE_BASE_URL;
-  const { user, loading } = useAuth();
+  const { user, loading, showHomePage } = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
     axios.get(`${base_url}/products`)
@@ -35,11 +35,16 @@ const HomePage = () => {
     </div>
   }
 
-  if (!loading && !loading1) {
-    if (!user && !user?.email) {
-      navigate('/signup');
-    }
+  // if (!loading && !loading1) {
+  //   if (!user && !user?.email) {
+  //     navigate('/signup');
+  //   }
+  // }
+  if (!showHomePage && !loading && !loading1) {
+    navigate('/signup');
   }
+
+
   return (
     <>
       <Helmet>
