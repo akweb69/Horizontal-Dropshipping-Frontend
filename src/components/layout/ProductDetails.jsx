@@ -2,7 +2,7 @@ import axios from "axios";
 import { Loader, Copy, Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -101,6 +101,7 @@ Total Sales: ${data.totalSell}
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <ToastContainer />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
                 {/* ✅ Product Image Section */}
                 <div className="relative">
