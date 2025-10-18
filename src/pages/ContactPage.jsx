@@ -1,20 +1,46 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
-import { Phone, Mail, Clock } from 'lucide-react';
+import { Phone, Mail, Clock, Loader } from 'lucide-react';
+import axios from 'axios';
 
 const ContactPage = () => {
+  const [loading, setLoading] = useState(false);
+  const [contactInfo, setContactInfo] = useState([]);
+  // load contact info
+  useEffect(() => {
+    setLoading(true);
+    axios.get(`${import.meta.env.VITE_BASE_URL}/contact-info`)
+      .then(res => {
+        setContactInfo(res.data);
+        // console.log(res.data);
+      })
+      .catch(err => console.log(err))
+      .finally(() => setLoading(false))
+
+
+  }, [])
+
+  // 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLoading(true);
     toast({
-      title: "📬 বার্তা পাঠানো হয়েছে!",
+      title: "📬 বার্তা পাঠানো হয়েছে!",
       description: "যোগাযোগ করার জন্য ধন্যবাদ। আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।",
     });
     e.target.reset();
+    setLoading(false);
   };
-
+  if (loading) {
+    return <div className="flex justify-center items-center">
+      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500">
+        <Loader></Loader>
+      </div>
+    </div>
+  }
   return (
     <>
       <Helmet>
@@ -43,27 +69,27 @@ const ContactPage = () => {
                   <Phone className="w-6 h-6 text-orange-500 mr-4" />
                   <div>
                     <h3 className="font-semibold">ফোন</h3>
-                    <a href="tel:+880-XXXX-XXXXXX" className="text-gray-600 hover:text-orange-500">+৮৮০-XXXX-XXXXXX</a>
+                    <a href={`tel:${contactInfo?.phone}`} className="text-gray-600 hover:text-orange-500">{contactInfo?.phone}</a>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <Mail className="w-6 h-6 text-orange-500 mr-4" />
                   <div>
                     <h3 className="font-semibold">ইমেইল</h3>
-                    <a href="mailto:support@letsdropship.com" className="text-gray-600 hover:text-orange-500">support@letsdropship.com</a>
+                    <a href={`mailto:${contactInfo?.email}`} className="text-gray-600 hover:text-orange-500">{contactInfo?.email}</a>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <Clock className="w-6 h-6 text-orange-500 mr-4" />
                   <div>
                     <h3 className="font-semibold">সাপোর্ট সময়</h3>
-                    <p className="text-gray-600">২৪/৭ উপলব্ধ - উত্তর দেওয়ার সময়: ২ ঘন্টার মধ্যে</p>
+                    <p className="text-gray-600">{contactInfo?.supportTime || '২৪/৭ উপলব্ধ - উত্তর দেওয়ার সময়: ২ ঘন্টার মধ্যে'}</p>
                   </div>
                 </div>
               </div>
               <div className="mt-8">
                 <iframe
-                  src="https://www.openstreetmap.org/export/embed.html?bbox=90.3802,23.7497,90.3832,23.7527&layer=mapnik&marker=23.7512,90.3817"
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${contactInfo?.mapBbox}&layer=mapnik&marker=${contactInfo?.mapMarker}`}
                   className="w-full h-64 rounded-xl border-0"
                   allowFullScreen=""
                   loading="lazy"
@@ -96,8 +122,8 @@ const ContactPage = () => {
               </form>
             </div>
           </div>
-        </section>
-      </div>
+        </section >
+      </div >
     </>
   );
 };
