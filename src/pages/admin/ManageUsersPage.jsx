@@ -147,9 +147,9 @@ const ManageUsersPage = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <Button onClick={handleAddNew}>
+            {/* <Button onClick={handleAddNew}>
               <UserPlus className="mr-2 h-4 w-4" /> নতুন ব্যবহারকারী
-            </Button>
+            </Button> */}
           </div>
         </CardHeader>
 
@@ -161,7 +161,7 @@ const ManageUsersPage = () => {
                 <TableHead>ইমেল</TableHead>
                 <TableHead>ভূমিকা</TableHead>
                 <TableHead>সাবস্ক্রিপশন</TableHead>
-                <TableHead>স্ট্যাটাস</TableHead>
+                {/* <TableHead>স্ট্যাটাস</TableHead> */}
                 <TableHead className="text-right">অ্যাকশন</TableHead>
               </TableRow>
             </TableHeader>
@@ -181,20 +181,20 @@ const ManageUsersPage = () => {
                     {typeof user.subscription === 'object' ? (
                       <div className="flex flex-col">
                         <span>Plan: {user.subscription.plan || 'N/A'}</span>
-                        {user.subscription.validUntil && (
+                        {/* {user.subscription.validUntil && (
                           <span>Valid: {user.subscription.validUntil}</span>
-                        )}
+                        )} */}
                       </div>
                     ) : (
                       user.subscription || 'No Plan'
                     )}
                   </TableCell>
 
-                  <TableCell>
+                  {/* <TableCell>
                     <Badge variant={user.status === 'Active' ? 'success' : 'outline'}>
                       {user.status}
                     </Badge>
-                  </TableCell>
+                  </TableCell> */}
 
                   <TableCell className="text-right">
                     <Button
@@ -211,9 +211,9 @@ const ManageUsersPage = () => {
                       )}
                     </Button>
 
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
+                    {/* <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
                       <Edit className="h-4 w-4" />
-                    </Button>
+                    </Button> */}
 
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
@@ -253,7 +253,7 @@ const ManageUsersPage = () => {
       </Card>
 
       {/* ✅ Add/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      {/* <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{currentUser ? 'ব্যবহারকারী সম্পাদনা করুন' : 'নতুন ব্যবহারকারী যোগ করুন'}</DialogTitle>
@@ -318,7 +318,7 @@ const ManageUsersPage = () => {
             </DialogFooter>
           </form>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </>
   );
 };
