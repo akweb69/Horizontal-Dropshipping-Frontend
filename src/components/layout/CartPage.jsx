@@ -17,6 +17,7 @@ const CartPage = () => {
     const [paymentMethod, setPaymentMethod] = useState('bKash');
     const [paymentNumber, setPaymentNumber] = useState('');
     const [tnxId, setTnxId] = useState('');
+    const [amarBikriMullo, setAmarBikriMullo] = useState(''); // New state for Amar Bikri Mullo
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [paymentInfo, setPaymentInfo] = useState(null);
     const [isPaymentInfoLoading, setIsPaymentInfoLoading] = useState(true);
@@ -150,13 +151,11 @@ const CartPage = () => {
             if (res.ok) {
                 axios.get(`${import.meta.env.VITE_BASE_URL}/cart`)
                     .then(res => {
-                        console.log(res.data);
-                        console.log(user?.email);
                         setCartData(res.data.filter(item => item.email === user?.email));
                     })
                     .catch(err => {
                         console.log(err);
-                    })
+                    });
 
                 toast({
                     title: "✅ সফল",
@@ -209,6 +208,7 @@ const CartPage = () => {
         setPaymentMethod('bKash');
         setPaymentNumber('');
         setTnxId('');
+        setAmarBikriMullo('');
         setDeliveryName(user?.displayName || '');
         setDeliveryPhone(user?.phone || '');
         setDeliveryAddress('');
@@ -258,7 +258,7 @@ const CartPage = () => {
     };
 
     const handlePlaceOrder = async () => {
-        if (!paymentMethod || !paymentNumber || !tnxId || !deliveryName || !deliveryAddress || !deliveryPhone || !deliveryLocation) {
+        if (!paymentMethod || !paymentNumber || !tnxId || !deliveryName || !deliveryAddress || !deliveryPhone || !deliveryLocation || !amarBikriMullo) {
             toast({
                 title: "❌ ত্রুটি",
                 description: "সকল ফিল্ড পূরণ করুন",
@@ -309,6 +309,7 @@ const CartPage = () => {
                 tnx_id: tnxId,
                 order_date: orderDate,
                 email: email,
+                amar_bikri_mullo: amarBikriMullo, // Add new field
             };
         } else {
             orderData = {
@@ -326,6 +327,7 @@ const CartPage = () => {
                 tnx_id: tnxId,
                 order_date: orderDate,
                 email: email,
+                amar_bikri_mullo: amarBikriMullo, // Add new field
             };
         }
 
@@ -339,7 +341,7 @@ const CartPage = () => {
                 body: JSON.stringify(orderData),
             });
 
-            if (res) {
+            if (res.ok) {
                 toast({
                     title: "✅ অর্ডার সফল!",
                     description: "আপনার অর্ডার প্লেস করা হয়েছে। আমরা পেমেন্ট যাচাই করব।",
@@ -376,6 +378,7 @@ const CartPage = () => {
         setPaymentMethod('bKash');
         setPaymentNumber('');
         setTnxId('');
+        setAmarBikriMullo(''); // Reset new field
         setDeliveryName('');
         setDeliveryAddress('');
         setDeliveryPhone('');
@@ -522,7 +525,6 @@ const CartPage = () => {
             </div>
 
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-
                 <DialogContent className="sm:max-w-lg md:max-w-6xl w-full max-h-[95vh] overflow-y-scroll bg-gradient-to-br from-indigo-50 via-white to-purple-50">
                     <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-6 rounded-t-2xl relative overflow-hidden">
                         <div className="absolute inset-0 bg-black/10"></div>
@@ -767,6 +769,20 @@ const CartPage = () => {
                                     />
                                     <p className="text-xs text-gray-500 mt-1">Send Money সম্পন্ন করার পর পাওয়া TxID</p>
                                 </div>
+
+                                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                                    <Label htmlFor="amarBikriMullo" className="text-sm font-semibold text-gray-700 mb-2 block flex items-center">
+                                        💸 আমার বিক্রি মূল্য
+                                    </Label>
+                                    <Input
+                                        id="amarBikriMullo"
+                                        value={amarBikriMullo}
+                                        onChange={(e) => setAmarBikriMullo(e.target.value)}
+                                        placeholder="আপনার বিক্রি মূল্য লিখুন"
+                                        className="text-lg p-4 border-2 border-gray-200 focus:border-green-500 rounded-xl"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">আপনার বিক্রি মূল্যের বিস্তারিত দিন</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -784,7 +800,7 @@ const CartPage = () => {
                             </Button>
                             <Button
                                 onClick={handlePlaceOrder}
-                                disabled={isSubmitting || !paymentNumber || !tnxId || !paymentInfo || !deliveryName || !deliveryAddress || !deliveryPhone}
+                                disabled={isSubmitting || !paymentNumber || !tnxId || !paymentInfo || !deliveryName || !deliveryAddress || !deliveryPhone || !amarBikriMullo}
                                 className="flex-1 h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center space-x-2"
                             >
                                 {isSubmitting ? (
@@ -805,7 +821,6 @@ const CartPage = () => {
                         </p>
                     </div>
                 </DialogContent>
-
             </Dialog>
         </div>
     );
