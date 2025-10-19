@@ -60,86 +60,13 @@ const CartPage = () => {
     }, [cartData]);
 
     const handleIncrement = async (id) => {
-        const item = cartData.find((i) => i._id === id);
-        const current = quantities[id] || 1;
 
-        if (!item || current >= parseInt(item.stock || 0)) {
-            toast({
-                title: "❌ স্টক সীমা",
-                description: "এই পণ্যের জন্য আরও স্টক উপলব্ধ নেই।",
-                variant: "destructive",
-            });
-            return;
-        }
-
-        try {
-            const newQuantity = current + 1;
-            const res = await fetch(`${import.meta.env.VITE_BASE_URL}/cart/${id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ quantity: newQuantity }),
-            });
-
-            if (res.ok) {
-                setQuantities((prev) => ({ ...prev, [id]: newQuantity }));
-                if (fetchCart) await fetchCart();
-                toast({
-                    title: "✅ সফল",
-                    description: "পণ্যের পরিমাণ আপডেট করা হয়েছে।",
-                });
-            } else {
-                const errorData = await res.json().catch(() => ({}));
-                throw new Error(errorData.message || "Failed to update quantity");
-            }
-        } catch (e) {
-            console.error(e);
-            toast({
-                title: "❌ ত্রুটি",
-                description: "পরিমাণ আপডেট করতে ব্যর্থ হয়েছে।",
-                variant: "destructive",
-            });
-        }
+        setQuantities((prev) => ({ ...prev, [id]: (prev[id] || 1) + 1 }));
     };
 
     const handleDecrement = async (id) => {
-        const current = quantities[id] || 1;
-        if (current <= 1) {
-            toast({
-                title: "❌ সীমা",
-                description: "পরিমাণ ১-এর কম হতে পারে না।",
-                variant: "destructive",
-            });
-            return;
-        }
+        setQuantities((prev) => ({ ...prev, [id]: Math.max((prev[id] || 1) - 1, 1) }));
 
-        try {
-            const newQuantity = current - 1;
-            const res = await fetch(`${import.meta.env.VITE_BASE_URL}/cart/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ quantity: newQuantity }),
-            });
-
-            if (res.ok) {
-                setQuantities((prev) => ({ ...prev, [id]: newQuantity }));
-                if (fetchCart) await fetchCart();
-                toast({
-                    title: "✅ সফল",
-                    description: "পণ্যের পরিমাণ আপডেট করা হয়েছে।",
-                });
-            } else {
-                throw new Error("Failed to update quantity");
-            }
-        } catch (e) {
-            console.error(e);
-            toast({
-                title: "❌ ত্রুটি",
-                description: "পরিমাণ আপডেট করতে ব্যর্থ হয়েছে।",
-                variant: "destructive",
-            });
-        }
     };
 
     const handleDelete = async (id) => {
@@ -208,7 +135,7 @@ const CartPage = () => {
         setPaymentMethod('bKash');
         setPaymentNumber('');
         setTnxId('');
-        setAmarBikriMullo('');
+        setAmarBikriMullo(''); // Reset new field
         setDeliveryName(user?.displayName || '');
         setDeliveryPhone(user?.phone || '');
         setDeliveryAddress('');
@@ -474,7 +401,6 @@ const CartPage = () => {
                                         size="sm"
                                         onClick={() => handleIncrement(item._id)}
                                         className="h-10 w-10 p-0"
-                                        disabled={(quantities[item._id] || 1) >= (item.stock || 999)}
                                     >
                                         <Plus className="h-4 w-4" />
                                     </Button>
