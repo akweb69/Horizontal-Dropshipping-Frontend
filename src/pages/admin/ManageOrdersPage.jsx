@@ -233,6 +233,7 @@ const ManageOrdersPage = () => {
                                   variant="outline"
                                   size="sm"
                                   className="h-9  rounded-full border-gray-200 hover:bg-indigo-500"
+                                  disabled={order?.status === "Delivered" || order?.status === "Returned" || order?.status === "Shipped"}
                                 >
                                   Update
                                   {/* <Truck className="h-4 w-4 text-indigo-600" /> */}
