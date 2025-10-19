@@ -24,8 +24,8 @@ const ReferralSection = () => {
         <p className="text-lg mb-6 opacity-90">
           বন্ধুদের আমন্ত্রণ জানান এবং তাদের প্রতিটি কেনাকাটায় ক্যাশব্যাক বা পয়েন্ট অর্জন করুন
         </p>
-        <Button 
-          size="lg" 
+        <Button
+          size="lg"
           onClick={handleNavigateToReferral}
         >
           রেফারেল লিঙ্ক তৈরি করুন

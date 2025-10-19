@@ -29,11 +29,11 @@ const AnalyticsPage = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
-        axios.get(`${import.meta.env.VITE_BASE_URL}/sell-product`)
+        axios.get(`${import.meta.env.VITE_BASE_URL}/orders`)
             .then(response => {
                 if (response.data) {
-                    setData(response.data.filter(item => item.sellarEmail === user?.email));
-                    // console.log(response.data.filter(item => item.sellarEmail === user?.email));
+                    setData(response.data.filter(item => item.email === user?.email));
+                    // console.log(response.data.filter(item => item.email === user?.email));
                 }
                 setLoading(false);
             })
@@ -65,8 +65,8 @@ const AnalyticsPage = () => {
                             <Package className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{data.reduce((acc, item) => acc + item.buyPrice, 0)}</div>
-                            <p className="text-xs text-muted-foreground">+1800 গত মাসে</p>
+                            <div className="text-2xl font-bold">{data.reduce((acc, item) => acc + item.items_total, 0)}</div>
+                            <p className="text-xs text-muted-foreground">+ {data.reduce((acc, item) => acc + (item.items_total - 1000), 0)}  গত মাসে</p>
                         </CardContent>
                     </Card>
                     <Card>
@@ -75,8 +75,8 @@ const AnalyticsPage = () => {
                             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{data.reduce((acc, item) => acc + item.sellPrice, 0)}</div>
-                            <p className="text-xs text-muted-foreground">+ {data.reduce((acc, item) => acc + (item.sellPrice - 1000), 0)}  গত মাসে</p>
+                            <div className="text-2xl font-bold">{data.reduce((acc, item) => acc + parseInt(item.amar_bikri_mullo), 0)}</div>
+                            <p className="text-xs text-muted-foreground">+ {data.reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo) - 1000), 0)}  গত মাসে</p>
                         </CardContent>
                     </Card>
                     <Card>
@@ -85,11 +85,11 @@ const AnalyticsPage = () => {
                             <DollarSign className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">৳{data.reduce((acc, item) => acc + (item.sellPrice - item.buyPrice), 0)}</div>
-                            <p className="text-xs text-muted-foreground">+{data.reduce((acc, item) => acc + (item.sellPrice - item.buyPrice - 1000), 0)}  গত মাসে</p>
+                            <div className="text-2xl font-bold">৳{data.reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo) - parseInt(item?.items_total)), 0)}</div>
+                            <p className="text-xs text-muted-foreground">+{data.reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo) - parseInt(item?.items_total) - 1000), 0)}  গত মাসে</p>
                         </CardContent>
                     </Card>
-                    <Card>
+                    {/* <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">মোট লাভ</CardTitle>
                             <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -98,7 +98,7 @@ const AnalyticsPage = () => {
                             <div className="text-2xl font-bold">৳{data.reduce((acc, item) => acc + (item.sellPrice - item.buyPrice), 0)}</div>
                             <p className="text-xs text-muted-foreground">+{data.reduce((acc, item) => acc + (item.sellPrice - item.buyPrice - 1000), 0)}  গত মাসে</p>
                         </CardContent>
-                    </Card>
+                    </Card> */}
                 </div>
 
                 <Card>
