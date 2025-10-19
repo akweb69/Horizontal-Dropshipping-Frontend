@@ -203,13 +203,13 @@ const OrderTrackingDashboardPage = () => {
 
     const handleTrackOrder = async (order) => {
         const status = order.status?.trim();
-        if (status === 'Processing' || status === 'pending' || status === 'Pending') {
-            toast({
-                title: "অপেক্ষা করুন",
-                description: "অর্ডার প্রসেসিং চলছে। ট্র্যাকিং শীঘ্রই উপলব্ধ হবে।",
-            });
-            return;
-        }
+        // if (status === 'Processing' || status === 'pending' || status === 'Pending') {
+        //     toast({
+        //         title: "অপেক্ষা করুন",
+        //         description: "অর্ডার প্রসেসিং চলছে। ট্র্যাকিং শীঘ্রই উপলব্ধ হবে।",
+        //     });
+        //     return;
+        // }
 
         setTrackingLoading(true);
         setSelectedOrder(order);
@@ -348,7 +348,7 @@ const OrderTrackingDashboardPage = () => {
                                                                 variant="outline"
                                                                 size="sm"
                                                                 onClick={() => handleTrackOrder(order)}
-                                                                disabled={order.status === 'Processing' || order.status === 'pending' || order.status === 'Pending'}
+
                                                             >
                                                                 {trackingLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                                                                 ট্র্যাক করুন
