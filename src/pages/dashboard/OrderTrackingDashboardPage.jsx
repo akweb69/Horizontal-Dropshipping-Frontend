@@ -203,13 +203,6 @@ const OrderTrackingDashboardPage = () => {
 
     const handleTrackOrder = async (order) => {
         const status = order.status?.trim();
-        // if (status === 'Processing' || status === 'pending' || status === 'Pending') {
-        //     toast({
-        //         title: "অপেক্ষা করুন",
-        //         description: "অর্ডার প্রসেসিং চলছে। ট্র্যাকিং শীঘ্রই উপলব্ধ হবে।",
-        //     });
-        //     return;
-        // }
 
         setTrackingLoading(true);
         setSelectedOrder(order);

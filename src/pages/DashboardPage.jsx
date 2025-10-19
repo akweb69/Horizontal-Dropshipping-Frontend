@@ -36,11 +36,11 @@ const DashboardPage = () => {
     // load sell data
     const [sells, setSells] = useState([]);
     useEffect(() => {
-        axios.get(`${import.meta.env.VITE_BASE_URL}/sell-product`)
+        axios.get(`${import.meta.env.VITE_BASE_URL}/orders`)
             .then(response => {
                 if (response.data) {
-                    setSells(response.data.filter(item => item.sellarEmail === user?.email));
-                    // console.log(response.data.filter(item => item.sellarEmail === user?.email));
+                    setSells(response.data.filter(item => item.email === user?.email));
+                    // console.log(response.data.filter(item => item.email === user?.email));
                 }
                 setLoading(false);
             })
@@ -90,7 +90,7 @@ const DashboardPage = () => {
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     <CircleStatCard
                         title="মোট রেভিনিউ"
-                        value={`৳${sells.reduce((acc, item) => acc + (item.sellPrice - item.buyPrice), 0).toLocaleString('bn-BD')}`}
+                        value={`৳${sells.reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo) - parseInt(item.items_total)), 0).toLocaleString('bn-BD')}`}
                         percentage={75}
                         description={`${sells.length} অর্ডার`}
                         primaryColor="hsl(142.1 76.2% 41.2%)"
@@ -99,7 +99,7 @@ const DashboardPage = () => {
                     />
                     <CircleStatCard
                         title="মোট সেলস"
-                        value={`৳${sells.reduce((acc, item) => acc + item.sellPrice, 0).toLocaleString('bn-BD')}`}
+                        value={`৳${sells.reduce((acc, item) => acc + parseInt(item.amar_bikri_mullo), 0).toLocaleString('bn-BD')}`}
                         percentage={85}
                         description={`${sells.length} অর্ডার`}
                         primaryColor="hsl(34.9 91.6% 58.4%)"
@@ -108,7 +108,7 @@ const DashboardPage = () => {
                     />
                     <CircleStatCard
                         title="ইম্পোর্ট করা পণ্য"
-                        value={`${sells.reduce((acc, item) => acc + item.buyPrice, 0).toLocaleString('bn-BD')}`}
+                        value={`${sells.reduce((acc, item) => acc + parseInt(item.items_total), 0).toLocaleString('bn-BD')}`}
                         percentage={70}
                         description={`গত মাস থেকে ${sells.length} পণ্য ইম্পোর্ট করা হয়েছে।`}
                         primaryColor="hsl(217.2 91.2% 59.8%)"
@@ -117,7 +117,7 @@ const DashboardPage = () => {
                     />
                 </div>
 
-                <div className="grid grid-cols-1 gap-6">
+                {/* <div className="grid grid-cols-1 gap-6">
                     <Card className="">
                         <CardHeader>
                             <CardTitle>বিক্রয় সারসংক্ষেপ</CardTitle>
@@ -135,7 +135,7 @@ const DashboardPage = () => {
                         </CardContent>
                     </Card>
 
-                </div>
+                </div> */}
             </div>
         </>
     );
