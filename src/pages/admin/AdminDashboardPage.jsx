@@ -70,6 +70,11 @@ const AdminDashboardPage = () => {
                 const shippedOrders = orders?.filter(order => order?.status === 'Shipped')?.length ?? 0;
                 const deliveredOrders = orders?.filter(order => order?.status === 'Delivered')?.length ?? 0;
                 const returnedOrders = orders?.filter(order => order?.status === 'Returned')?.length ?? 0;
+                const totalSales = orders?.reduce((acc, order) => acc + (order?.items_total ?? 0), 0) ?? 0;
+                const returnOrderAmount = orders?.filter(order => order?.status === 'Returned')?.reduce((acc, order) => acc + (order?.items_total ?? 0), 0) ?? 0;
+                const pendingOrderAmount = orders?.filter(order => order?.status === 'Processing' || order?.status === 'pending')?.reduce((acc, order) => acc + (order?.items_total ?? 0), 0) ?? 0;
+
+                const deliveredOrderAmount = orders?.filter(order => order?.status === 'Delivered' || order?.status === 'Shipped')?.reduce((acc, order) => acc + (order?.items_total ?? 0), 0) ?? 0;
 
                 // Set stats
                 setStats({
@@ -77,7 +82,11 @@ const AdminDashboardPage = () => {
                     totalOrders: orders?.length ?? 0,
                     shippedOrders,
                     deliveredOrders,
-                    returnedOrders
+                    returnedOrders,
+                    totalSales,
+                    returnOrderAmount,
+                    pendingOrderAmount,
+                    deliveredOrderAmount
                 });
 
                 // Process sales data (mock monthly aggregation - adjust based on your order data structure)
@@ -141,37 +150,65 @@ const AdminDashboardPage = () => {
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                     <StatCard
                         title="মোট ব্যবহারকারী"
-                        value={stats?.totalUsers}
+                        value={stats?.totalUsers.toLocaleString('bn-BD')}
                         icon={<Users className="h-4 w-4 text-muted-foreground" />}
-                        description="+50 এই মাসে"
+                        description={stats?.totalUsers > 0 ? `+${stats?.totalUsers} এই মাসে` : 'কোনো ব্যবহারকারী নেই'}
                         isLoading={isLoading.stats}
                     />
                     <StatCard
                         title="মোট অর্ডার"
-                        value={stats?.totalOrders}
+                        value={stats?.totalOrders.toLocaleString('bn-BD')}
                         icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
-                        description="+200 এই মাসে"
+                        description={stats?.totalOrders > 0 ? `+${stats?.totalOrders} এই মাসে` : 'কোনো অর্ডার নেই'}
                         isLoading={isLoading.stats}
                     />
                     <StatCard
                         title="শিপমেন্টে থাকা অর্ডার"
-                        value={stats?.shippedOrders}
+                        value={stats?.shippedOrders.toLocaleString('bn-BD')}
                         icon={<Truck className="h-4 w-4 text-muted-foreground" />}
-                        description="+20 আজ শিপড হয়েছে"
+                        description={stats?.shippedOrders > 0 ? `+${stats?.shippedOrders} আজ শিপড হয়েছে` : 'কোনো শিপড অর্ডার নেই'}
                         isLoading={isLoading.stats}
                     />
                     <StatCard
                         title="সফল ডেলিভারি"
-                        value={stats?.deliveredOrders}
+                        value={stats?.deliveredOrders.toLocaleString('bn-BD')}
                         icon={<CheckCircle className="h-4 w-4 text-muted-foreground" />}
-                        description="98% সফলতার হার"
+                        description={stats?.deliveredOrders > 0 ? `${(stats?.deliveredOrders / stats?.totalOrders * 100).toFixed(2)}% সফলতার হার` : 'কোনো ডেলিভারি নেই'}
                         isLoading={isLoading.stats}
                     />
                     <StatCard
                         title="রিটার্ন অর্ডার"
-                        value={stats?.returnedOrders}
+                        value={stats?.returnedOrders.toLocaleString('bn-BD')}
                         icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
-                        description="2% রিটার্ন হার"
+                        description={stats?.returnedOrders > 0 ? `${(stats?.returnedOrders / stats?.totalOrders * 100).toFixed(2)}% রিটার্ন হার` : 'কোনো রিটার্ন অর্ডার নেই'}
+                        isLoading={isLoading.stats}
+                    />
+                    <StatCard
+                        title="মোট অর্ডার টাকার পরিমাণ"
+                        value={`৳ ${stats?.totalSales?.toLocaleString('bn-BD', { minimumFractionDigits: 2 })}`}
+                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
+                        description={stats?.totalSales > 0 ? `৳${stats?.totalSales.toLocaleString('bn-BD', { minimumFractionDigits: 2 })} এই মাসে` : 'কোনো অর্ডার নেই'}
+                        isLoading={isLoading.stats}
+                    />
+                    <StatCard
+                        title="মোট রিটার্ন অর্ডার টাকার পরিমাণ"
+                        value={`৳ ${stats?.returnOrderAmount?.toLocaleString('bn-BD', { minimumFractionDigits: 2 })}`}
+                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
+                        description={stats?.returnOrderAmount > 0 ? `৳${stats?.returnOrderAmount.toLocaleString('bn-BD', { minimumFractionDigits: 2 })} এই মাসে রিটার্ন হয়েছে` : 'কোনো রিটার্ন অর্ডার নেই'}
+                        isLoading={isLoading.stats}
+                    />
+                    <StatCard
+                        title="পেন্ডিং অর্ডার"
+                        value={`৳ ${stats?.pendingOrderAmount?.toLocaleString('bn-BD', { minimumFractionDigits: 2 })}`}
+                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
+                        description={stats?.pendingOrderAmount > 0 ? `৳${stats?.pendingOrderAmount.toLocaleString('bn-BD', { minimumFractionDigits: 2 })} এই মাসে পেন্ডিং হয়েছে` : 'কোনো পেন্ডিং অর্ডার নেই'}
+                        isLoading={isLoading.stats}
+                    />
+                    <StatCard
+                        title="ডেলিভারি"
+                        value={`৳ ${stats?.deliveredOrderAmount?.toLocaleString('bn-BD', { minimumFractionDigits: 2 })}`}
+                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
+                        description={stats?.deliveredOrderAmount > 0 ? `৳${stats?.deliveredOrderAmount.toLocaleString('bn-BD', { minimumFractionDigits: 2 })} এই মাসে ডেলিভারি হয়েছে` : 'কোনো ডেলিভারি অর্ডার নেই'}
                         isLoading={isLoading.stats}
                     />
                 </div>
