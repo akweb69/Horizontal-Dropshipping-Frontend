@@ -106,7 +106,7 @@ const ManageCategoriesPage = () => {
                 <PlusCircle className="mr-2 h-4 w-4" /> নতুন ক্যাটাগরি
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[625px] max-h-[500px] md:max-h-[360px] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{currentCategory ? 'ক্যাটাগরি সম্পাদনা করুন' : 'নতুন ক্যাটাগরি যোগ করুন'}</DialogTitle>
               </DialogHeader>
