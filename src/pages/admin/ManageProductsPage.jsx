@@ -4,9 +4,9 @@ import { PlusCircle, Edit, Trash2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, AlertDialogFooter } from "@/components/ui/alert-dialog"; // Added AlertDialogFooter to imports
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from '@/components/ui/use-toast';
 
@@ -25,7 +25,8 @@ const ManageProductsPage = () => {
     stock: '',
     thumbnail: '',
     sectionName: '',
-    description: '' // Added description field
+    description: '',
+    availableSizes: ''
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -39,7 +40,8 @@ const ManageProductsPage = () => {
     'যাজেট ও ইলেকট্রনিক্স',
     'কিডস জোন',
     'কম্বো প্যাক ও গিফট প্যাক',
-    'কাস্টমার গিফট জোন'
+    'কাস্টমার গিফট জোন',
+    'Others'
   ];
 
   useEffect(() => {
@@ -98,7 +100,16 @@ const ManageProductsPage = () => {
 
   const handleAddNew = () => {
     setCurrentProduct(null);
-    setFormData({ name: '', price: '', category: '', stock: '', thumbnail: '', sectionName: '', description: '' });
+    setFormData({
+      name: '',
+      price: '',
+      category: '',
+      stock: '',
+      thumbnail: '',
+      sectionName: '',
+      description: '',
+      availableSizes: ''
+    });
     setSelectedFile(null);
     setIsDialogOpen(true);
   };
@@ -112,7 +123,8 @@ const ManageProductsPage = () => {
       stock: product.stock,
       thumbnail: product.thumbnail || '',
       sectionName: product.sectionName || '',
-      description: product.description || '' // Added description
+      description: product.description || '',
+      availableSizes: product.availableSizes || ''
     });
     setSelectedFile(null);
     setIsDialogOpen(true);
@@ -221,7 +233,8 @@ const ManageProductsPage = () => {
                 <TableHead>ক্যাটাগরি</TableHead>
                 <TableHead>সেকশন</TableHead>
                 <TableHead>স্টক</TableHead>
-                <TableHead>বিবরণ</TableHead> {/* Added description column */}
+                <TableHead>বিবরণ</TableHead>
+                <TableHead>উপলব্ধ সাইজ</TableHead>
                 <TableHead className="text-right">অ্যাকশন</TableHead>
               </TableRow>
             </TableHeader>
@@ -240,7 +253,8 @@ const ManageProductsPage = () => {
                   <TableCell>{product.category}</TableCell>
                   <TableCell>{product.sectionName}</TableCell>
                   <TableCell>{product.stock}</TableCell>
-                  <TableCell>{product?.description?.slice(0, 50) + " ..." || 'নেই'}</TableCell> {/* Display description */}
+                  <TableCell>{product?.description?.slice(0, 50) + " ..." || 'নেই'}</TableCell>
+                  <TableCell>{product?.availableSizes || 'নেই'}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}><Edit className="h-4 w-4" /></Button>
                     <AlertDialog>
@@ -317,7 +331,7 @@ const ManageProductsPage = () => {
               <Input id="stock" name="stock" type="number" value={formData.stock} onChange={handleFormChange} required />
             </div>
             <div>
-              <Label htmlFor="description">বিবরণ</Label> {/* Added description input */}
+              <Label htmlFor="description">বিবরণ</Label>
               <textarea
                 id="description"
                 name="description"
@@ -326,6 +340,16 @@ const ManageProductsPage = () => {
                 className="p-2 rounded-lg outline outline-accent w-full"
                 rows="4"
                 required
+              />
+            </div>
+            <div>
+              <Label htmlFor="availableSizes">উপলব্ধ সাইজ</Label>
+              <Input
+                id="availableSizes"
+                name="availableSizes"
+                value={formData.availableSizes}
+                onChange={handleFormChange}
+                placeholder="Available sizes separated by comma"
               />
             </div>
             <div>

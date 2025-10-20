@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { useAuth } from "@/context/AuthContext";
+import Swal from "sweetalert2";
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -85,7 +86,13 @@ Total Sales: ${data.totalSell}
             if (res.data?.acknowledged) {
                 const loveRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/love`);
                 setLoveData(loveRes.data.filter((item) => item.email === user.email));
-                toast.success("❤️ প্রিয় তালিকায় যুক্ত হয়েছে!");
+                Swal.fire({
+                    position: "top-end",
+                    icon: "success",
+                    title: "❤️ প্রিয় তালিকায় যুক্ত হয়েছে!",
+                    showConfirmButton: false,
+                    timer: 1000
+                });
             } else if (res.data?.message === "Already in favorites") {
                 toast.info("⚠️ ইতিমধ্যেই প্রিয় তালিকায় আছে!");
             }
@@ -147,7 +154,7 @@ Total Sales: ${data.totalSell}
                     <img
                         src={data.thumbnail}
                         alt={data.name}
-                        className="w-full h-[400px] object-contain rounded-lg shadow-lg bg-gray-50"
+                        className="w-full  h-[400px] object-cover rounded-lg shadow-lg bg-gray-50"
                         onError={(e) => (e.target.src = "https://via.placeholder.com/400")}
                     />
                     <button
@@ -190,6 +197,14 @@ Total Sales: ${data.totalSell}
                         </p>
                         <p className="text-gray-600">
                             <span className="font-semibold">Rating:</span> {data.rating} / 5
+                        </p>
+                        {/* available sizes */}
+                        <p className="text-gray-600">
+                            <span className="font-semibold">Available Sizes:</span> {data?.availableSizes.split(",").map((size) => (
+                                <span key={size} className="bg-gray-200 text-gray-800 px-2 mr-2 py-1 rounded-sm text-sm">
+                                    {size}
+                                </span>
+                            ))}
                         </p>
                         <p className="text-gray-600">
                             <span className="font-semibold">Total Sales:</span> {data.totalSell}
