@@ -14,6 +14,7 @@ const ReferralPage = () => {
   const { isAuthenticated, user, loading } = useAuth();
   const navigate = useNavigate();
   const [referralLink, setReferralLink] = useState('');
+  const [member, setMember] = useState(false);
   // load user name --->
   useEffect(() => {
 
@@ -24,6 +25,10 @@ const ReferralPage = () => {
           const data = res.data;
           const myData = data.find(item => item.email === email);
           const reffercode = myData?.myReferralCode;
+          if (myData?.isMember) {
+            setMember(true);
+          }
+
           setReferralLink(`${window.location.origin}/signup?ref=${reffercode}`);
         })
         .catch(err => {
@@ -37,10 +42,19 @@ const ReferralPage = () => {
   if (loading) {
     return <div className="flex items-center justify-center h-screen">
       <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white">
-
       </div>
     </div>;
   }
+
+  if (!member) {
+    toast({
+      title: "রেফারেল লিংক তৈরি করা যায়নি",
+      description: "আপনি ইতিমধ্যে একটি মেম্বার নন। রেফারেল লিংক তৈরি করা যায়নি।",
+      variant: "destructive",
+    });
+    navigate('/membership');
+  }
+
   const handleGenerateLink = () => {
     if (!isAuthenticated) {
       toast({

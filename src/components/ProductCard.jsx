@@ -6,6 +6,7 @@ import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const ProductCard = ({ product }) => {
   const { isMember, user, setLoveData, setCartData } = useAuth();
@@ -13,6 +14,18 @@ const ProductCard = ({ product }) => {
 
   // ❤️ Add to favorites
   const handleLoveClick = async (productId) => {
+
+    // console.log(user?.isMember)
+    if (!isMember) {
+      Swal.fire({
+        icon: "error",
+        title: "❤️ প্রিয় তালিকায় যুক্ত করা যায়নি",
+        text: "আপনি ইতিমধ্যে একটি মেম্বার নন। প্রিয় তালিকায় যুক্ত করা যায়নি।",
+      });
+      navigate('/membership');
+      return;
+    }
+
     if (!user?.email) {
       toast({
         title: "অনুগ্রহ করে লগইন করুন!",
