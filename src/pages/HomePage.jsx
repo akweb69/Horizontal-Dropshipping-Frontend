@@ -58,7 +58,7 @@ const HomePage = () => {
         <HeroSection />
       </div>
 
-      <PromoCarousel />
+      {/* <PromoCarousel /> */}
 
       <CategoriesSection />
       {
