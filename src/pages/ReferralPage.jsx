@@ -16,6 +16,15 @@ const ReferralPage = () => {
   const [referralLink, setReferralLink] = useState('');
   const [member, setMember] = useState(false);
   // load user name --->
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">
+      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white">
+      </div>
+    </div>;
+  }
+
+
   useEffect(() => {
 
     if (user) {
@@ -29,11 +38,11 @@ const ReferralPage = () => {
             setMember(true);
           }
 
-          setReferralLink(`${window.location.origin}/signup?ref=${reffercode}`);
+          setReferralLink(reffercode);
         })
         .catch(err => {
           console.error('Failed to fetch user data: ', err);
-          setReferralLink(`${window.location.origin}/signup`);
+          setReferralLink(reffercode);
         });
 
     }
@@ -46,12 +55,12 @@ const ReferralPage = () => {
     </div>;
   }
 
-  if (!member) {
-    toast({
-      title: "রেফারেল লিংক তৈরি করা যায়নি",
-      description: "আপনি ইতিমধ্যে একটি মেম্বার নন। রেফারেল লিংক তৈরি করা যায়নি।",
-      variant: "destructive",
-    });
+  if (!member && !loading) {
+    // toast({
+    //   title: "রেফারেল লিংক তৈরি করা যায়নি",
+    //   description: "আপনি ইতিমধ্যে একটি মেম্বার নন। রেফারেল লিংক তৈরি করা যায়নি।",
+    //   variant: "destructive",
+    // });
     navigate('/membership');
   }
 
@@ -65,11 +74,11 @@ const ReferralPage = () => {
       navigate('/login');
     } else {
       // Assuming the user object has a referralCode property
-      const link = `${window.location.origin}/signup?ref=${user?.referralCode || 'newuser'}`;
+      const link = `${referralLink}`;
       setReferralLink(link);
       toast({
-        title: "লিংক তৈরি হয়েছে!",
-        description: "আপনার রেফারেল লিংক সফলভাবে তৈরি করা হয়েছে।",
+        title: "লিংক তৈরি হয়েছে!",
+        description: "আপনার রেফারেল  সফলভাবে তৈরি করা হয়েছে।",
       });
     }
   };
@@ -79,15 +88,15 @@ const ReferralPage = () => {
       navigator.clipboard.writeText(referralLink)
         .then(() => {
           toast({
-            title: "কপি করা হয়েছে!",
-            description: "রেফারেল লিংক আপনার ক্লিপবোর্ডে কপি করা হয়েছে।",
+            title: "কপি করা হয়েছে!",
+            description: "রেফারেল  আপনার ক্লিপবোর্ডে কপি করা হয়েছে।",
           });
         })
         .catch(err => {
           console.error('Failed to copy: ', err);
           toast({
             title: "কপি করতে ব্যর্থ",
-            description: "লিংকটি কপি করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।",
+            description: " কপি করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।",
             variant: "destructive",
           });
         });
