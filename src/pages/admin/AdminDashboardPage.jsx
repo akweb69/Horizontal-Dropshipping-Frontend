@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import axios from 'axios';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, ShoppingCart, Truck, CheckCircle, RefreshCw } from 'lucide-react';
 import { Bar, BarChart as ReBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
@@ -11,22 +12,43 @@ import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
 const StatCard = ({ title, value, icon, description, isLoading }) => (
-    <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{title}</CardTitle>
-            {icon}
-        </CardHeader>
-        <CardContent>
-            {isLoading ? (
-                <Loader2 className="h-6 w-6 animate-spin" />
-            ) : (
-                <>
-                    <div className="text-2xl font-bold">{value ?? '0'}</div>
-                    <p className="text-xs text-muted-foreground">{description}</p>
-                </>
-            )}
-        </CardContent>
-    </Card>
+    <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        whileHover={{ scale: 1.03, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
+    >
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{title}</CardTitle>
+                {icon}
+            </CardHeader>
+            <CardContent>
+                {isLoading ? (
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                ) : (
+                    <>
+                        <motion.div
+                            className="text-2xl font-bold"
+                            initial={{ y: 10, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.2, duration: 0.3 }}
+                        >
+                            {value ?? '0'}
+                        </motion.div>
+                        <motion.p
+                            className="text-xs text-muted-foreground"
+                            initial={{ y: 10, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.3, duration: 0.3 }}
+                        >
+                            {description}
+                        </motion.p>
+                    </>
+                )}
+            </CardContent>
+        </Card>
+    </motion.div>
 );
 
 const getStatusVariant = (status) => {
@@ -45,7 +67,11 @@ const AdminDashboardPage = () => {
         totalOrders: null,
         shippedOrders: null,
         deliveredOrders: null,
-        returnedOrders: null
+        returnedOrders: null,
+        totalSales: null,
+        returnOrderAmount: null,
+        pendingOrderAmount: null,
+        deliveredOrderAmount: null
     });
     const [salesData, setSalesData] = useState([]);
     const [recentOrders, setRecentOrders] = useState([]);
@@ -58,25 +84,20 @@ const AdminDashboardPage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch users
                 const usersResponse = await axios.get(`${import.meta.env.VITE_BASE_URL}/users`);
                 const usersCount = usersResponse?.data?.length ?? 0;
 
-                // Fetch orders
                 const ordersResponse = await axios.get(`${import.meta.env.VITE_BASE_URL}/orders`);
                 const orders = ordersResponse?.data ?? [];
 
-                // Calculate order statistics
                 const shippedOrders = orders?.filter(order => order?.status === 'Shipped')?.length ?? 0;
                 const deliveredOrders = orders?.filter(order => order?.status === 'Delivered')?.length ?? 0;
                 const returnedOrders = orders?.filter(order => order?.status === 'Returned')?.length ?? 0;
                 const totalSales = orders?.reduce((acc, order) => acc + (order?.items_total ?? 0), 0) ?? 0;
                 const returnOrderAmount = orders?.filter(order => order?.status === 'Returned')?.reduce((acc, order) => acc + (order?.items_total ?? 0), 0) ?? 0;
                 const pendingOrderAmount = orders?.filter(order => order?.status === 'Processing' || order?.status === 'pending')?.reduce((acc, order) => acc + (order?.items_total ?? 0), 0) ?? 0;
-
                 const deliveredOrderAmount = orders?.filter(order => order?.status === 'Delivered' || order?.status === 'Shipped')?.reduce((acc, order) => acc + (order?.items_total ?? 0), 0) ?? 0;
 
-                // Set stats
                 setStats({
                     totalUsers: usersCount,
                     totalOrders: orders?.length ?? 0,
@@ -89,7 +110,6 @@ const AdminDashboardPage = () => {
                     deliveredOrderAmount
                 });
 
-                // Process sales data (mock monthly aggregation - adjust based on your order data structure)
                 const monthlySales = [
                     { name: 'জান', sales: 0 }, { name: 'ফেব্রু', sales: 0 }, { name: 'মার্চ', sales: 0 },
                     { name: 'এপ্রিল', sales: 0 }, { name: 'মে', sales: 0 }, { name: 'জুন', sales: 0 },
@@ -107,7 +127,6 @@ const AdminDashboardPage = () => {
 
                 setSalesData(monthlySales);
 
-                // Set recent orders (last 5)
                 const recent = orders
                     ?.slice?.(0, 5)
                     ?.map(order => ({
@@ -118,7 +137,6 @@ const AdminDashboardPage = () => {
                     })) ?? [];
 
                 setRecentOrders(recent);
-
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
             } finally {
@@ -134,20 +152,31 @@ const AdminDashboardPage = () => {
     }, []);
 
     return (
-        <>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+        >
             <Helmet>
                 <title>অ্যাডমিন ড্যাশবোর্ড</title>
                 <meta name="description" content="ওয়েবসাইটের সম্পূর্ণ ওভারভিউ এবং পরিসংখ্যান।" />
             </Helmet>
             <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">অ্যাডমিন ড্যাশবোর্ড</h1>
-                        <p className="text-muted-foreground">আপনার ব্যবসার একটি সম্পূর্ণ চিত্র দেখুন।</p>
-                    </div>
-                </div>
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.1 }}
+                >
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800">অ্যাডমিন ড্যাশবোর্ড</h1>
+                    <p className="text-muted-foreground">আপনার ব্যবসার একটি সম্পূর্ণ চিত্র দেখুন।</p>
+                </motion.div>
 
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+                <motion.div
+                    className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 h-full"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ staggerChildren: 0.1 }}
+                >
                     <StatCard
                         title="মোট ব্যবহারকারী"
                         value={stats?.totalUsers}
@@ -187,110 +216,180 @@ const AdminDashboardPage = () => {
                         title="মোট অর্ডার টাকার পরিমাণ"
                         value={`৳ ${stats?.totalSales}`}
                         icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.totalSales > 0 ? `৳${stats?.totalSales.toLocaleString('bn-BD', { minimumFractionDigits: 2 })} এই মাসে` : 'কোনো অর্ডার নেই'}
+                        description={stats?.totalSales > 0 ? `৳${stats?.totalSales} এই মাসে` : 'কোনো অর্ডার নেই'}
                         isLoading={isLoading.stats}
                     />
                     <StatCard
                         title="মোট রিটার্ন অর্ডার টাকার পরিমাণ"
                         value={`৳ ${stats?.returnOrderAmount}`}
                         icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.returnOrderAmount > 0 ? `৳${stats?.returnOrderAmount.toLocaleString('bn-BD', { minimumFractionDigits: 2 })} এই মাসে রিটার্ন হয়েছে` : 'কোনো রিটার্ন অর্ডার নেই'}
+                        description={stats?.returnOrderAmount > 0 ? `৳${stats?.returnOrderAmount} এই মাসে রিটার্ন হয়েছে` : 'কোনো রিটার্ন অর্ডার নেই'}
                         isLoading={isLoading.stats}
                     />
                     <StatCard
                         title="পেন্ডিং অর্ডার"
                         value={`৳ ${stats?.pendingOrderAmount}`}
                         icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.pendingOrderAmount > 0 ? `৳${stats?.pendingOrderAmount.toLocaleString('bn-BD', { minimumFractionDigits: 2 })} এই মাসে পেন্ডিং হয়েছে` : 'কোনো পেন্ডিং অর্ডার নেই'}
+                        description={stats?.pendingOrderAmount > 0 ? `৳${stats?.pendingOrderAmount} এই মাসে পেন্ডিং হয়েছে` : 'কোনো পেন্ডিং অর্ডার নেই'}
                         isLoading={isLoading.stats}
                     />
                     <StatCard
                         title="ডেলিভারি"
                         value={`৳ ${stats?.deliveredOrderAmount}`}
                         icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.deliveredOrderAmount > 0 ? `৳${stats?.deliveredOrderAmount.toLocaleString('bn-BD', { minimumFractionDigits: 2 })} এই মাসে ডেলিভারি হয়েছে` : 'কোনো ডেলিভারি অর্ডার নেই'}
+                        description={stats?.deliveredOrderAmount > 0 ? `৳${stats?.deliveredOrderAmount} এই মাসে ডেলিভারি হয়েছে` : 'কোনো ডেলিভারি অর্ডার নেই'}
                         isLoading={isLoading.stats}
                     />
-                </div>
+                    <StatCard
+                        title="মোট ব্যবহারকারী ব্যালান্স"
+                        value={`৳ ${stats?.totalSales}`}
+                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
+                        description={stats?.totalSales > 0 ? `৳${stats?.totalSales} এই মাসে ব্যবহারকারীদের ব্যালান্স` : 'কোনো ব্যবহারকারী নেই'}
+                        isLoading={isLoading.stats}
+                    />
+                    <StatCard
+                        title="মোট ব্যাংক রিকোয়েস্ট"
+                        value={`৳ ${stats?.totalWithdrawRequest ?? 0}`}
+                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
+                        description={stats?.totalWithdrawRequest > 0 ? `৳${stats?.totalWithdrawRequest} এই মাসে ব্যাংক রিকোয়েস্ট হয়েছে` : 'কোনো ব্যাংক রিকোয়েস্ট নেই'}
+                        isLoading={isLoading.stats}
+                    />
+                    <StatCard
+                        title="মোট ব্যাংক উত্তোলন"
+                        value={`৳ ${stats?.totalWithdrawAmount ?? 0}`}
+                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
+                        description={stats?.totalWithdrawAmount > 0 ? `৳${stats?.totalWithdrawAmount} এই মাসে ব্যাংক উত্তোলন হয়েছে` : 'কোনো ব্যাংক উত্তোলন নেই'}
+                        isLoading={isLoading.stats}
+                    />
+                    <StatCard
+                        title="পেন্ডিং ব্যাংক উত্তোলন"
+                        value={`৳ ${stats?.pendingWithdrawAmount ?? 0}`}
+                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
+                        description={stats?.pendingWithdrawAmount > 0 ? `৳${stats?.pendingWithdrawAmount} এই মাসে পেন্ডিং হয়েছে` : 'কোনো পেন্ডিং ব্যাংক উত্তোলন নেই'}
+                        isLoading={isLoading.stats}
+                    />
+                </motion.div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                    <Card className="lg:col-span-3">
-                        <CardHeader>
-                            <CardTitle>মাসিক বিক্রয়</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {isLoading.sales ? (
-                                <div className="flex justify-center items-center h-[300px]">
-                                    <Loader2 className="h-8 w-8 animate-spin" />
-                                </div>
-                            ) : (
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <ReBarChart data={salesData}>
-                                        <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="name" />
-                                        <YAxis />
-                                        <Tooltip
-                                            cursor={{ fill: 'hsl(var(--primary)/0.1)' }}
-                                            contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc', borderRadius: '0.5rem' }}
-                                        />
-                                        <Legend />
-                                        <Bar
-                                            dataKey="sales"
-                                            name="বিক্রয় (৳)"
-                                            fill="hsl(var(--primary))"
-                                            radius={[4, 4, 0, 0]}
-                                        />
-                                    </ReBarChart>
-                                </ResponsiveContainer>
-                            )}
-                        </CardContent>
-                    </Card>
-                    <Card className="lg:col-span-2">
-                        <CardHeader>
-                            <CardTitle>সাম্প্রতিক অর্ডার</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {isLoading.orders ? (
-                                <div className="flex justify-center items-center h-[200px]">
-                                    <Loader2 className="h-8 w-8 animate-spin" />
-                                </div>
-                            ) : (
-                                <>
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>গ্রাহক</TableHead>
-                                                <TableHead>স্ট্যাটাস</TableHead>
-                                                <TableHead className="text-right">মোট</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {recentOrders?.map?.((order) => (
-                                                <TableRow key={order?.id}>
-                                                    <TableCell>
-                                                        <div className="font-medium">{order?.customer}</div>
-                                                        <div className="text-sm text-muted-foreground">{order?.id}</div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Badge variant={getStatusVariant(order?.status)}>{order?.status}</Badge>
-                                                    </TableCell>
-                                                    <TableCell className="text-right">৳{order?.total}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                    <div className="mt-4 text-center">
-                                        <Button asChild variant="outline" size="sm">
-                                            <Link to="/admin/orders">সব অর্ডার দেখুন</Link>
-                                        </Button>
+                <motion.div
+                    className="grid grid-cols-1 lg:grid-cols-5 gap-6"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                >
+                    <motion.div
+                        className="lg:col-span-3"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.4 }}
+                    >
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>মাসিক বিক্রয়</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                {isLoading.sales ? (
+                                    <div className="flex justify-center items-center h-[300px]">
+                                        <Loader2 className="h-8 w-8 animate-spin" />
                                     </div>
-                                </>
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
+                                ) : (
+                                    <ResponsiveContainer width="100%" height={300}>
+                                        <ReBarChart data={salesData}>
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis dataKey="name" />
+                                            <YAxis />
+                                            <Tooltip
+                                                cursor={{ fill: 'hsl(var(--primary)/0.1)' }}
+                                                contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc', borderRadius: '0.5rem' }}
+                                            />
+                                            <Legend />
+                                            <motion.g>
+                                                <Bar
+                                                    dataKey="sales"
+                                                    name="বিক্রয় (৳)"
+                                                    fill="hsl(var(--primary))"
+                                                    radius={[4, 4, 0, 0]}
+                                                // Custom animation for bars
+                                                // Note: Recharts doesn't directly support Framer Motion, so we animate the container
+                                                />
+                                            </motion.g>
+                                        </ReBarChart>
+                                    </ResponsiveContainer>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                    <motion.div
+                        className="lg:col-span-2"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.4 }}
+                    >
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>সাম্প্রতিক অর্ডার</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                {isLoading.orders ? (
+                                    <div className="flex justify-center items-center h-[200px]">
+                                        <Loader2 className="h-8 w-8 animate-spin" />
+                                    </div>
+                                ) : (
+                                    <>
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>গ্রাহক</TableHead>
+                                                    <TableHead>স্ট্যাটাস</TableHead>
+                                                    <TableHead className="text-right">মোট</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                <AnimatePresence>
+                                                    {recentOrders?.map?.((order, index) => (
+                                                        <motion.tr
+                                                            key={order?.id}
+                                                            initial={{ opacity: 0, y: 10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0 }}
+                                                            transition={{ duration: 0.3, delay: index * 0.1 }}
+                                                            whileHover={{ backgroundColor: 'hsl(var(--muted)/0.1)' }}
+                                                        >
+                                                            <TableCell>
+                                                                <div className="font-medium">{order?.customer}</div>
+                                                                <div className="text-sm text-muted-foreground">{order?.id}</div>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <Badge variant={getStatusVariant(order?.status)}>{order?.status}</Badge>
+                                                            </TableCell>
+                                                            <TableCell className="text-right">৳{order?.total}</TableCell>
+                                                        </motion.tr>
+                                                    ))}
+                                                </AnimatePresence>
+                                            </TableBody>
+                                        </Table>
+                                        <motion.div
+                                            className="mt-4 text-center"
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ duration: 0.3, delay: 0.5 }}
+                                        >
+                                            <motion.div
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                <Button asChild variant="outline" size="sm">
+                                                    <Link to="/admin/orders">সব অর্ডার দেখুন</Link>
+                                                </Button>
+                                            </motion.div>
+                                        </motion.div>
+                                    </>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                </motion.div>
             </div>
-        </>
+        </motion.div>
     );
 };
 
