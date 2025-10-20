@@ -77,13 +77,16 @@ const HeroSection = () => {
 
   return (
     <section
-      className="relative w-full h-[50vh] md:h-[70vh] overflow-hidden rounded-lg"
+      className="relative w-full h-[35vh] md:h-[50vh] overflow-hidden rounded-lg"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
       {loading ? (
-        <div className="w-full min-h-[50vh] md:min-h-[70vh] flex items-center justify-center">
-          loading...
+        <div className="w-full min-h-[50vh] md:min-h-[60vh] max-h-[0vh] flex items-center justify-center">
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white">
+            </div>
+          </div>
         </div>
       ) : slides.length > 0 ? (
         <div>
@@ -103,12 +106,12 @@ const HeroSection = () => {
                 src={slides[currentIndex]?.thumbnail}
               />
               <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-              <div className="absolute inset-0 flex flex-col items-center justify-end text-center text-white p-4 md:p-12">
+              {/* <div className="absolute inset-0 flex flex-col items-center justify-end text-center text-white p-4 md:p-12">
                 <div className="bg-black bg-opacity-50 p-4 md:p-6 rounded-lg mb-12 md:mb-20 max-w-2xl">
                   <h5 className="text-2xl md:text-4xl font-bold mb-2">{slides[currentIndex]?.title}</h5>
                   <p className="text-sm md:text-lg hidden sm:block">{slides[currentIndex]?.subtitle}</p>
                 </div>
-              </div>
+              </div> */}
             </motion.div>
           </AnimatePresence>
 
