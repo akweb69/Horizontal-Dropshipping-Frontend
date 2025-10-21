@@ -11,9 +11,15 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from '@/components/ui/use-toast';
+// import { auth } from '@/firebase';
+import {
+  sendPasswordResetEmail,
+  confirmPasswordReset,
+} from 'firebase/auth';
 
 const base_url = import.meta.env.VITE_BASE_URL;
 import { useAuth } from '@/context/AuthContext';
+import auth from '../../firebase';
 
 const ManageUsersPage = () => {
   const [users, setUsers] = useState([]);
@@ -21,10 +27,31 @@ const ManageUsersPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({ name: '', email: '', role: 'user', subscription: 'Basic', status: 'Active' });
-  const { user } = useAuth()
+  const { user } = useAuth();
+
+  // Password Reset States
+  const [openPasswordReset, setOpenPasswordReset] = useState(false);
+  const [resetStep, setResetStep] = useState('email'); // 'email' | 'newPassword' | 'emailSent'
+  const [resetEmail, setResetEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [oobCode, setOobCode] = useState(''); // Firebase reset code from URL
 
   useEffect(() => {
     fetchUsers();
+  }, []);
+
+  // Check if we are in password reset mode (after clicking email link)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    const code = urlParams.get('oobCode');
+
+    if (mode === 'resetPassword' && code) {
+      setOobCode(code);
+      setResetStep('newPassword');
+      setOpenPasswordReset(true);
+    }
   }, []);
 
   const fetchUsers = async () => {
@@ -149,6 +176,58 @@ const ManageUsersPage = () => {
       });
   };
 
+  // Step 1: Send Reset Email
+  const handleSendResetEmail = async () => {
+    if (!resetEmail || !resetEmail.includes('@')) {
+      toast({ title: "ত্রুটি", description: "সঠিক ইমেইল দিন।", variant: "destructive" });
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, resetEmail);
+      toast({ title: "সফল", description: `রিসেট লিঙ্ক পাঠানো হয়েছে ${resetEmail} এ।` });
+      setResetStep('emailSent');
+    } catch (error) {
+      toast({ title: "ত্রুটি", description: error.message || "ইমেইল পাঠাতে ব্যর্থ।", variant: "destructive" });
+    }
+  };
+
+  // Step 2: Confirm New Password
+  const handleConfirmNewPassword = async () => {
+    if (newPassword !== confirmPassword) {
+      toast({ title: "ত্রুটি", description: "পাসওয়ার্ড মিলছে না।", variant: "destructive" });
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast({ title: "ত্রুটি", description: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।", variant: "destructive" });
+      return;
+    }
+
+    try {
+      await confirmPasswordReset(auth, oobCode, newPassword);
+      toast({ title: "সফল", description: "পাসওয়ার্ড সফলভাবে আপডেট হয়েছে।" });
+      setOpenPasswordReset(false);
+      setResetStep('email');
+      setResetEmail('');
+      setNewPassword('');
+      setConfirmPassword('');
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } catch (error) {
+      toast({ title: "ত্রুটি", description: error.message || "পাসওয়ার্ড আপডেট ব্যর্থ।", variant: "destructive" });
+    }
+  };
+
+  // Reset Modal Close
+  const closeResetModal = () => {
+    setOpenPasswordReset(false);
+    setResetStep('email');
+    setResetEmail('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setOobCode('');
+    window.history.replaceState({}, document.title, window.location.pathname);
+  };
 
   return (
     <>
@@ -170,9 +249,13 @@ const ManageUsersPage = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            {/* <Button onClick={handleAddNew}>
-              <UserPlus className="mr-2 h-4 w-4" /> নতুন ব্যবহারকারী
-            </Button> */}
+            <Button
+              onClick={() => { setOpenPasswordReset(true); setResetStep('email'); }}
+              variant="primary"
+              className="flex items-center bg-orange-500 hover:bg-orange-600"
+            >
+              <UserPlus className="mr-2 h-4 w-4" /> ব্যবহারকারী পাসওয়ার্ড রিসেট করুন
+            </Button>
           </div>
         </CardHeader>
 
@@ -286,73 +369,93 @@ const ManageUsersPage = () => {
         </CardContent>
       </Card>
 
-      {/* ✅ Add/Edit Dialog */}
-      {/* <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{currentUser ? 'ব্যবহারকারী সম্পাদনা করুন' : 'নতুন ব্যবহারকারী যোগ করুন'}</DialogTitle>
-          </DialogHeader>
+      {/* Password Reset Modal */}
+      {openPasswordReset && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50 p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>
+                {resetStep === 'email' && 'পাসওয়ার্ড রিসেট করুন'}
+                {resetStep === 'emailSent' && 'ইমেইল পাঠানো হয়েছে'}
+                {resetStep === 'newPassword' && 'নতুন পাসওয়ার্ড সেট করুন'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="name">নাম</Label>
-              <Input id="name" name="name" value={formData.name} onChange={handleFormChange} required />
-            </div>
-            <div>
-              <Label htmlFor="email">ইমেল</Label>
-              <Input id="email" name="email" type="email" value={formData.email} onChange={handleFormChange} required />
-            </div>
-            <div>
-              <Label htmlFor="role">ভূমিকা</Label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleFormChange}
-                className="w-full p-2 border rounded"
-                disabled={currentUser && currentUser.email === 'admin@letsdropship.com'}
-              >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="subscription">সাবস্ক্রিপশন</Label>
-              <select
-                id="subscription"
-                name="subscription"
-                value={formData.subscription}
-                onChange={handleFormChange}
-                className="w-full p-2 border rounded"
-                required
-              >
-                <option value="Basic">Basic</option>
-                <option value="Pro">Pro</option>
-                <option value="Premium">Premium</option>
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="status">স্ট্যাটাস</Label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleFormChange}
-                className="w-full p-2 border rounded"
-              >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="secondary" onClick={() => setIsDialogOpen(false)}>
-                বাতিল
-              </Button>
-              <Button type="submit">সংরক্ষণ করুন</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog> */}
+              {/* Step 1: Enter Email */}
+              {resetStep === 'email' && (
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="reset-email">ইউজারের ইমেইল</Label>
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      placeholder="user@example.com"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={closeResetModal} className="flex-1">
+                      বাতিল
+                    </Button>
+                    <Button onClick={handleSendResetEmail} className="flex-1 bg-orange-500 hover:bg-orange-600">
+                      লিঙ্ক পাঠান
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 1.5: Email Sent */}
+              {resetStep === 'emailSent' && (
+                <div className="space-y-4 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    আমরা <strong>{resetEmail}</strong> এ একটি রিসেট লিঙ্ক পাঠিয়েছি। <br />
+                    ইমেইল চেক করুন এবং লিঙ্কে ক্লিক করে পাসওয়ার্ড পরিবর্তন করুন।
+                  </p>
+                  <Button variant="outline" onClick={closeResetModal} className="w-full">
+                    বন্ধ করুন
+                  </Button>
+                </div>
+              )}
+
+              {/* Step 2: New Password Form */}
+              {resetStep === 'newPassword' && (
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="new-password">নতুন পাসওয়ার্ড</Label>
+                    <Input
+                      id="new-password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="confirm-password">কনফার্ম পাসওয়ার্ড</Label>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={closeResetModal} className="flex-1">
+                      বাতিল
+                    </Button>
+                    <Button onClick={handleConfirmNewPassword} className="flex-1 bg-orange-500 hover:bg-orange-600">
+                      পাসওয়ার্ড আপডেট
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </>
   );
 };
