@@ -254,7 +254,8 @@ const CartPage = () => {
                 tnx_id: tnxId,
                 order_date: orderDate,
                 email: email,
-                amar_bikri_mullo: amarBikriMullo, // Add new field
+                amar_bikri_mullo: amarBikriMullo,
+                store_info: user?.storeInfo
             };
         }
 

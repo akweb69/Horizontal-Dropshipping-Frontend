@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
-import { Search, Eye, Truck, Loader2, PackageSearch, X } from "lucide-react";
+import { Search, Eye, Truck, Loader2, PackageSearch, X, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +23,8 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const getStatusVariant = (status) => {
   switch (status) {
@@ -77,6 +79,8 @@ const ManageOrdersPage = () => {
           },
         ],
         delivery_details: order.delivery_details,
+        amar_bikri_mullo: order.amar_bikri_mullo,
+        delivery_charge: order.delivery_charge,
       }));
       setOrders(formattedOrders);
     } catch (error) {
@@ -138,6 +142,127 @@ const ManageOrdersPage = () => {
       order?.customer?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // === Invoice Generation Function ===
+  const handleGenerateInvoice = async (order) => {
+    try {
+      const orderId = order._id;
+      console.log("Generating invoice for order ID:", order);
+
+      // Fetch full order data
+      const orderRes = await axios.get(`${base_url}/orders/${orderId}`);
+      const orderData = orderRes.data;
+
+      if (!orderData) {
+        toast({ title: "Error!", description: "Order not found.", variant: "destructive" });
+        return;
+      }
+
+      // Fetch admin/shop info (from users or store)
+      let shopName = "LetsDropship", shopAddress = "N/A", shopContact = "N/A", shopImage = null;
+      try {
+        const usersRes = await axios.get(`${base_url}/users`);
+        const admin = usersRes.data.find(u => u.email === order?.customer);
+        if (admin?.storeInfo) {
+          shopName = admin.storeInfo.shopName || shopName;
+          shopAddress = admin.storeInfo.shopAddress || shopAddress;
+          shopContact = admin.storeInfo.shopContact || shopContact;
+          shopImage = admin.storeInfo.shopImage;
+        }
+      } catch (e) { /* ignore */ }
+
+      const doc = new jsPDF("p", "mm", "a4");
+
+      // Header
+      doc.setFontSize(20);
+      doc.setTextColor("#0D6EFD");
+      doc.text("Order Invoice", 14, 20);
+
+      if (shopImage) {
+        doc.addImage(shopImage, "JPEG", 150, 10, 50, 30);
+      }
+
+      doc.setFontSize(12);
+      doc.setTextColor(0);
+      doc.text(`Shop: ${shopName}`, 14, 30);
+      doc.text(`Address: ${shopAddress}`, 14, 38);
+      doc.text(`Contact: ${shopContact}`, 14, 46);
+
+      doc.setDrawColor(200);
+      doc.line(14, 50, 196, 50);
+
+      // Order Info
+      doc.setFontSize(12);
+      doc.setTextColor("#555555");
+      doc.text(`Invoice ID: ${orderData._id}`, 14, 58);
+      doc.text(`Order Date: ${new Date(orderData.order_date).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      })}`, 14, 66);
+
+      const delivery = orderData.delivery_details || {};
+      doc.text(`Customer: ${delivery.name || "N/A"}`, 14, 74);
+      doc.text(`Address: ${delivery.address || "N/A"}`, 14, 82);
+      doc.text(`Phone: ${delivery.phone || "N/A"}`, 14, 90);
+
+      doc.line(14, 95, 196, 95);
+
+      // Items Table
+      const tableColumn = ["Product Name", "Price", "Qty", "Delivery", "Subtotal"];
+      const tableRows = [];
+
+      (orderData.items || []).forEach(item => {
+        const price = parseFloat(orderData.amar_bikri_mullo - orderData.delivery_charge);
+        const subtotal = parseFloat(price * item.quantity + orderData.delivery_charge);
+        tableRows.push([
+          item.name,
+          `${price.toFixed(2)}`,
+          item.quantity,
+          `${orderData.delivery_charge?.toFixed(2) || 0}`,
+          `${subtotal.toFixed(2)}`
+        ]);
+      });
+
+      autoTable(doc, {
+        startY: 100,
+        head: [tableColumn],
+        body: tableRows,
+        theme: "grid",
+        headStyles: { fillColor: [13, 110, 253], textColor: 255, fontStyle: "bold" },
+        styles: { fontSize: 11, cellPadding: 3 },
+        alternateRowStyles: { fillColor: [245, 245, 245] }
+      });
+
+      const finalY = doc.lastAutoTable.finalY + 10;
+
+      // Payment Info
+      doc.setFontSize(12);
+      doc.setTextColor(0);
+      doc.text("Payment Information", 14, finalY);
+      doc.setFontSize(11);
+      doc.text(`Method: ${orderData.payment_method || "N/A"}`, 14, finalY + 8);
+      doc.text(`Transaction ID: ${orderData.tnx_id || "N/A"}`, 14, finalY + 16);
+      doc.text(`Payment Number: ${orderData.payment_number || "N/A"}`, 14, finalY + 24);
+
+      // Grand Total
+      const grandTotal = parseFloat(orderData.amar_bikri_mullo) || 0;
+      doc.setFontSize(13);
+      doc.setTextColor("#000000");
+      doc.text(`Grand Total: ${grandTotal.toFixed(2)}`, 14, finalY + 40);
+
+      // Footer
+      doc.setFontSize(10);
+      doc.setTextColor("#888888");
+      doc.text("Thank you for shopping with LetsDropship!", 14, 285);
+
+      // Save
+      doc.save(`Invoice_${orderData._id}.pdf`);
+
+      toast({ title: "সফল!", description: "ইনভয়েস তৈরি হয়েছে।", variant: "default" });
+    } catch (error) {
+      console.error("Invoice error:", error);
+      toast({ title: "ত্রুটি!", description: "ইনভয়েস তৈরি করতে ব্যর্থ।", variant: "destructive" });
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -171,7 +296,7 @@ const ManageOrdersPage = () => {
             ) : filteredOrders.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-gray-500">
                 <PackageSearch className="h-12 w-12 mb-3" />
-                <p className="text-lg">কোন অর্ডার পাওয়া যায়নি।</p>
+                <p className="text-lg">কোন অর্ড়ার পাওয়া যায়নি।</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -222,21 +347,29 @@ const ManageOrdersPage = () => {
                               variant="outline"
                               size="sm"
                               onClick={() => handleViewOrder(order?._id)}
-                              className="h-9   rounded-full border-gray-200 hover:bg-indigo-500"
+                              className="h-9 rounded-full border-gray-200 hover:bg-indigo-500"
                             >
-                              view
-                              {/* <Eye className="h-4 w-4 text-lg bg-indigo-400 text-indigo-600" /> */}
+                              <Eye className="h-4 w-4" />
                             </Button>
+
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleGenerateInvoice(order)}
+                              className="h-9 rounded-full border-gray-200 hover:bg-green-500 hover:text-white"
+                            >
+                              <FileText className="h-4 w-4" />
+                            </Button>
+
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="h-9  rounded-full border-gray-200 hover:bg-indigo-500"
+                                  className="h-9 rounded-full border-gray-200 hover:bg-indigo-500"
                                   disabled={order?.status === "Delivered" || order?.status === "Returned" || order?.status === "Shipped"}
                                 >
-                                  Update
-                                  {/* <Truck className="h-4 w-4 text-indigo-600" /> */}
+                                  <Truck className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="rounded-lg shadow-lg">
@@ -290,76 +423,64 @@ const ManageOrdersPage = () => {
             </div>
             <div className="space-y-4 text-sm text-gray-700">
               <div className="border-b pb-3">
-                <p>
-                  <strong className="font-semibold">গ্রাহক:</strong> {selectedOrder.email || "Unknown"}
-                </p>
+                <p><strong className="font-semibold">গ্রাহক:</strong> {selectedOrder.email || "Unknown"}</p>
               </div>
               <div className="border-b pb-3">
-                <p>
-                  <strong className="font-semibold">তারিখ:</strong>{" "}
+                <p><strong className="font-semibold">তারিখ:</strong>{" "}
                   {new Date(selectedOrder.order_date).toLocaleDateString("bn-BD", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
+                    day: "2-digit", month: "short", year: "numeric",
                   })}
                 </p>
               </div>
               <div className="border-b pb-3">
-                <p>
-                  <strong className="font-semibold">মোট:</strong> {Number(selectedOrder.grand_total).toLocaleString("bn-BD")} ৳
+                <p><strong className="font-semibold">মোট:</strong> {Number(selectedOrder.grand_total).toLocaleString("bn-BD")} ৳</p>
+              </div>
+              <div className="border-b pb-3">
+                <p><strong className="font-semibold">পেমেন্ট মেথড:</strong>{" "}
+                  {selectedOrder.payment_method.charAt(0).toUpperCase() + selectedOrder.payment_method.slice(1)}
                 </p>
               </div>
               <div className="border-b pb-3">
-                <p>
-                  <strong className="font-semibold">পেমেন্ট মেথড:</strong>{" "}
-                  {selectedOrder.payment_method.charAt(0).toUpperCase() +
-                    selectedOrder.payment_method.slice(1)}
-                </p>
+                <p><strong className="font-semibold">পেমেন্ট নম্বর:</strong> {selectedOrder.payment_number}</p>
               </div>
               <div className="border-b pb-3">
-                <p>
-                  <strong className="font-semibold">পেমেন্ট নম্বর:</strong> {selectedOrder.payment_number}
-                </p>
+                <p><strong className="font-semibold">ট্রানজাকশন আইডি:</strong> {selectedOrder.tnx_id}</p>
               </div>
               <div className="border-b pb-3">
-                <p>
-                  <strong className="font-semibold">ট্রানজাকশন আইডি:</strong> {selectedOrder.tnx_id}
-                </p>
-              </div>
-              <div className="border-b pb-3">
-                <p>
-                  <strong className="font-semibold">ডেলিভারি বিস্তারিত:</strong>{" "}
+                <p><strong className="font-semibold">ডেলিভারি বিস্তারিত:</strong>{" "}
                   {selectedOrder.delivery_details
                     ? `${selectedOrder.delivery_details.name}, ${selectedOrder.delivery_details.address}, ${selectedOrder.delivery_details.location}, ${selectedOrder.delivery_details.phone}`
                     : "N/A"}
                 </p>
               </div>
               <div className="border-b pb-3">
-                <p>
-                  <strong className="font-semibold">আইটেম:</strong>{" "}
+                <p><strong className="font-semibold">আইটেম:</strong>{" "}
                   {selectedOrder.items
                     ? selectedOrder.items
-                      .map(
-                        (item) =>
-                          `${item.name} (পরিমাণ: ${item.quantity}, মূল্য: ${Number(item.price).toLocaleString("bn-BD")} ৳, সাবটোটাল: ${Number(item.subtotal).toLocaleString("bn-BD")} ৳)`
-                      )
+                      .map((item) => `${item.name} (Qty: ${item.quantity})`)
                       .join(", ")
                     : "N/A"}
                 </p>
               </div>
               <div>
-                <p>
-                  <strong className="font-semibold">স্ট্যাটাস:</strong>{" "}
+                <p><strong className="font-semibold">স্ট্যাটাস:</strong>{" "}
                   <Badge variant={getStatusVariant(selectedOrder.status)} className="ml-2">
                     {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
                   </Badge>
                 </p>
               </div>
             </div>
-            <div className="mt-8 flex justify-end">
+            <div className="mt-8 flex justify-end gap-3">
+              <Button
+                onClick={() => handleGenerateInvoice(selectedOrder)}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                ইনভয়েস ডাউনলোড
+              </Button>
               <Button
                 onClick={closeModal}
-                className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                className="bg-indigo-600 hover:bg-indigo-700"
               >
                 বন্ধ করুন
               </Button>
