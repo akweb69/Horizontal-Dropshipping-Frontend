@@ -701,12 +701,14 @@ const CartPage = () => {
                                         💸 আমার বিক্রি মূল্য
                                     </Label>
                                     <Input
+                                        type="number"
                                         id="amarBikriMullo"
                                         value={amarBikriMullo}
-                                        onChange={(e) => setAmarBikriMullo(e.target.value)}
+                                        onChange={(e) => setAmarBikriMullo(Number(e.target.value))} // convert to number
                                         placeholder="আপনার বিক্রি মূল্য লিখুন"
                                         className="text-lg p-4 border-2 border-gray-200 focus:border-green-500 rounded-xl"
                                     />
+
                                     <p className="text-xs text-gray-500 mt-1">আপনার বিক্রি মূল্যের বিস্তারিত দিন</p>
                                 </div>
                             </div>
