@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from '@/components/ui/use-toast';
 
 const base_url = import.meta.env.VITE_BASE_URL;
+import { useAuth } from '@/context/AuthContext';
 
 const ManageUsersPage = () => {
   const [users, setUsers] = useState([]);
@@ -20,6 +21,7 @@ const ManageUsersPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({ name: '', email: '', role: 'user', subscription: 'Basic', status: 'Active' });
+  const { user } = useAuth()
 
   useEffect(() => {
     fetchUsers();
@@ -103,7 +105,7 @@ const ManageUsersPage = () => {
   };
 
   const handleToggleAdmin = async (userId, userEmail) => {
-    if (userEmail === 'admin@letsdropship.com') {
+    if (userEmail === 'admin@2.com') {
       toast({ title: "ত্রুটি", description: "মূল অ্যাডমিনকে পরিবর্তন করা যাবে না।", variant: "destructive" });
       return;
     }
@@ -126,6 +128,23 @@ const ManageUsersPage = () => {
     user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // handleUpdateUserRole
+  const handleUpdateUserRole = async (newRole, email, userId) => {
+    axios.patch(`${base_url}/users/${userId}`, { role: newRole })
+      .then(res => {
+        if (res.status === 200) {
+          toast({ title: "সফল", description: "ব্যবহারকারীর ভূমিকা সফলভাবে আপডেট করা হয়েছে।" });
+          fetchUsers();
+        } else {
+          toast({ title: "ত্রুটি", description: "ভূমিকা আপডেট করতে ব্যর্থ হয়েছে।", variant: "destructive" });
+        }
+      })
+      .catch(error => {
+        toast({ title: "ত্রুটি", description: "এরর হয়েছে।", variant: "destructive" });
+      });
+  };
+
 
   return (
     <>
@@ -161,7 +180,7 @@ const ManageUsersPage = () => {
                 <TableHead>ইমেল</TableHead>
                 <TableHead>ভূমিকা</TableHead>
                 <TableHead>সাবস্ক্রিপশন</TableHead>
-                {/* <TableHead>স্ট্যাটাস</TableHead> */}
+                <TableHead>স্ট্যাটাস</TableHead>
                 <TableHead className="text-right">অ্যাকশন</TableHead>
               </TableRow>
             </TableHeader>
@@ -190,11 +209,21 @@ const ManageUsersPage = () => {
                     )}
                   </TableCell>
 
-                  {/* <TableCell>
-                    <Badge variant={user.status === 'Active' ? 'success' : 'outline'}>
-                      {user.status}
-                    </Badge>
-                  </TableCell> */}
+                  <TableCell>
+                    <select
+                      defaultValue={user.role}
+                      onChange={(e) => handleUpdateUserRole(e.target.value, user.email, user._id)}
+                      name="role"
+                      id="role"
+                      className="border rounded p-1"
+                    >
+                      <option value="user">User</option>
+                      <option value="Order Manager">Order Manager</option>
+                      <option value="Product Manager">Product Manager</option>
+                      <option value="Withdraw Manager">Withdraw Manager</option>
+                    </select>
+
+                  </TableCell>
 
                   <TableCell className="text-right">
                     <Button

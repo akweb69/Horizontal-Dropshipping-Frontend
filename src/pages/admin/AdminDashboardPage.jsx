@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, ShoppingCart, Truck, CheckCircle, RefreshCw } from 'lucide-react';
+import { Users, ShoppingCart, Truck, CheckCircle, RefreshCw, DollarSign, TrendingUp } from 'lucide-react';
 import { Bar, BarChart as ReBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -11,25 +11,30 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
-const StatCard = ({ title, value, icon, description, isLoading }) => (
+// Updated StatCard with gradient background, icon in circle, hover effect
+const StatCard = ({ title, value, icon, description, isLoading, gradient }) => (
     <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        whileHover={{ scale: 1.03, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
+        whileHover={{ scale: 1.04 }}
     >
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{title}</CardTitle>
-                {icon}
+        <Card
+            className={`bg-gradient-to-br ${gradient} text-gray-800 shadow-md hover:shadow-lg transition-all duration-300 border-0`}
+        >
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-semibold text-gray-700">{title}</CardTitle>
+                <div className="bg-white/40 backdrop-blur-sm p-2 rounded-xl shadow-sm">
+                    {icon}
+                </div>
             </CardHeader>
             <CardContent>
                 {isLoading ? (
-                    <Loader2 className="h-6 w-6 animate-spin" />
+                    <Loader2 className="h-6 w-6 animate-spin text-gray-700" />
                 ) : (
                     <>
                         <motion.div
-                            className="text-2xl font-bold"
+                            className="text-2xl font-bold text-gray-900"
                             initial={{ y: 10, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.2, duration: 0.3 }}
@@ -37,7 +42,7 @@ const StatCard = ({ title, value, icon, description, isLoading }) => (
                             {value ?? '0'}
                         </motion.div>
                         <motion.p
-                            className="text-xs text-muted-foreground"
+                            className="text-xs text-gray-600 mt-1"
                             initial={{ y: 10, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.3, duration: 0.3 }}
@@ -71,7 +76,8 @@ const AdminDashboardPage = () => {
         totalSales: null,
         returnOrderAmount: null,
         pendingOrderAmount: null,
-        deliveredOrderAmount: null
+        deliveredOrderAmount: null,
+        totalUserBalance: null
     });
     const [salesData, setSalesData] = useState([]);
     const [recentOrders, setRecentOrders] = useState([]);
@@ -79,6 +85,12 @@ const AdminDashboardPage = () => {
         stats: true,
         sales: true,
         orders: true
+    });
+    const [withdrawStats, setWithdrawStats] = useState({
+        totalWithdrawRequest: null,
+        totalWithdrawAmount: null,
+        pendingWithdrawAmount: null,
+        completedWithdrawAmount: null
     });
 
     useEffect(() => {
@@ -98,6 +110,7 @@ const AdminDashboardPage = () => {
                 const pendingOrderAmount = orders?.filter(order => order?.status === 'Processing' || order?.status === 'pending')?.reduce((acc, order) => acc + (order?.items_total ?? 0), 0) ?? 0;
                 const deliveredOrderAmount = orders?.filter(order => order?.status === 'Delivered' || order?.status === 'Shipped')?.reduce((acc, order) => acc + (order?.items_total ?? 0), 0) ?? 0;
 
+                const totalUserBalance = orders?.reduce((acc, user) => acc + (user?.amar_bikri_mullo ?? 0), 0) ?? 0;
                 setStats({
                     totalUsers: usersCount,
                     totalOrders: orders?.length ?? 0,
@@ -107,7 +120,23 @@ const AdminDashboardPage = () => {
                     totalSales,
                     returnOrderAmount,
                     pendingOrderAmount,
-                    deliveredOrderAmount
+                    deliveredOrderAmount,
+                    totalUserBalance
+
+                });
+
+                const withdraws = await axios.get(`${import.meta.env.VITE_BASE_URL}/withdraw`);
+                const withdrawData = withdraws?.data ?? [];
+                const totalWithdrawRequest = withdrawData?.length ?? 0;
+                const totalWithdrawAmount = withdrawData?.reduce((acc, req) => acc + (req?.amount ?? 0), 0) ?? 0;
+                const pendingWithdrawAmount = withdrawData?.filter(req => req?.status === 'Pending')?.reduce((acc, req) => acc + (req?.amount ?? 0), 0) ?? 0;
+                const completedWithdrawAmount = withdrawData?.filter(req => req?.status === 'Approved')?.reduce((acc, req) => acc + (req?.amount ?? 0), 0) ?? 0;
+
+                setWithdrawStats({
+                    totalWithdrawRequest,
+                    totalWithdrawAmount,
+                    pendingWithdrawAmount,
+                    completedWithdrawAmount
                 });
 
                 const monthlySales = [
@@ -151,242 +180,206 @@ const AdminDashboardPage = () => {
         fetchData();
     }, []);
 
+    // Gradient list for all stat cards
+    const gradients = [
+        "from-blue-100 via-blue-50 to-white",
+        "from-purple-100 via-indigo-50 to-white",
+        "from-cyan-100 via-teal-50 to-white",
+        "from-green-100 via-emerald-50 to-white",
+        "from-red-100 via-rose-50 to-white",
+        "from-yellow-100 via-amber-50 to-white",
+        "from-pink-100 via-rose-50 to-white",
+        "from-orange-100 via-amber-50 to-white",
+        "from-lime-100 via-green-50 to-white",
+        "from-violet-100 via-purple-50 to-white",
+        "from-rose-100 via-pink-50 to-white",
+        "from-emerald-100 via-teal-50 to-white",
+        "from-indigo-100 via-blue-50 to-white"
+    ];
+
+    const icons = [
+        <Users className="h-5 w-5 text-blue-700" />,
+        <ShoppingCart className="h-5 w-5 text-purple-700" />,
+        <Truck className="h-5 w-5 text-cyan-700" />,
+        <CheckCircle className="h-5 w-5 text-green-700" />,
+        <RefreshCw className="h-5 w-5 text-red-700" />,
+        <DollarSign className="h-5 w-5 text-yellow-700" />,
+        <RefreshCw className="h-5 w-5 text-pink-700" />,
+        <RefreshCw className="h-5 w-5 text-orange-700" />,
+        <CheckCircle className="h-5 w-5 text-lime-700" />,
+        <Users className="h-5 w-5 text-violet-700" />,
+        <DollarSign className="h-5 w-5 text-rose-700" />,
+        <DollarSign className="h-5 w-5 text-emerald-700" />,
+        <RefreshCw className="h-5 w-5 text-indigo-700" />
+    ];
+
+    const statItems = [
+        { title: "মোট ব্যবহারকারী", value: stats.totalUsers, desc: stats.totalUsers > 0 ? `+${stats.totalUsers} এই মাসে` : 'কোনো ব্যবহারকারী নেই' },
+        { title: "মোট অর্ডার", value: stats.totalOrders, desc: stats.totalOrders > 0 ? `+${stats.totalOrders} এই মাসে` : 'কোনো অর্ডার নেই' },
+        { title: "শিপমেন্টে থাকা অর্ডার", value: stats.shippedOrders, desc: stats.shippedOrders > 0 ? `+${stats.shippedOrders} আজ শিপড` : 'কোনো শিপড অর্ডার নেই' },
+        { title: "সফল ডেলিভারি", value: stats.deliveredOrders, desc: stats.deliveredOrders > 0 ? `${(stats.deliveredOrders / stats.totalOrders * 100).toFixed(1)}% সফল` : 'কোনো ডেলিভারি নেই' },
+        { title: "রিটার্ন অর্ডার", value: stats.returnedOrders, desc: stats.returnedOrders > 0 ? `${(stats.returnedOrders / stats.totalOrders * 100).toFixed(1)}% রিটার্ন` : 'কোনো রিটার্ন নেই' },
+        { title: "মোট অর্ডার টাকা", value: `৳ ${stats.totalSales}`, desc: stats.totalSales > 0 ? `৳${stats.totalSales} এই মাসে` : 'কোনো বিক্রয় নেই' },
+        { title: "রিটার্ন টাকা", value: `৳ ${stats.returnOrderAmount}`, desc: stats.returnOrderAmount > 0 ? `৳${stats.returnOrderAmount} রিফান্ড` : 'কোনো রিটার্ন নেই' },
+        { title: "পেন্ডিং অর্ডার", value: `৳ ${stats.pendingOrderAmount}`, desc: stats.pendingOrderAmount > 0 ? `৳${stats.pendingOrderAmount} পেন্ডিং` : 'কোনো পেন্ডিং নেই' },
+        { title: "ডেলিভার্ড টাকা", value: `৳ ${stats.deliveredOrderAmount}`, desc: stats.deliveredOrderAmount > 0 ? `৳${stats.deliveredOrderAmount} সফল` : 'কোনো ডেলিভারি নেই' },
+        { title: "ব্যবহারকারী ব্যালান্স", value: `৳ ${stats.totalUserBalance}`, desc: stats.totalUserBalance > 0 ? `৳${stats.totalUserBalance} মোট` : 'কোনো ব্যালান্স নেই' },
+        { title: "উত্তোলন রিকোয়েস্ট", value: withdrawStats.totalWithdrawRequest, desc: withdrawStats.totalWithdrawRequest > 0 ? `${withdrawStats.totalWithdrawRequest} টি রিকোয়েস্ট` : 'কোনো রিকোয়েস্ট নেই' },
+        { title: "উত্তোলিত টাকা", value: `৳ ${withdrawStats.completedWithdrawAmount}`, desc: withdrawStats.completedWithdrawAmount > 0 ? `৳${withdrawStats.completedWithdrawAmount} অনুমোদিত` : 'কোনো উত্তোলন নেই' },
+        { title: "পেন্ডিং উত্তোলন", value: `৳ ${withdrawStats.pendingWithdrawAmount}`, desc: withdrawStats.pendingWithdrawAmount > 0 ? `৳${withdrawStats.pendingWithdrawAmount} অপেক্ষায়` : 'কোনো পেন্ডিং নেই' },
+    ];
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: 0.6 }}
+            className="space-y-8 p-4 md:p-6 lg:p-8 bg-gray-50 min-h-screen"
         >
             <Helmet>
                 <title>অ্যাডমিন ড্যাশবোর্ড</title>
                 <meta name="description" content="ওয়েবসাইটের সম্পূর্ণ ওভারভিউ এবং পরিসংখ্যান।" />
             </Helmet>
-            <div className="space-y-6">
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.1 }}
-                >
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800">অ্যাডমিন ড্যাশবোর্ড</h1>
-                    <p className="text-muted-foreground">আপনার ব্যবসার একটি সম্পূর্ণ চিত্র দেখুন।</p>
-                </motion.div>
 
-                <motion.div
-                    className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 h-full"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ staggerChildren: 0.1 }}
-                >
-                    <StatCard
-                        title="মোট ব্যবহারকারী"
-                        value={stats?.totalUsers}
-                        icon={<Users className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.totalUsers > 0 ? `+${stats?.totalUsers} এই মাসে` : 'কোনো ব্যবহারকারী নেই'}
-                        isLoading={isLoading.stats}
-                    />
-                    <StatCard
-                        title="মোট অর্ডার"
-                        value={stats?.totalOrders}
-                        icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.totalOrders > 0 ? `+${stats?.totalOrders} এই মাসে` : 'কোনো অর্ডার নেই'}
-                        isLoading={isLoading.stats}
-                    />
-                    <StatCard
-                        title="শিপমেন্টে থাকা অর্ডার"
-                        value={stats?.shippedOrders}
-                        icon={<Truck className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.shippedOrders > 0 ? `+${stats?.shippedOrders} আজ শিপড হয়েছে` : 'কোনো শিপড অর্ডার নেই'}
-                        isLoading={isLoading.stats}
-                    />
-                    <StatCard
-                        title="সফল ডেলিভারি"
-                        value={stats?.deliveredOrders}
-                        icon={<CheckCircle className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.deliveredOrders > 0 ? `${(stats?.deliveredOrders / stats?.totalOrders * 100).toFixed(2)}% সফলতার হার` : 'কোনো ডেলিভারি নেই'}
-                        isLoading={isLoading.stats}
-                    />
-                    <StatCard
-                        title="রিটার্ন অর্ডার"
-                        value={stats?.returnedOrders}
-                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.returnedOrders > 0 ? `${(stats?.returnedOrders / stats?.totalOrders * 100).toFixed(2)}% রিটার্ন হার` : 'কোনো রিটার্ন অর্ডার নেই'}
-                        isLoading={isLoading.stats}
-                    />
-                    <StatCard
-                        title="মোট অর্ডার টাকার পরিমাণ"
-                        value={`৳ ${stats?.totalSales}`}
-                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.totalSales > 0 ? `৳${stats?.totalSales} এই মাসে` : 'কোনো অর্ডার নেই'}
-                        isLoading={isLoading.stats}
-                    />
-                    <StatCard
-                        title="মোট রিটার্ন অর্ডার টাকার পরিমাণ"
-                        value={`৳ ${stats?.returnOrderAmount}`}
-                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.returnOrderAmount > 0 ? `৳${stats?.returnOrderAmount} এই মাসে রিটার্ন হয়েছে` : 'কোনো রিটার্ন অর্ডার নেই'}
-                        isLoading={isLoading.stats}
-                    />
-                    <StatCard
-                        title="পেন্ডিং অর্ডার"
-                        value={`৳ ${stats?.pendingOrderAmount}`}
-                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.pendingOrderAmount > 0 ? `৳${stats?.pendingOrderAmount} এই মাসে পেন্ডিং হয়েছে` : 'কোনো পেন্ডিং অর্ডার নেই'}
-                        isLoading={isLoading.stats}
-                    />
-                    <StatCard
-                        title="ডেলিভারি"
-                        value={`৳ ${stats?.deliveredOrderAmount}`}
-                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.deliveredOrderAmount > 0 ? `৳${stats?.deliveredOrderAmount} এই মাসে ডেলিভারি হয়েছে` : 'কোনো ডেলিভারি অর্ডার নেই'}
-                        isLoading={isLoading.stats}
-                    />
-                    <StatCard
-                        title="মোট ব্যবহারকারী ব্যালান্স"
-                        value={`৳ ${stats?.totalSales}`}
-                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.totalSales > 0 ? `৳${stats?.totalSales} এই মাসে ব্যবহারকারীদের ব্যালান্স` : 'কোনো ব্যবহারকারী নেই'}
-                        isLoading={isLoading.stats}
-                    />
-                    <StatCard
-                        title="মোট ব্যাংক রিকোয়েস্ট"
-                        value={`৳ ${stats?.totalWithdrawRequest ?? 0}`}
-                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.totalWithdrawRequest > 0 ? `৳${stats?.totalWithdrawRequest} এই মাসে ব্যাংক রিকোয়েস্ট হয়েছে` : 'কোনো ব্যাংক রিকোয়েস্ট নেই'}
-                        isLoading={isLoading.stats}
-                    />
-                    <StatCard
-                        title="মোট ব্যাংক উত্তোলন"
-                        value={`৳ ${stats?.totalWithdrawAmount ?? 0}`}
-                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.totalWithdrawAmount > 0 ? `৳${stats?.totalWithdrawAmount} এই মাসে ব্যাংক উত্তোলন হয়েছে` : 'কোনো ব্যাংক উত্তোলন নেই'}
-                        isLoading={isLoading.stats}
-                    />
-                    <StatCard
-                        title="পেন্ডিং ব্যাংক উত্তোলন"
-                        value={`৳ ${stats?.pendingWithdrawAmount ?? 0}`}
-                        icon={<RefreshCw className="h-4 w-4 text-muted-foreground" />}
-                        description={stats?.pendingWithdrawAmount > 0 ? `৳${stats?.pendingWithdrawAmount} এই মাসে পেন্ডিং হয়েছে` : 'কোনো পেন্ডিং ব্যাংক উত্তোলন নেই'}
-                        isLoading={isLoading.stats}
-                    />
-                </motion.div>
+            {/* Header */}
+            <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.1 }}
+                className="space-y-1"
+            >
+                <h1 className="text-3xl font-bold text-gray-800">অ্যাডমিন ড্যাশবোর্ড</h1>
+                <p className="text-muted-foreground">আপনার ব্যবসার একটি সম্পূর্ণ চিত্র দেখুন।</p>
+            </motion.div>
 
+            {/* Stats Grid */}
+            <motion.div
+                className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ staggerChildren: 0.08 }}
+            >
+                {statItems.map((item, index) => (
+                    <StatCard
+                        key={index}
+                        title={item.title}
+                        value={item.value}
+                        icon={icons[index % icons.length]}
+                        description={item.desc}
+                        isLoading={isLoading.stats}
+                        gradient={gradients[index % gradients.length]}
+                    />
+                ))}
+            </motion.div>
+
+            {/* Chart & Recent Orders */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Chart */}
                 <motion.div
-                    className="grid grid-cols-1 lg:grid-cols-5 gap-6"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    className="lg:col-span-2"
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: 0.3 }}
                 >
-                    <motion.div
-                        className="lg:col-span-3"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.4 }}
-                    >
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>মাসিক বিক্রয়</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {isLoading.sales ? (
-                                    <div className="flex justify-center items-center h-[300px]">
-                                        <Loader2 className="h-8 w-8 animate-spin" />
-                                    </div>
-                                ) : (
-                                    <ResponsiveContainer width="100%" height={300}>
-                                        <ReBarChart data={salesData}>
-                                            <CartesianGrid strokeDasharray="3 3" />
-                                            <XAxis dataKey="name" />
-                                            <YAxis />
-                                            <Tooltip
-                                                cursor={{ fill: 'hsl(var(--primary)/0.1)' }}
-                                                contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc', borderRadius: '0.5rem' }}
-                                            />
-                                            <Legend />
-                                            <motion.g>
-                                                <Bar
-                                                    dataKey="sales"
-                                                    name="বিক্রয় (৳)"
-                                                    fill="hsl(var(--primary))"
-                                                    radius={[4, 4, 0, 0]}
-                                                // Custom animation for bars
-                                                // Note: Recharts doesn't directly support Framer Motion, so we animate the container
-                                                />
-                                            </motion.g>
-                                        </ReBarChart>
-                                    </ResponsiveContainer>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                    <motion.div
-                        className="lg:col-span-2"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.4 }}
-                    >
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>সাম্প্রতিক অর্ডার</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {isLoading.orders ? (
-                                    <div className="flex justify-center items-center h-[200px]">
-                                        <Loader2 className="h-8 w-8 animate-spin" />
-                                    </div>
-                                ) : (
-                                    <>
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead>গ্রাহক</TableHead>
-                                                    <TableHead>স্ট্যাটাস</TableHead>
-                                                    <TableHead className="text-right">মোট</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                <AnimatePresence>
-                                                    {recentOrders?.map?.((order, index) => (
-                                                        <motion.tr
-                                                            key={order?.id}
-                                                            initial={{ opacity: 0, y: 10 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            exit={{ opacity: 0 }}
-                                                            transition={{ duration: 0.3, delay: index * 0.1 }}
-                                                            whileHover={{ backgroundColor: 'hsl(var(--muted)/0.1)' }}
-                                                        >
-                                                            <TableCell>
-                                                                <div className="font-medium">{order?.customer}</div>
-                                                                <div className="text-sm text-muted-foreground">{order?.id}</div>
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                <Badge variant={getStatusVariant(order?.status)}>{order?.status}</Badge>
-                                                            </TableCell>
-                                                            <TableCell className="text-right">৳{order?.total}</TableCell>
-                                                        </motion.tr>
-                                                    ))}
-                                                </AnimatePresence>
-                                            </TableBody>
-                                        </Table>
-                                        <motion.div
-                                            className="mt-4 text-center"
-                                            initial={{ opacity: 0, scale: 0.95 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            transition={{ duration: 0.3, delay: 0.5 }}
-                                        >
-                                            <motion.div
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                            >
-                                                <Button asChild variant="outline" size="sm">
-                                                    <Link to="/admin/orders">সব অর্ডার দেখুন</Link>
-                                                </Button>
-                                            </motion.div>
+                    <Card className="shadow-md border-0">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-gray-800">
+                                <TrendingUp className="h-5 w-5 text-primary" />
+                                মাসিক বিক্রয় বিশ্লেষণ
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {isLoading.sales ? (
+                                <div className="flex justify-center items-center h-[300px]">
+                                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                </div>
+                            ) : (
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <ReBarChart data={salesData}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                        <XAxis dataKey="name" tick={{ fill: '#666' }} />
+                                        <YAxis tick={{ fill: '#666' }} />
+                                        <Tooltip
+                                            cursor={{ fill: 'hsl(var(--primary)/0.1)' }}
+                                            contentStyle={{
+                                                backgroundColor: '#fff',
+                                                border: '1px solid #ddd',
+                                                borderRadius: '0.5rem',
+                                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                                            }}
+                                        />
+                                        <Bar dataKey="sales" fill="#4F46E5" radius={[4, 4, 0, 0]} />
+                                    </ReBarChart>
+                                </ResponsiveContainer>
+                            )}
+                        </CardContent>
+                    </Card>
+                </motion.div>
+
+                {/* Recent Orders */}
+                <motion.div
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                >
+                    <Card className="shadow-md border-0 h-full">
+                        <CardHeader>
+                            <CardTitle className="text-gray-800">সাম্প্রতিক অর্ডার</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {isLoading.orders ? (
+                                <div className="flex justify-center items-center h-[200px]">
+                                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                </div>
+                            ) : (
+                                <>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead className="text-gray-700">গ্রাহক</TableHead>
+                                                <TableHead className="text-gray-700">স্ট্যাটাস</TableHead>
+                                                <TableHead className="text-right text-gray-700">মোট</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            <AnimatePresence>
+                                                {recentOrders.map((order, i) => (
+                                                    <motion.tr
+                                                        key={order.id}
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0 }}
+                                                        transition={{ duration: 0.3, delay: i * 0.05 }}
+                                                        whileHover={{ backgroundColor: 'hsl(var(--muted)/0.1)' }}
+                                                    >
+                                                        <TableCell>
+                                                            <div className="font-medium text-gray-800">{order.customer}</div>
+                                                            <div className="text-sm text-muted-foreground">#{order.id.slice(-6)}</div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Badge variant={getStatusVariant(order.status)}>
+                                                                {order.status}
+                                                            </Badge>
+                                                        </TableCell>
+                                                        <TableCell className="text-right font-medium text-gray-900">
+                                                            ৳{order.total}
+                                                        </TableCell>
+                                                    </motion.tr>
+                                                ))}
+                                            </AnimatePresence>
+                                        </TableBody>
+                                    </Table>
+                                    <div className="text-center mt-4">
+                                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                            <Button asChild variant="outline" size="sm">
+                                                <Link to="/admin/orders">সব অর্ডার দেখুন</Link>
+                                            </Button>
                                         </motion.div>
-                                    </>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </motion.div>
+                                    </div>
+                                </>
+                            )}
+                        </CardContent>
+                    </Card>
                 </motion.div>
             </div>
         </motion.div>

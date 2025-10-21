@@ -1,6 +1,8 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Loader2, RefreshCw, Trash2, Wallet, Smartphone } from 'lucide-react';
 
 const Billing = () => {
     const [bkashNumber, setBkashNumber] = useState('');
@@ -10,7 +12,6 @@ const Billing = () => {
     const [paymentData, setPaymentData] = useState({ bkashNumber: '', nagadNumber: '' });
     const [loadingData, setLoadingData] = useState(true);
 
-    // Fetch existing payment data on component mount
     useEffect(() => {
         fetchPaymentData();
     }, []);
@@ -44,13 +45,8 @@ const Billing = () => {
                 nagadNumber,
             });
 
-            console.log(response);
             setMessage({ type: 'success', text: 'Payment numbers updated successfully!' });
-
-            // Refresh the data after successful update
             fetchPaymentData();
-
-            // Clear input fields
             setBkashNumber('');
             setNagadNumber('');
         } catch (error) {
@@ -62,149 +58,236 @@ const Billing = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 py-8 px-4">
             <Helmet>
                 <title>বিলিং ম্যানেজ করুন</title>
             </Helmet>
 
-            <div className="max-w-6xl mx-auto px-4">
-                <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">বিলিং ম্যানেজ করুন</h1>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="max-w-6xl mx-auto"
+            >
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="text-center mb-10"
+                >
+                    <h1 className="text-4xl md:text-5xl py-3 font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        বিলিং ম্যানেজ করুন
+                    </h1>
+                    <p className="text-gray-600 dark:text-gray-400 mt-2">পেমেন্ট নম্বর আপডেট ও দেখুন</p>
+                </motion.div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Left Column - Form */}
-                    <div className="bg-white shadow-lg rounded-xl p-6 border border-gray-100">
-                        <h2 className="text-xl font-semibold mb-6 text-gray-800">নতুন পেমেন্ট নম্বর যোগ করুন</h2>
+                    {/* Left: Form */}
+                    <motion.div
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="relative"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 blur-3xl -z-10"></div>
+                        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6 md:p-8">
+                            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+                                <Wallet className="h-6 w-6 text-blue-600" />
+                                নতুন পেমেন্ট নম্বর যোগ করুন
+                            </h2>
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div>
-                                <label htmlFor="bkashNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Bkash Number
-                                </label>
-                                <input
-                                    id="bkashNumber"
-                                    type="text"
-                                    placeholder="Enter your Bkash number"
-                                    value={bkashNumber}
-                                    onChange={(e) => setBkashNumber(e.target.value)}
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    disabled={loading}
-                                />
-                            </div>
-
-                            <div>
-                                <label htmlFor="nagadNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Nagad Number
-                                </label>
-                                <input
-                                    id="nagadNumber"
-                                    type="text"
-                                    placeholder="Enter your Nagad number"
-                                    value={nagadNumber}
-                                    onChange={(e) => setNagadNumber(e.target.value)}
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    disabled={loading}
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed flex justify-center items-center gap-2"
-                                disabled={loading}
-                            >
-                                {loading ? (
-                                    <>
-                                        <svg
-                                            className="animate-spin h-5 w-5 text-white"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <circle
-                                                className="opacity-25"
-                                                cx="12"
-                                                cy="12"
-                                                r="10"
-                                                stroke="currentColor"
-                                                strokeWidth="4"
-                                            ></circle>
-                                            <path
-                                                className="opacity-75"
-                                                fill="currentColor"
-                                                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                                            ></path>
-                                        </svg>
-                                        প্রক্রিয়াকরণ চলছে...
-                                    </>
-                                ) : (
-                                    'যোগ করুন'
-                                )}
-                            </button>
-
-                            {message.text && (
-                                <div
-                                    className={`p-3 rounded-lg text-center font-medium ${message.type === 'success'
-                                        ? 'bg-green-100 text-green-700 border border-green-200'
-                                        : 'bg-red-100 text-red-700 border border-red-200'
-                                        }`}
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                {/* Bkash */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
                                 >
-                                    {message.text}
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                        Bkash Number
+                                    </label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <Smartphone className="h-5 w-5 text-blue-500" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder="01XXXXXXXXX"
+                                            value={bkashNumber}
+                                            onChange={(e) => setBkashNumber(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                            disabled={loading}
+                                        />
+                                    </div>
+                                </motion.div>
+
+                                {/* Nagad */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.4 }}
+                                >
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                        Nagad Number
+                                    </label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <Smartphone className="h-5 w-5 text-green-500" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder="01XXXXXXXXX"
+                                            value={nagadNumber}
+                                            onChange={(e) => setNagadNumber(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                                            disabled={loading}
+                                        />
+                                    </div>
+                                </motion.div>
+
+                                {/* Submit Button */}
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {loading ? (
+                                        <>
+                                            <Loader2 className="h-5 w-5 animate-spin" />
+                                            প্রক্রিয়াকরণ চলছে...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Wallet className="h-5 w-5" />
+                                            যোগ করুন
+                                        </>
+                                    )}
+                                </motion.button>
+
+                                {/* Message */}
+                                <AnimatePresence>
+                                    {message.text && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0 }}
+                                            className={`p-4 rounded-xl text-center font-semibold border ${message.type === 'success'
+                                                ? 'bg-green-50 text-green-700 border-green-200'
+                                                : 'bg-red-50 text-red-700 border-red-200'
+                                                }`}
+                                        >
+                                            {message.text}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </form>
+                        </div>
+                    </motion.div>
+
+                    {/* Right: Existing Data */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                        className="relative"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-500/20 blur-3xl -z-10"></div>
+                        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6 md:p-8 h-full flex flex-col">
+                            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+                                <Smartphone className="h-6 w-6 text-emerald-600" />
+                                বর্তমান পেমেন্ট তথ্য
+                            </h2>
+
+                            {loadingData ? (
+                                <div className="flex-1 flex items-center justify-center">
+                                    <motion.div
+                                        animate={{ rotate: 360 }}
+                                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                        className="h-12 w-12 border-4 border-emerald-500 border-t-transparent rounded-full"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="space-y-6 flex-1">
+                                    {/* Bkash */}
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.5 }}
+                                        className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/50 dark:to-blue-800/50 p-5 rounded-xl border border-blue-200 dark:border-blue-700"
+                                    >
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="p-2 bg-blue-600 rounded-lg">
+                                                <Smartphone className="h-5 w-5 text-white" />
+                                            </div>
+                                            <h3 className="font-bold text-blue-800 dark:text-blue-300">Bkash Number</h3>
+                                        </div>
+                                        <p className="text-2xl font-extrabold text-gray-900 dark:text-white pl-11">
+                                            {paymentData[0]?.bkashNumber || '—'}
+                                        </p>
+                                    </motion.div>
+
+                                    {/* Nagad */}
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.6 }}
+                                        className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-emerald-900/50 dark:to-emerald-800/50 p-5 rounded-xl border border-emerald-200 dark:border-emerald-700"
+                                    >
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="p-2 bg-emerald-600 rounded-lg">
+                                                <Smartphone className="h-5 w-5 text-white" />
+                                            </div>
+                                            <h3 className="font-bold text-emerald-800 dark:text-emerald-300">Nagad Number</h3>
+                                        </div>
+                                        <p className="text-2xl font-extrabold text-gray-900 dark:text-white pl-11">
+                                            {paymentData[0]?.nagadNumber || '—'}
+                                        </p>
+                                    </motion.div>
+
+                                    {/* Action Buttons */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.7 }}
+                                        className="flex gap-3 pt-4"
+                                    >
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={fetchPaymentData}
+                                            disabled={loadingData}
+                                            className="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 text-white font-bold py-3 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                                        >
+                                            <RefreshCw className={`h-5 w-5 ${loadingData ? 'animate-spin' : ''}`} />
+                                            রিফ্রেশ
+                                        </motion.button>
+
+                                        {(paymentData[0]?.bkashNumber || paymentData[0]?.nagadNumber) && (
+                                            <motion.button
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => {
+                                                    if (window.confirm('আপনি কি নিশ্চিত যে সব ডেটা মুছে ফেলতে চান?')) {
+                                                        setPaymentData([{ bkashNumber: '', nagadNumber: '' }]);
+                                                        setMessage({ type: 'success', text: 'ডেটা সফলভাবে মুছে ফেলা হয়েছে!' });
+                                                    }
+                                                }}
+                                                className="flex-1 bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold py-3 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <Trash2 className="h-5 w-5" />
+                                                মুছে ফেলুন
+                                            </motion.button>
+                                        )}
+                                    </motion.div>
                                 </div>
                             )}
-                        </form>
-                    </div>
-
-                    {/* Right Column - Existing Data */}
-                    <div className="bg-white shadow-lg rounded-xl p-6 border border-gray-100">
-                        <h2 className="text-xl font-semibold mb-6 text-gray-800">বর্তমান পেমেন্ট তথ্য</h2>
-
-                        {loadingData ? (
-                            <div className="flex justify-center items-center h-48">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                            </div>
-                        ) : (
-                            <div className="space-y-6">
-                                <div className="bg-blue-50 p-4 rounded-lg">
-                                    <h3 className="font-medium text-blue-800 mb-2">Bkash Number</h3>
-                                    <p className="text-lg font-semibold text-gray-900">
-                                        {paymentData[0].bkashNumber || 'কোনো নম্বর সেট করা নেই'}
-                                    </p>
-                                </div>
-
-                                <div className="bg-green-50 p-4 rounded-lg">
-                                    <h3 className="font-medium text-green-800 mb-2">Nagad Number</h3>
-                                    <p className="text-lg font-semibold text-gray-900">
-                                        {paymentData[0].nagadNumber || 'কোনো নম্বর সেট করা নেই'}
-                                    </p>
-                                </div>
-
-                                <div className="flex gap-2 pt-4">
-                                    <button
-                                        onClick={fetchPaymentData}
-                                        className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors font-medium"
-                                        disabled={loadingData}
-                                    >
-                                        রিফ্রেশ করুন
-                                    </button>
-                                    {paymentData.bkashNumber || paymentData.nagadNumber ? (
-                                        <button
-                                            onClick={() => {
-                                                if (window.confirm('আপনি কি নিশ্চিত যে সব ডেটা মুছে ফেলতে চান?')) {
-                                                    // Add delete API call here
-                                                    setPaymentData({ bkashNumber: '', nagadNumber: '' });
-                                                    setMessage({ type: 'success', text: 'ডেটা সফলভাবে মুছে ফেলা হয়েছে!' });
-                                                }
-                                            }}
-                                            className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors font-medium"
-                                        >
-                                            মুছে ফেলুন
-                                        </button>
-                                    ) : null}
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                        </div>
+                    </motion.div>
                 </div>
-            </div>
+            </motion.div>
         </div>
     );
 };
