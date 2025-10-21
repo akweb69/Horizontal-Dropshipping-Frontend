@@ -14,6 +14,8 @@ const ConnectStorePage = () => {
     const [withdrawData, setWithdrawData] = useState([]);
     const [withdrawLoading, setWithdrawLoading] = useState(false);
     const [amount, setAmount] = useState('');
+    const [totalRejectedWithdrawals, setTotalRejectedWithdrawals] = useState(0);
+    const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
     const { user } = useAuth();
 
     useEffect(() => {
@@ -45,10 +47,14 @@ const ConnectStorePage = () => {
                 const approvedWithdrawalsAmount = myWithdrawals
                     .filter(item => item.status === 'Approved')
                     .reduce((acc, cur) => acc + parseInt(cur.amount || 0), 0);
+                const rejectedWithdrawalsAmount = myWithdrawals
+                    .filter(item => item.status === 'Rejected')
+                    .reduce((acc, cur) => acc + parseInt(cur.amount || 0), 0);
+                setTotalRejectedWithdrawals(rejectedWithdrawalsAmount);
 
                 setOrders(myOrders);
                 setWithdrawData(myWithdrawals);
-                setWithdrawableBalance(deliveredBalance - totalWithdrawn);
+                setWithdrawableBalance(deliveredBalance - totalWithdrawn + rejectedWithdrawalsAmount);
                 setPendingWithdrawals(pendingWithdrawalsAmount);
                 setTotalWithdrawals(approvedWithdrawalsAmount);
             } catch (error) {
@@ -109,11 +115,10 @@ const ConnectStorePage = () => {
                     title: 'Success',
                     text: 'Withdraw request sent successfully',
                 });
-                // Update state after successful withdrawal
                 setWithdrawData([...withdrawData, data]);
                 setWithdrawableBalance(prev => prev - (withdrawAmount + withdrawAmount * 0.01));
                 setPendingWithdrawals(prev => prev + withdrawAmount);
-                setAmount(''); // Reset form
+                setAmount('');
                 e.target.reset();
             }
         } catch (error) {
@@ -128,127 +133,100 @@ const ConnectStorePage = () => {
         }
     };
 
+    const openDetailsModal = (withdrawal) => {
+        setSelectedWithdrawal(withdrawal);
+    };
+
+    const closeDetailsModal = () => {
+        setSelectedWithdrawal(null);
+    };
+
     if (loading) {
         return (
             <motion.div
-                className="flex justify-center items-center h-screen"
+                className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-gray-100"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
             >
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
             </motion.div>
         );
     }
 
     return (
         <motion.div
-            className="max-w-7xl mx-auto px-4 py-6"
+            className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
         >
+            {/* Header */}
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.1 }}
+                transition={{ duration: 0.4 }}
+                className="mb-8"
             >
-                <h2 className="text-2xl font-bold text-gray-800">ওইথড্র ম্যানেজমেন্ট</h2>
-                <p className="text-gray-600">এই পেজে আপনি আপনার স্টোরের ওইথড্র রিকোয়েস্টগুলি পরিচালনা করতে পারবেন।</p>
+                <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">ওইথড্র ম্যানেজমেন্ট</h2>
+                <p className="mt-2 text-gray-600 text-sm sm:text-base">এই পেজে আপনি আপনার স্টোরের ওইথড্র রিকোয়েস্টগুলি পরিচালনা করতে পারবেন।</p>
             </motion.div>
 
+            {/* Summary Cards */}
             <motion.div
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 bg-white p-4 rounded-md shadow-md mt-6"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ staggerChildren: 0.1 }}
             >
-                <motion.div
-                    className="bg-teal-100 flex justify-center items-center gap-3 flex-col p-4 rounded-lg"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    whileHover={{ scale: 1.03, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
-                >
-                    <h2 className="text-2xl font-bold text-gray-800">Total Orders</h2>
-                    <div className="text-3xl font-bold text-gray-800">
-                        {orders.length > 0 ? orders.length : 'No Orders'}
-                    </div>
-                </motion.div>
-                <motion.div
-                    className="bg-orange-100 flex justify-center items-center gap-3 flex-col p-4 rounded-lg"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    whileHover={{ scale: 1.03, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
-                >
-                    <h2 className="text-2xl font-bold text-gray-800">Total Main Balance</h2>
-                    <div className="text-3xl font-bold text-gray-800">
-                        {orders.length > 0 ? orders.reduce((acc, cur) => acc + parseInt(cur.amar_bikri_mullo || 0), 0) : 'No Orders'}
-                    </div>
-                </motion.div>
-                <motion.div
-                    className="bg-indigo-100 flex justify-center items-center gap-3 flex-col p-4 rounded-lg"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    whileHover={{ scale: 1.03, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
-                >
-                    <h2 className="text-2xl text-center font-bold text-gray-800">Total Withdrawable Balance</h2>
-                    <div className="text-3xl font-bold text-gray-800">
-                        {withdrawableBalance || 0}
-                    </div>
-                </motion.div>
-                <motion.div
-                    className="bg-purple-100 flex justify-center items-center gap-3 flex-col p-4 rounded-lg"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    whileHover={{ scale: 1.03, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
-                >
-                    <h2 className="text-2xl font-bold text-center text-gray-800">Total Pending Balance</h2>
-                    <div className="text-3xl font-bold text-gray-800">
-                        {pendingWithdrawals || 0}
-                    </div>
-                </motion.div>
-                <motion.div
-                    className="bg-red-100 flex justify-center items-center gap-3 flex-col p-4 rounded-lg"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    whileHover={{ scale: 1.03, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
-                >
-                    <h2 className="text-2xl text-center font-bold text-gray-800">Total Approved Balance</h2>
-                    <div className="text-3xl font-bold text-gray-800">
-                        {totalWithdrawals || 0}
-                    </div>
-                </motion.div>
+                {[
+                    { title: 'Total Orders', value: orders.length > 0 ? orders.length : 'No Orders', color: 'bg-teal-100' },
+                    { title: 'Total Orders Balance', value: orders.length > 0 ? orders.reduce((acc, cur) => acc + parseInt(cur.amar_bikri_mullo || 0), 0) : 'No Orders', color: 'bg-orange-100' },
+                    { title: 'Total Withdrawable Balance', value: withdrawableBalance || 0, color: 'bg-indigo-100' },
+                    { title: 'Total Pending Balance', value: pendingWithdrawals || 0, color: 'bg-purple-100' },
+                    { title: 'Total Approved Balance', value: totalWithdrawals || 0, color: 'bg-green-100' },
+                    { title: 'Total Rejected Balance', value: totalRejectedWithdrawals || 0, color: 'bg-red-100' },
+                ].map((card, index) => (
+                    <motion.div
+                        key={index}
+                        className={`${card.color} rounded-2xl p-6 shadow-lg flex flex-col items-center justify-center text-center transition-transform duration-200`}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        whileHover={{ scale: 1.03, boxShadow: '0 8px 24px rgba(0,0,0,0.15)' }}
+                    >
+                        <h3 className="text-lg font-semibold text-gray-800">{card.title}</h3>
+                        <p className="text-2xl font-bold text-gray-900 mt-2">{card.value}</p>
+                    </motion.div>
+                ))}
             </motion.div>
 
+            {/* Main Content */}
             <motion.div
-                className="w-full grid mt-10 shadow-sm rounded-lg p-4 md:grid-cols-5 items-center gap-4 bg-white"
+                className="grid grid-cols-1 lg:grid-cols-5 gap-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
             >
+                {/* Withdraw History */}
                 <motion.div
-                    className="col-span-3 bg-gray-50 p-4 rounded-lg h-full"
+                    className="lg:col-span-3 bg-white rounded-2xl shadow-lg p-6"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.4 }}
                 >
-                    <h2 className="text-2xl font-bold text-gray-800">Withdraw History</h2>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">Withdraw History</h2>
                     {withdrawData.length === 0 ? (
-                        <p className="text-gray-600 mt-2">No withdrawal history available.</p>
+                        <p className="text-gray-600">No withdrawal history available.</p>
                     ) : (
-                        <motion.div
-                            className="mt-4"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ staggerChildren: 0.1 }}
-                        >
+                        <div className="overflow-x-auto">
                             <table className="w-full text-left">
-                                <thead>
+                                <thead className="bg-gray-50">
                                     <tr>
-                                        <th className="p-2 text-gray-700">Amount</th>
-                                        <th className="p-2 text-gray-700">Status</th>
-                                        <th className="p-2 text-gray-700">Request Date</th>
-                                        <th className="p-2 text-gray-700">Payment Method</th>
+                                        {['Amount', 'Status', 'Request Date', 'Payment Method', 'Details'].map((header) => (
+                                            <th key={header} className="py-4 px-4 text-sm font-semibold text-gray-900">
+                                                {header}
+                                            </th>
+                                        ))}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -260,39 +238,56 @@ const ConnectStorePage = () => {
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0 }}
                                                 transition={{ duration: 0.3, delay: index * 0.1 }}
-                                                whileHover={{ backgroundColor: 'hsl(var(--muted)/0.1)' }}
+                                                className="border-b border-gray-200 hover:bg-gray-50"
                                             >
-                                                <td className="p-2">৳{withdraw.amount}</td>
-                                                <td className="p-2">
+                                                <td className="py-4 px-4 text-sm text-gray-700">৳{withdraw.amount}</td>
+                                                <td className="py-4 px-4">
                                                     <span
-                                                        className={`px-2 py-1 rounded-full text-xs ${withdraw.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                                                        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${withdraw.status === 'Pending'
+                                                            ? 'bg-yellow-100 text-yellow-800'
+                                                            : withdraw.status === 'Approved'
+                                                                ? 'bg-green-100 text-green-800'
+                                                                : 'bg-red-100 text-red-800'
                                                             }`}
                                                     >
                                                         {withdraw.status}
                                                     </span>
                                                 </td>
-                                                <td className="p-2">{withdraw.request_date}</td>
-                                                <td className="p-2">{withdraw.paymentMethod}</td>
+                                                <td className="py-4 px-4 text-sm text-gray-700">{withdraw.request_date}</td>
+                                                <td className="py-4 px-4 text-sm text-gray-700">{withdraw.paymentMethod}</td>
+                                                <td className="py-4 px-4">
+                                                    <motion.button
+                                                        onClick={() => openDetailsModal(withdraw)}
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+                                                    >
+                                                        Details
+                                                    </motion.button>
+                                                </td>
                                             </motion.tr>
                                         ))}
                                     </AnimatePresence>
                                 </tbody>
                             </table>
-                        </motion.div>
+                        </div>
                     )}
                 </motion.div>
 
+                {/* Withdraw Form */}
                 <motion.div
-                    className="col-span-2 bg-white p-4 rounded-lg"
+                    className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.4 }}
                 >
-                    <h2 className="text-2xl font-bold text-gray-800">Withdraw Request Form</h2>
-                    <p className="text-gray-600">Please fill out the form below to request a withdraw.</p>
-                    <form onSubmit={handleWithdraw} className="mt-4">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">Withdraw Request Form</h2>
+                    <p className="text-gray-600 mb-4">Please fill out the form below to request a withdrawal.</p>
+                    <form onSubmit={handleWithdraw}>
                         <div className="mb-4">
-                            <label htmlFor="withdraw" className="block text-sm font-medium text-gray-700">Withdraw Amount</label>
+                            <label htmlFor="withdraw" className="block text-sm font-medium text-gray-700 mb-1">
+                                Withdraw Amount
+                            </label>
                             <input
                                 onChange={(e) => setAmount(e.target.value)}
                                 value={amount}
@@ -300,62 +295,79 @@ const ConnectStorePage = () => {
                                 id="withdraw"
                                 name="withdraw"
                                 min="1000"
-                                className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                 required
                             />
                         </div>
                         {amount && amount >= 1000 ? (
                             <motion.div
-                                className="grid grid-cols-2 gap-4 items-center"
+                                className="grid grid-cols-2 gap-4 mb-4"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ duration: 0.3 }}
                             >
-                                <div className="mb-4">
-                                    <label htmlFor="charge" className="block text-sm font-medium text-gray-700">Withdraw Charge</label>
-                                    <div className="mt-1 p-2 border border-gray-300 rounded-md w-full bg-red-400 font-semibold text-white text-xl">
-                                        {parseFloat(amount * 0.01).toFixed(2)}
+                                <div>
+                                    <label htmlFor="charge" className="block text-sm font-medium text-gray-700 mb-1">
+                                        Withdraw Charge
+                                    </label>
+                                    <div className="p-3 bg-red-100 text-red-800 font-semibold rounded-lg">
+                                        ৳{parseFloat(amount * 0.01).toFixed(2)}
                                     </div>
                                 </div>
-                                <div className="mb-4">
-                                    <label htmlFor="total" className="block text-sm font-medium text-gray-700">Withdraw Total</label>
-                                    <div className="mt-1 p-2 border border-gray-300 rounded-md w-full bg-green-400 font-semibold text-white text-xl">
-                                        {parseInt(amount - (amount * 0.01))}
+                                <div>
+                                    <label htmlFor="total" className="block text-sm font-medium text-gray-700 mb-1">
+                                        Withdraw Total
+                                    </label>
+                                    <div className="p-3 bg-green-100 text-green-800 font-semibold rounded-lg">
+                                        ৳{parseInt(amount - (amount * 0.01))}
                                     </div>
                                 </div>
                             </motion.div>
                         ) : null}
                         <div className="mb-4">
-                            <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700">Select Payment Method</label>
-                            <select id="paymentMethod" name="paymentMethod" className="mt-1 p-2 border border-gray-300 rounded-md w-full" required>
-                                <option disabled value="">Select Payment Method</option>
+                            <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700 mb-1">
+                                Select Payment Method
+                            </label>
+                            <select
+                                id="paymentMethod"
+                                name="paymentMethod"
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                                required
+                            >
+                                <option disabled value="">
+                                    Select Payment Method
+                                </option>
                                 <option value="Bkash">Bkash</option>
                                 <option value="Nagad">Nagad</option>
                             </select>
                         </div>
                         <div className="mb-4">
-                            <label htmlFor="paymentNumber" className="block text-sm font-medium text-gray-700">Payment Number</label>
+                            <label htmlFor="paymentNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                                Payment Number
+                            </label>
                             <input
                                 type="text"
                                 id="paymentNumber"
                                 name="paymentNumber"
-                                className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                 required
                             />
                         </div>
                         <div className="mb-4">
-                            <label htmlFor="withdrawPassword" className="block text-sm font-medium text-gray-700">Withdraw Password</label>
+                            <label htmlFor="withdrawPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                                Withdraw Password
+                            </label>
                             <input
                                 type="password"
                                 id="withdrawPassword"
                                 name="withdrawPassword"
-                                className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                 required
                             />
                         </div>
                         <motion.button
                             type="submit"
-                            className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90"
+                            className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition duration-200 disabled:bg-blue-400"
                             disabled={withdrawLoading}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -365,6 +377,63 @@ const ConnectStorePage = () => {
                     </form>
                 </motion.div>
             </motion.div>
+
+            {/* Details Modal */}
+            <AnimatePresence>
+                {selectedWithdrawal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+                        onClick={closeDetailsModal}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <h3 className="text-2xl font-bold text-gray-900 mb-4">Withdrawal Details</h3>
+                            <div className="space-y-3">
+                                <p><strong>Email:</strong> {selectedWithdrawal.email}</p>
+                                <p><strong>Amount:</strong> ৳{selectedWithdrawal.amount}</p>
+                                <p><strong>Payment Method:</strong> {selectedWithdrawal.paymentMethod}</p>
+                                <p><strong>Payment Number:</strong> {selectedWithdrawal.paymentNumber}</p>
+                                <p><strong>Charge:</strong> ৳{selectedWithdrawal.charge}</p>
+                                <p><strong>Withdrawable Balance:</strong> ৳{selectedWithdrawal.withdrawableBalance}</p>
+                                <p><strong>Request Date:</strong> {selectedWithdrawal.request_date}</p>
+                                <p><strong>Approval Date:</strong> {selectedWithdrawal.approval_date || '-'}</p>
+                                <p>
+                                    <strong>Status:</strong>{' '}
+                                    <span
+                                        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${selectedWithdrawal.status === 'Approved'
+                                            ? 'bg-green-100 text-green-800'
+                                            : selectedWithdrawal.status === 'Rejected'
+                                                ? 'bg-red-100 text-red-800'
+                                                : 'bg-yellow-100 text-yellow-800'
+                                            }`}
+                                    >
+                                        {selectedWithdrawal.status}
+                                    </span>
+                                </p>
+                            </div>
+                            <div className="mt-6 flex justify-end">
+                                <motion.button
+                                    onClick={closeDetailsModal}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200"
+                                >
+                                    Close
+                                </motion.button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
 };
