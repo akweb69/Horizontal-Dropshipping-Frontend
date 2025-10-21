@@ -131,6 +131,10 @@ const ManageUsersPage = () => {
 
   // handleUpdateUserRole
   const handleUpdateUserRole = async (newRole, email, userId) => {
+    if (email === 'admin@2.com') {
+      toast({ title: "ত্রুটি", description: "মূল অ্যাডমিনকে পরিবর্তন করা যাবে না।", variant: "destructive" });
+      return;
+    }
     axios.patch(`${base_url}/users/${userId}`, { role: newRole })
       .then(res => {
         if (res.status === 200) {
@@ -221,6 +225,7 @@ const ManageUsersPage = () => {
                       <option value="Order Manager">Order Manager</option>
                       <option value="Product Manager">Product Manager</option>
                       <option value="Withdraw Manager">Withdraw Manager</option>
+                      <option value="admin">Admin</option>
                     </select>
 
                   </TableCell>

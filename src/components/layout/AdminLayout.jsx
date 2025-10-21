@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -12,15 +12,10 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const AdminSidebar = ({ isOpen, setIsOpen }) => {
-  const { logout, loading } = useAuth();
+  const { logout, loading, user } = useAuth();
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/admin/login');
-  };
-
-  const navItems = [
+  const [navItems, setNavItems] = useState([]);
+  const navItems1 = [
     { icon: LayoutDashboard, label: 'ড্যাশবোর্ড', path: '/admin' },
     { icon: Home, label: 'হোমপেজ ম্যানেজ করুন', path: '/admin/homepage' },
     { icon: Package, label: 'পণ্য ম্যানেজ করুন', path: '/admin/products' },
@@ -33,6 +28,40 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { icon: LucideDollarSign, label: 'বিলিং ম্যানেজ করুন', path: '/admin/billing' },
     { icon: User, label: 'ওয়েবসাইট ডাটা ম্যানেজ করুন', path: '/admin/webdata' },
   ];
+  const handleLogout = () => {
+    logout();
+    navigate('/admin/login');
+  };
+  useEffect(() => {
+    if (user.role === "admin") {
+      setNavItems(navItems1);
+    }
+    if (user.role === "Withdraw Manager") {
+      const navItems1 = [
+        { icon: LayoutDashboard, label: 'ড্যাশবোর্ড', path: '/admin' },
+        { icon: DollarSignIcon, label: 'ওয়াইথড্র ম্যানেজ করুন', path: '/admin/withdraw' },
+      ];
+      setNavItems(navItems1);
+    }
+    if (user.role === "Product Manager") {
+      const navItems1 = [
+        { icon: LayoutDashboard, label: 'ড্যাশবোর্ড', path: '/admin' },
+        { icon: Package, label: 'পণ্য ম্যানেজ করুন', path: '/admin/products' },
+        { icon: Tag, label: 'ক্যাটাগরি ম্যানেজ করুন', path: '/admin/categories' },
+      ];
+      setNavItems(navItems1);
+    }
+    if (user.role === "Order Manager") {
+      const navItems1 = [
+        { icon: LayoutDashboard, label: 'ড্যাশবোর্ড', path: '/admin' },
+        { icon: ShoppingCart, label: 'অর্ডার ম্যানেজ করুন', path: '/admin/orders' },
+      ];
+      setNavItems(navItems1);
+    }
+  }, [user]);
+
+
+
   if (loading) {
     return null;
   }
