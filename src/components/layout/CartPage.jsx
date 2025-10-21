@@ -374,11 +374,11 @@ const CartPage = () => {
                                     <p className="text-green-600 font-bold mt-1">
                                         ৳{parseFloat(item.price || 0).toFixed(2)}
                                     </p>
-                                    {item.stock && (
+                                    {/* {item.stock && (
                                         <p className="text-xs text-gray-500 mt-1">
                                             স্টক: {item.stock} টি
                                         </p>
-                                    )}
+                                    )} */}
                                 </div>
                             </div>
 

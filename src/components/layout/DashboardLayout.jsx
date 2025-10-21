@@ -27,7 +27,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     { icon: Truck, label: 'অর্ডার ট্র্যাকিং', path: '/dashboard/order-tracking' },
     { icon: BarChart2, label: 'অ্যানালিটিক্স', path: '/dashboard/analytics' },
     { icon: Gift, label: 'রেফারেল প্রোগ্রাম', path: '/dashboard/referral-program' },
-    { icon: Plus, label: 'নতুন সেল ', path: '/dashboard/connect-store' },
+    { icon: Plus, label: 'ওইথড্র ম্যানেজমেন্ট', path: '/dashboard/connect-store' },
     { icon: FileText, label: 'বিলিং ও সাবস্ক্রিপশন', path: '/dashboard/billing' },
     { icon: Settings, label: 'অ্যাকাউন্ট সেটিংস', path: '/dashboard/settings' },
     { icon: LifeBuoy, label: 'সহায়তা কেন্দ্র', path: '/dashboard/support' },
