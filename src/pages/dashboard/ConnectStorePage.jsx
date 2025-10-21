@@ -355,14 +355,15 @@ const ConnectStorePage = () => {
                         </div>
                         <div className="mb-4">
                             <label htmlFor="withdrawPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                                Withdraw Password
+                                Your Name
                             </label>
                             <input
-                                type="password"
+                                value={user?.name || ''}
+                                type="text"
                                 id="withdrawPassword"
                                 name="withdrawPassword"
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-                                required
+
                             />
                         </div>
                         <motion.button
