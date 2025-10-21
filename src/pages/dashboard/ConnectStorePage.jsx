@@ -1,6 +1,6 @@
 import { useAuth } from '@/context/AuthContext';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,129 +18,131 @@ const ConnectStorePage = () => {
     const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
     const { user } = useAuth();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const email = user?.email;
+    // ✅ fetchData extracted with useCallback for reusability
+    const fetchData = useCallback(async () => {
+        if (!user?.email) return;
 
-                // Fetch orders
-                const ordersResponse = await axios.get(`${import.meta.env.VITE_BASE_URL}/orders`);
-                const ordersData = ordersResponse.data || [];
-                const myOrders = ordersData.filter(item => item.email === email);
+        try {
+            setLoading(true);
+            const email = user.email;
 
-                // Calculate initial withdrawable balance from delivered orders
-                const deliveredBalance = myOrders
-                    .filter(item => item.status === 'Delivered')
-                    .reduce((acc, cur) => acc + parseInt(cur.amar_bikri_mullo || 0), 0);
+            // Fetch orders
+            const { data: ordersResponse } = await axios.get(`${import.meta.env.VITE_BASE_URL}/orders`);
+            const myOrders = (ordersResponse || []).filter((item) => item.email === email);
 
-                // Fetch withdrawals
-                const withdrawResponse = await axios.get(`${import.meta.env.VITE_BASE_URL}/withdraw`);
-                const withdrawData = withdrawResponse.data || [];
-                const myWithdrawals = withdrawData.filter(item => item.email === email);
+            // Calculate withdrawable from Delivered orders
+            const deliveredBalance = myOrders
+                .filter((item) => item.status === 'Delivered')
+                .reduce((acc, cur) => acc + (parseInt(cur.amar_bikri_mullo) || 0), 0);
 
-                // Calculate final withdrawable balance
-                const totalWithdrawn = myWithdrawals.reduce((acc, cur) => acc + parseInt(cur.amount || 0), 0);
-                const pendingWithdrawalsAmount = myWithdrawals
-                    .filter(item => item.status === 'Pending')
-                    .reduce((acc, cur) => acc + parseInt(cur.amount || 0), 0);
-                const approvedWithdrawalsAmount = myWithdrawals
-                    .filter(item => item.status === 'Approved')
-                    .reduce((acc, cur) => acc + parseInt(cur.amount || 0), 0);
-                const rejectedWithdrawalsAmount = myWithdrawals
-                    .filter(item => item.status === 'Rejected')
-                    .reduce((acc, cur) => acc + parseInt(cur.amount || 0), 0);
-                setTotalRejectedWithdrawals(rejectedWithdrawalsAmount);
+            // Fetch withdrawals
+            const { data: withdrawResponse } = await axios.get(`${import.meta.env.VITE_BASE_URL}/withdraw`);
+            const myWithdrawals = (withdrawResponse || []).filter((item) => item.email === email);
 
-                setOrders(myOrders);
-                setWithdrawData(myWithdrawals);
-                setWithdrawableBalance(deliveredBalance - totalWithdrawn + rejectedWithdrawalsAmount);
-                setPendingWithdrawals(pendingWithdrawalsAmount);
-                setTotalWithdrawals(approvedWithdrawalsAmount);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                toast.error('Failed to load data. Please try again.');
-            } finally {
-                setLoading(false);
-            }
-        };
+            // Calculate all balances
+            const totalWithdrawn = myWithdrawals.reduce((acc, cur) => acc + (parseInt(cur.amount) || 0), 0);
+            const pendingAmount = myWithdrawals
+                .filter((w) => w.status === 'Pending')
+                .reduce((acc, cur) => acc + (parseInt(cur.amount) || 0), 0);
+            const approvedAmount = myWithdrawals
+                .filter((w) => w.status === 'Approved')
+                .reduce((acc, cur) => acc + (parseInt(cur.amount) || 0), 0);
+            const rejectedAmount = myWithdrawals
+                .filter((w) => w.status === 'Rejected')
+                .reduce((acc, cur) => acc + (parseInt(cur.amount) || 0), 0);
 
-        if (user?.email) {
-            fetchData();
+            setOrders(myOrders);
+            setWithdrawData(myWithdrawals);
+            setWithdrawableBalance(deliveredBalance - totalWithdrawn + rejectedAmount);
+            setPendingWithdrawals(pendingAmount);
+            setTotalWithdrawals(approvedAmount);
+            setTotalRejectedWithdrawals(rejectedAmount);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            toast.error('Failed to load data. Please try again.');
+        } finally {
+            setLoading(false);
         }
     }, [user]);
 
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    // ✅ Handle Withdraw Request
     const handleWithdraw = async (e) => {
         e.preventDefault();
         setWithdrawLoading(true);
 
         const withdrawAmount = parseInt(amount);
+        const paymentMethod = e.target.paymentMethod.value;
+        const paymentNumber = e.target.paymentNumber.value;
+
         if (withdrawAmount < 1000) {
-            Swal.fire({
+            await Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
                 text: 'Minimum withdraw amount is 1000!',
+                confirmButtonColor: '#2563eb',
             });
             setWithdrawLoading(false);
             return;
         }
 
         if (withdrawAmount > withdrawableBalance) {
-            Swal.fire({
+            await Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
                 text: 'Insufficient balance!',
+                confirmButtonColor: '#2563eb',
             });
             setWithdrawLoading(false);
             return;
         }
 
+        const charge = withdrawAmount * 0.01;
         const data = {
             email: user?.email,
             amount: withdrawAmount,
             status: 'Pending',
             request_date: new Date().toLocaleDateString(),
             approval_date: '',
-            paymentMethod: e.target.paymentMethod.value,
-            paymentNumber: e.target.paymentNumber.value,
-            charge: withdrawAmount * 0.01,
-            withdrawableBalance: withdrawableBalance - (withdrawAmount + withdrawAmount * 0.01),
+            paymentMethod,
+            paymentNumber,
+            charge,
+            withdrawableBalance: withdrawableBalance - (withdrawAmount + charge),
         };
 
         try {
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/withdraw`, data);
             if (response.data) {
-                Swal.fire({
+                await Swal.fire({
                     icon: 'success',
                     title: 'Success',
                     text: 'Withdraw request sent successfully',
+                    confirmButtonColor: '#2563eb',
                 });
-                setWithdrawData([...withdrawData, data]);
-                setWithdrawableBalance(prev => prev - (withdrawAmount + withdrawAmount * 0.01));
-                setPendingWithdrawals(prev => prev + withdrawAmount);
                 setAmount('');
                 e.target.reset();
+                fetchData();
             }
         } catch (error) {
             console.error('Withdraw request failed:', error);
-            Swal.fire({
+            await Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
                 text: 'Withdraw request failed!',
+                confirmButtonColor: '#2563eb',
             });
         } finally {
             setWithdrawLoading(false);
         }
     };
 
-    const openDetailsModal = (withdrawal) => {
-        setSelectedWithdrawal(withdrawal);
-    };
+    const openDetailsModal = (withdrawal) => setSelectedWithdrawal(withdrawal);
+    const closeDetailsModal = () => setSelectedWithdrawal(null);
 
-    const closeDetailsModal = () => {
-        setSelectedWithdrawal(null);
-    };
-
+    // ✅ Loading Spinner
     if (loading) {
         return (
             <motion.div
@@ -166,10 +168,12 @@ const ConnectStorePage = () => {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="mb-8"
+                className="mb-8 text-center"
             >
-                <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">ওইথড্র ম্যানেজমেন্ট</h2>
-                <p className="mt-2 text-gray-600 text-sm sm:text-base">এই পেজে আপনি আপনার স্টোরের ওইথড্র রিকোয়েস্টগুলি পরিচালনা করতে পারবেন।</p>
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">ওইথড্র ম্যানেজমেন্ট</h2>
+                <p className="mt-2 text-gray-600 text-sm sm:text-base">
+                    আপনার স্টোরের ওইথড্র রিকোয়েস্টগুলি সহজে পরিচালনা করুন।
+                </p>
             </motion.div>
 
             {/* Summary Cards */}
@@ -180,22 +184,33 @@ const ConnectStorePage = () => {
                 transition={{ staggerChildren: 0.1 }}
             >
                 {[
-                    { title: 'Total Orders', value: orders.length > 0 ? orders.length : 'No Orders', color: 'bg-teal-100' },
-                    { title: 'Total Orders Balance', value: orders.length > 0 ? orders.reduce((acc, cur) => acc + parseInt(cur.amar_bikri_mullo || 0), 0) : 'No Orders', color: 'bg-orange-100' },
-                    { title: 'Total Withdrawable Balance', value: withdrawableBalance || 0, color: 'bg-indigo-100' },
-                    { title: 'Total Pending Balance', value: pendingWithdrawals || 0, color: 'bg-purple-100' },
-                    { title: 'Total Approved Balance', value: totalWithdrawals || 0, color: 'bg-green-100' },
-                    { title: 'Total Rejected Balance', value: totalRejectedWithdrawals || 0, color: 'bg-red-100' },
+                    { title: 'Total Orders', value: orders.length || 'No Orders', color: 'bg-teal-100', icon: '📦' },
+                    {
+                        title: 'Total Orders Balance',
+                        value:
+                            orders.length > 0
+                                ? `৳${orders.reduce((acc, cur) => acc + (parseInt(cur.amar_bikri_mullo) || 0), 0)}`
+                                : 'No Orders',
+                        color: 'bg-orange-100',
+                        icon: '💰',
+                    },
+                    { title: 'Total Withdrawable Balance', value: `৳${withdrawableBalance || 0}`, color: 'bg-indigo-100', icon: '🏦' },
+                    { title: 'Total Pending Balance', value: `৳${pendingWithdrawals || 0}`, color: 'bg-purple-100', icon: '⏳' },
+                    { title: 'Total Approved Balance', value: `৳${totalWithdrawals || 0}`, color: 'bg-green-100', icon: '✅' },
+                    { title: 'Total Rejected Balance', value: `৳${totalRejectedWithdrawals || 0}`, color: 'bg-red-100', icon: '❌' },
                 ].map((card, index) => (
                     <motion.div
                         key={index}
-                        className={`${card.color} rounded-2xl p-6 shadow-lg flex flex-col items-center justify-center text-center transition-transform duration-200`}
+                        className={`${card.color} rounded-2xl p-6 shadow-lg flex items-center space-x-4 transition-transform duration-200`}
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         whileHover={{ scale: 1.03, boxShadow: '0 8px 24px rgba(0,0,0,0.15)' }}
                     >
-                        <h3 className="text-lg font-semibold text-gray-800">{card.title}</h3>
-                        <p className="text-2xl font-bold text-gray-900 mt-2">{card.value}</p>
+                        <span className="text-3xl">{card.icon}</span>
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-800">{card.title}</h3>
+                            <p className="text-2xl font-bold text-gray-900">{card.value}</p>
+                        </div>
                     </motion.div>
                 ))}
             </motion.div>
@@ -233,7 +248,7 @@ const ConnectStorePage = () => {
                                     <AnimatePresence>
                                         {withdrawData.map((withdraw, index) => (
                                             <motion.tr
-                                                key={withdraw._id.$oid}
+                                                key={withdraw._id?.$oid || withdraw._id || index}
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0 }}
@@ -299,7 +314,7 @@ const ConnectStorePage = () => {
                                 required
                             />
                         </div>
-                        {amount && amount >= 1000 ? (
+                        {amount && amount >= 1000 && (
                             <motion.div
                                 className="grid grid-cols-2 gap-4 mb-4"
                                 initial={{ opacity: 0 }}
@@ -319,11 +334,11 @@ const ConnectStorePage = () => {
                                         Withdraw Total
                                     </label>
                                     <div className="p-3 bg-green-100 text-green-800 font-semibold rounded-lg">
-                                        ৳{parseInt(amount - (amount * 0.01))}
+                                        ৳{parseInt(amount - amount * 0.01)}
                                     </div>
                                 </div>
                             </motion.div>
-                        ) : null}
+                        )}
                         <div className="mb-4">
                             <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700 mb-1">
                                 Select Payment Method
@@ -351,19 +366,6 @@ const ConnectStorePage = () => {
                                 name="paymentNumber"
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                 required
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label htmlFor="withdrawPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                                Your Name
-                            </label>
-                            <input
-                                value={user?.name || ''}
-                                type="text"
-                                id="withdrawPassword"
-                                name="withdrawPassword"
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-
                             />
                         </div>
                         <motion.button
@@ -399,14 +401,30 @@ const ConnectStorePage = () => {
                         >
                             <h3 className="text-2xl font-bold text-gray-900 mb-4">Withdrawal Details</h3>
                             <div className="space-y-3">
-                                <p><strong>Email:</strong> {selectedWithdrawal.email}</p>
-                                <p><strong>Amount:</strong> ৳{selectedWithdrawal.amount}</p>
-                                <p><strong>Payment Method:</strong> {selectedWithdrawal.paymentMethod}</p>
-                                <p><strong>Payment Number:</strong> {selectedWithdrawal.paymentNumber}</p>
-                                <p><strong>Charge:</strong> ৳{selectedWithdrawal.charge}</p>
-                                <p><strong>Withdrawable Balance:</strong> ৳{selectedWithdrawal.withdrawableBalance}</p>
-                                <p><strong>Request Date:</strong> {selectedWithdrawal.request_date}</p>
-                                <p><strong>Approval Date:</strong> {selectedWithdrawal.approval_date || '-'}</p>
+                                <p>
+                                    <strong>Email:</strong> {selectedWithdrawal.email}
+                                </p>
+                                <p>
+                                    <strong>Amount:</strong> ৳{selectedWithdrawal.amount}
+                                </p>
+                                <p>
+                                    <strong>Payment Method:</strong> {selectedWithdrawal.paymentMethod}
+                                </p>
+                                <p>
+                                    <strong>Payment Number:</strong> {selectedWithdrawal.paymentNumber}
+                                </p>
+                                <p>
+                                    <strong>Charge:</strong> ৳{selectedWithdrawal.charge}
+                                </p>
+                                <p>
+                                    <strong>Withdrawable Balance:</strong> ৳{selectedWithdrawal.withdrawableBalance}
+                                </p>
+                                <p>
+                                    <strong>Request Date:</strong> {selectedWithdrawal.request_date}
+                                </p>
+                                <p>
+                                    <strong>Approval Date:</strong> {selectedWithdrawal.approval_date || '-'}
+                                </p>
                                 <p>
                                     <strong>Status:</strong>{' '}
                                     <span
