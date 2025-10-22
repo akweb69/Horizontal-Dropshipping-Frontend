@@ -206,7 +206,7 @@ const ManageOrdersPage = () => {
       doc.line(14, 95, 196, 95);
 
       // Items Table
-      const tableColumn = ["Product Name", "Price", "Qty", "Delivery", "Subtotal"];
+      const tableColumn = ["Product Name", "Price", "Qty", "Size", "Delivery", "Subtotal"];
       const tableRows = [];
 
       (orderData.items || []).forEach(item => {
@@ -216,8 +216,10 @@ const ManageOrdersPage = () => {
           item.name,
           `${price.toFixed(2)}`,
           item.quantity,
+          `${orderData.size || 'N/A'}`,
           `${orderData.delivery_charge?.toFixed(2) || 0}`,
-          `${subtotal.toFixed(2)}`
+          `${subtotal.toFixed(2)}`,
+
         ]);
       });
 
@@ -457,7 +459,7 @@ const ManageOrdersPage = () => {
                 <p><strong className="font-semibold">আইটেম:</strong>{" "}
                   {selectedOrder.items
                     ? selectedOrder.items
-                      .map((item) => `${item.name} (Qty: ${item.quantity})`)
+                      .map((item) => `${item.name} (Qty: ${item.quantity}) (Size: ${selectedOrder?.size || 'N/A'})`)
                       .join(", ")
                     : "N/A"}
                 </p>

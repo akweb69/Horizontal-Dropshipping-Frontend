@@ -293,7 +293,7 @@ const OrderTrackingDashboardPage = () => {
       doc.line(14, 95, 196, 95);
 
       // TABLE OF ITEMS
-      const tableColumn = ["Product Name", "Price", "Qty", "Delivery", "Subtotal"];
+      const tableColumn = ["Product Name", "Price", "Qty", "Size", "Delivery", "Subtotal"];
       const tableRows = [];
 
       orderData.items.forEach(item => {
@@ -303,6 +303,7 @@ const OrderTrackingDashboardPage = () => {
           item.name,
           `${price.toFixed(2)}`,
           item.quantity,
+          `${orderData.size || 'N/A'}`,
           `${orderData.delivery_charge.toFixed(2)}`,
           `${subtotal.toFixed(2)}`
         ]);
