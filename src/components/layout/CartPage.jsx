@@ -608,8 +608,8 @@ const CartPage = () => {
                                     <button
                                         onClick={() => setPaymentMethod('bKash')}
                                         className={`p-4 rounded-xl border-2 transition-all flex items-center justify-center space-x-3 ${paymentMethod === 'bKash'
-                                                ? 'border-blue-600 bg-blue-50 shadow-md'
-                                                : 'border-gray-200 hover:border-gray-300'
+                                            ? 'border-blue-600 bg-blue-50 shadow-md'
+                                            : 'border-gray-200 hover:border-gray-300'
                                             }`}
                                     >
                                         <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs">bK</div>
@@ -621,8 +621,8 @@ const CartPage = () => {
                                     <button
                                         onClick={() => setPaymentMethod('Nagad')}
                                         className={`p-4 rounded-xl border-2 transition-all flex items-center justify-center space-x-3 ${paymentMethod === 'Nagad'
-                                                ? 'border-orange-600 bg-orange-50 shadow-md'
-                                                : 'border-gray-200 hover:border-gray-300'
+                                            ? 'border-orange-600 bg-orange-50 shadow-md'
+                                            : 'border-gray-200 hover:border-gray-300'
                                             }`}
                                     >
                                         <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xs">NG</div>
@@ -634,8 +634,8 @@ const CartPage = () => {
                                     <button
                                         onClick={() => setPaymentMethod('Cash on Delivery')}
                                         className={`p-4 rounded-xl border-2 transition-all flex items-center justify-center space-x-3 ${paymentMethod === 'Cash on Delivery'
-                                                ? 'border-green-600 bg-green-50 shadow-md'
-                                                : 'border-gray-200 hover:border-gray-300'
+                                            ? 'border-green-600 bg-green-50 shadow-md'
+                                            : 'border-gray-200 hover:border-gray-300'
                                             }`}
                                     >
                                         <Truck className="w-6 h-6 text-green-600" />
