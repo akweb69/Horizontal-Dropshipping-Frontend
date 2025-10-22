@@ -167,13 +167,13 @@ const ProductCard = ({ product }) => {
         {isMember ? (
           <div className="flex gap-2 w-full">
             <Button
-              className=" w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              className=" w-full bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
               onClick={() => handleProductDetails(product._id)}
             >
               Details
             </Button>
             <Button
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="flex-1 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
               onClick={() => handleAddToCart(product._id)}
             >
               <ShoppingCart size={18} />

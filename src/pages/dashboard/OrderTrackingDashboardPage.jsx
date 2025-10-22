@@ -499,9 +499,7 @@ const OrderTrackingDashboardPage = () => {
             <DialogHeader>
               <DialogTitle className="flex items-center justify-between">
                 <span>অর্ডার ট্র্যাকিং বিস্তারিত</span>
-                <button onClick={closeModal} className="p-1 hover:bg-gray-100 rounded">
-                  <X className="h-4 w-4" />
-                </button>
+
               </DialogTitle>
               <DialogDescription>
                 অর্ডার #{selectedOrder?.orderId?.substring(0, 8)}... এর ট্র্যাকিং তথ্য
@@ -531,10 +529,10 @@ const OrderTrackingDashboardPage = () => {
                       <span className="text-muted-foreground">পণ্য:</span>
                       <p className="font-medium">{selectedOrder.productName}</p>
                     </div>
-                    <div>
+                    {/* <div>
                       <span className="text-muted-foreground">মোট:</span>
                       <p className="font-semibold">৳{selectedOrder.total}</p>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
