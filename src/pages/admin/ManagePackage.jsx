@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Loader } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { XCircle, Info, CreditCard, Calendar, User, BadgeCheck, Wallet } from "lucide-react";
+import { XCircle, Info, CreditCard, Calendar, User, BadgeCheck, Wallet, Edit3, Eye } from "lucide-react";
 
 const ManagePackage = () => {
     const [packages, setPackages] = useState([]);
@@ -20,7 +20,6 @@ const ManagePackage = () => {
             .then(res => {
                 setPackages(res.data);
                 setLoading(false);
-                console.log(res.data);
             })
             .catch(err => {
                 setLoading(false);
@@ -37,7 +36,7 @@ const ManagePackage = () => {
     // Handle status change initiation
     const handleStatusChange = (pkg) => {
         setSelectedPackage(pkg);
-        setNewStatus(pkg.packageStatus); // Set current status as default
+        setNewStatus(pkg.packageStatus);
         setIsStatusModalOpen(true);
     };
 
@@ -52,7 +51,6 @@ const ManagePackage = () => {
                 { packageStatus: newStatus, email: selectedPackage.email, planName: selectedPackage.planName, storeInfo: selectedPackage.storeInfo }
             );
             if (response.data) {
-                // Update local state
                 setPackages(packages.map(pkg =>
                     pkg._id === selectedPackage._id ? { ...pkg, packageStatus: newStatus } : pkg
                 ));
@@ -69,68 +67,107 @@ const ManagePackage = () => {
         }
     };
 
-    // Check loading
+    // Loading UI
     if (loading) {
         return (
-            <div className='w-full flex justify-center items-center'>
-                <Loader className='w-12 h-12 text-primary animate-spin' />
+            <div className='min-h-screen w-full flex flex-col justify-center items-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800'>
+                <Loader className='w-16 h-16 text-primary animate-spin' />
+                <p className="mt-4 text-lg font-medium text-gray-600 dark:text-gray-300">লোড হচ্ছে...</p>
             </div>
         );
     }
 
     return (
-        <div className='w-full'>
-            {/* Detail Modal */}
+        <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8 px-4'>
+            {/* Header */}
+            <div className="text-center mb-10">
+                <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                    প্যাকেজ ম্যানেজমেন্ট
+                </h1>
+                <p className="mt-2 text-gray-600 dark:text-gray-400">সকল ক্রয়কৃত প্যাকেজ দেখুন ও নিয়ন্ত্রণ করুন</p>
+            </div>
+
+            {/* Detail Modal - Glassmorphism */}
             {isDetailOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40">
-                    <div className="bg-white dark:bg-gray-900 w-[90%] md:w-[500px] p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 transition-all transform scale-100">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-                                <Info className="w-5 h-5 text-blue-500" />
-                                প্যাকেজ বিস্তারিত
-                            </h2>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50">
+                    <div className="relative bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl w-full max-w-2xl p-8 rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700 transform transition-all scale-100 hover:scale-[1.01]">
+                        <button
+                            onClick={() => setIsDetailOpen(false)}
+                            className="absolute top-4 right-4 text-gray-500 hover:text-red-600 transition"
+                        >
+                            <XCircle className="w-8 h-8" />
+                        </button>
+
+                        <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-3 mb-6">
+                            <Info className="w-7 h-7 text-blue-500" />
+                            প্যাকেজের বিস্তারিত তথ্য
+                        </h2>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-gray-700 dark:text-gray-300">
+                            <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-xl">
+                                <Wallet className="w-6 h-6 text-emerald-600" />
+                                <div>
+                                    <p className="text-sm text-gray-500">প্ল্যান নাম</p>
+                                    <p className="font-semibold">{modalData?.planName}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/30 dark:to-yellow-900/30 rounded-xl">
+                                <CreditCard className="w-6 h-6 text-amber-600" />
+                                <div>
+                                    <p className="text-sm text-gray-500">পরিমাণ</p>
+                                    <p className="font-semibold">{modalData?.amount} টাকা</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-xl">
+                                <BadgeCheck className="w-6 h-6 text-purple-600" />
+                                <div>
+                                    <p className="text-sm text-gray-500">পেমেন্ট মেথড</p>
+                                    <p className="font-semibold">{modalData?.paymentMethod}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/30 dark:to-rose-900/30 rounded-xl">
+                                <CreditCard className="w-6 h-6 text-pink-600" />
+                                <div>
+                                    <p className="text-sm text-gray-500">ট্রানজেকশন আইডি</p>
+                                    <p className="font-semibold break-all">{modalData?.transactionId}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/30 dark:to-blue-900/30 rounded-xl col-span-2">
+                                <Calendar className="w-6 h-6 text-cyan-600" />
+                                <div>
+                                    <p className="text-sm text-gray-500">তারিখ ও সময়</p>
+                                    <p className="font-semibold">{new Date(modalData?.timestamp).toLocaleString('bn-BD')}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 rounded-xl">
+                                <User className="w-6 h-6 text-orange-600" />
+                                <div>
+                                    <p className="text-sm text-gray-500">ইউজার ইমেইল</p>
+                                    <p className="font-semibold">{modalData?.email}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 p-3 rounded-xl col-span-1
+                                ${modalData?.packageStatus === 'Approved' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 
+                                  modalData?.packageStatus === 'Rejected' ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white' : 
+                                  'bg-gradient-to-r from-yellow-400 to-amber-500 text-white'}">
+                                <BadgeCheck className="w-6 h-6" />
+                                <div>
+                                    <p className="text-sm">স্ট্যাটাস</p>
+                                    <p className="font-bold">{modalData?.packageStatus}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 text-center">
                             <button
                                 onClick={() => setIsDetailOpen(false)}
-                                className="text-red-500 hover:text-red-600 transition-colors"
-                            >
-                                <XCircle className="w-6 h-6" />
-                            </button>
-                        </div>
-                        <div className="space-y-3 text-gray-700 dark:text-gray-300">
-                            <p className="flex items-center gap-2">
-                                <Wallet className="w-5 h-5 text-green-500" />
-                                <strong>প্ল্যান নাম:</strong> {modalData?.planName}
-                            </p>
-                            <p className="flex items-center gap-2">
-                                <CreditCard className="w-5 h-5 text-yellow-500" />
-                                <strong>টাকা পরিমাণ:</strong> {modalData?.amount} টাকা
-                            </p>
-                            <p className="flex items-center gap-2">
-                                <BadgeCheck className="w-5 h-5 text-purple-500" />
-                                <strong>পেমেন্ট মেথড:</strong> {modalData?.paymentMethod}
-                            </p>
-                            <p className="flex items-center gap-2 break-words">
-                                <CreditCard className="w-5 h-5 text-teal-500" />
-                                <strong>ট্রানজেকশন আইডি:</strong> {modalData?.transactionId}
-                            </p>
-                            <p className="flex items-center gap-2 text-sm">
-                                <Calendar className="w-5 h-5 text-blue-400" />
-                                <strong>টাইমস্ট্যাম্প:</strong>{" "}
-                                {new Date(modalData?.timestamp).toLocaleString()}
-                            </p>
-                            <p className="flex items-center gap-2">
-                                <User className="w-5 h-5 text-orange-500" />
-                                <strong>ইউজার ইমেইল:</strong> {modalData?.email}
-                            </p>
-                            <p className="flex items-center gap-2">
-                                <BadgeCheck className="w-5 h-5 text-indigo-500" />
-                                <strong>প্যাকেজ স্ট্যাটাস:</strong> {modalData?.packageStatus}
-                            </p>
-                        </div>
-                        <div className="mt-6 text-center">
-                            <button
-                                onClick={() => setIsDetailOpen(false)}
-                                className="px-6 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-full font-medium hover:opacity-90 transition"
+                                className="px-8 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
                             >
                                 বন্ধ করুন
                             </button>
@@ -141,44 +178,50 @@ const ManagePackage = () => {
 
             {/* Status Update Modal */}
             {isStatusModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40">
-                    <div className="bg-white dark:bg-gray-900 w-[90%] md:w-[400px] p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-                                স্ট্যাটাস পরিবর্তন করুন
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50">
+                    <div className="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 transform transition-all scale-100 hover:scale-105">
+                        <div className="flex justify-between items-center mb-5">
+                            <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                                <Edit3 className="w-6 h-6 text-indigo-500" />
+                                স্ট্যাটাস আপডেট
                             </h2>
                             <button
                                 onClick={() => setIsStatusModalOpen(false)}
-                                className="text-red-500 hover:text-red-600 transition-colors"
+                                className="text-gray-500 hover:text-red-600 transition"
                             >
-                                <XCircle className="w-6 h-6" />
+                                <XCircle className="w-7 h-7" />
                             </button>
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 dark:text-gray-300 mb-2">
-                                নতুন স্ট্যাটাস নির্বাচন করুন:
+
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                নতুন স্ট্যাটাস নির্বাচন করুন
                             </label>
                             <select
                                 value={newStatus}
                                 onChange={(e) => setNewStatus(e.target.value)}
-                                className="w-full p-2 border rounded-md dark:bg-gray-800 dark:text-gray-200"
+                                className="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition"
                             >
                                 <option value="Pending">Pending</option>
                                 <option value="Approved">Approved</option>
                                 <option value="Rejected">Rejected</option>
                             </select>
                         </div>
-                        <div className="flex justify-end gap-2">
+
+                        <div className="flex justify-end gap-3">
                             <button
                                 onClick={() => setIsStatusModalOpen(false)}
-                                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
+                                className="px-5 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition"
                             >
                                 বাতিল
                             </button>
                             <button
                                 onClick={updateStatus}
                                 disabled={statusLoading}
-                                className={`px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 ${statusLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`px-6 py-2.5 rounded-xl font-semibold text-white shadow-md transition-all ${statusLoading
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transform hover:scale-105'
+                                    }`}
                             >
                                 {statusLoading ? 'আপডেট হচ্ছে...' : 'আপডেট করুন'}
                             </button>
@@ -187,46 +230,59 @@ const ManagePackage = () => {
                 </div>
             )}
 
-            <h1 className="text-2xl font-bold text-center text-primary">প্যাকেজ ম্যানেজ করুন</h1>
-            <div className="bg-white p-4 md:p-6 rounded-lg mt-10">
-                <div className="overflow-x-auto">
-                    <table className="w-full table-auto">
-                        <thead className="bg-primary text-white">
-                            <tr>
-                                <th className="px-4 py-2">প্ল্যান নাম</th>
-                                <th className="px-4 py-2">পেমেন্ট মেথড</th>
-                                <th className="px-4 py-2">ট্রানজেকশন</th>
-                                <th className="px-4 py-2">টাকা পরিমাণ</th>
-                                <th className="px-4 py-2">প্যাকেজ স্ট্যাটাস</th>
-                                <th className="px-4 py-2">অ্যাকশন</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {packages.map(pkg => (
-                                <tr key={pkg._id} className="border-b">
-                                    <td className="px-4 py-2">{pkg?.planName}</td>
-                                    <td className="px-4 py-2">{pkg?.paymentMethod}</td>
-                                    <td className="px-4 py-2">{pkg?.transactionId}</td>
-                                    <td className="px-4 py-2">{pkg?.amount}</td>
-                                    <td className={`px-4 py-2 ${pkg?.packageStatus === 'Approved' ? 'bg-green-500 text-white' : pkg?.packageStatus === 'Rejected' ? 'bg-red-500 text-white' : 'bg-yellow-500 text-white'} text-center`}>{pkg?.packageStatus}</td>
-                                    <td className="px-4 py-2 flex items-center justify-center gap-2">
-                                        <button
-                                            onClick={() => handleDetail(pkg)}
-                                            className='bg-red-500 text-white px-2 py-1 rounded-md'
-                                        >
-                                            বিস্তারিত
-                                        </button>
-                                        <button
-                                            onClick={() => handleStatusChange(pkg)}
-                                            className='bg-green-500 text-white px-2 py-1 rounded-md'
-                                        >
-                                            স্ট্যাটাস পরিবর্তন
-                                        </button>
-                                    </td>
+            {/* Main Table */}
+            <div className="max-w-7xl mx-auto">
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="bg-gradient-to-r from-primary to-indigo-600 text-white">
+                                    <th className="px-6 py-4 text-left font-semibold">প্ল্যান নাম</th>
+                                    <th className="px-6 py-4 text-left font-semibold">পেমেন্ট</th>
+                                    <th className="px-6 py-4 text-left font-semibold">ট্রানজেকশন</th>
+                                    <th className="px-6 py-4 text-center font-semibold">পরিমাণ</th>
+                                    <th className="px-6 py-4 text-center font-semibold">স্ট্যাটাস</th>
+                                    <th className="px-6 py-4 text-center font-semibold">অ্যাকশন</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                                {packages.map(pkg => (
+                                    <tr key={pkg._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200">
+                                        <td className="px-6 py-4 font-medium text-gray-800 dark:text-gray-200">{pkg?.planName}</td>
+                                        <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{pkg?.paymentMethod}</td>
+                                        <td className="px-6 py-4 text-sm font-mono text-gray-700 dark:text-gray-300">{pkg?.transactionId}</td>
+                                        <td className="px-6 py-4 text-center font-bold text-lg text-primary">{pkg?.amount}৳</td>
+                                        <td className="px-6 py-4 text-center">
+                                            <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider
+                                                ${pkg?.packageStatus === 'Approved' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                                                    pkg?.packageStatus === 'Rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                                                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}`}>
+                                                {pkg?.packageStatus}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <button
+                                                    onClick={() => handleDetail(pkg)}
+                                                    className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                    বিস্তারিত
+                                                </button>
+                                                <button
+                                                    onClick={() => handleStatusChange(pkg)}
+                                                    className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                                                >
+                                                    <Edit3 className="w-4 h-4" />
+                                                    স্ট্যাটাস
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

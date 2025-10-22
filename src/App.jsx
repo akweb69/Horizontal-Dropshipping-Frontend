@@ -46,6 +46,7 @@ import Billing from './pages/admin/Billing';
 import WebsiteData from './pages/admin/WebsiteData';
 import ProductDetails from './components/layout/ProductDetails';
 import ManagePackageData from './pages/admin/ManagePackageData';
+import SeeUser from './components/layout/SeeUser';
 
 function App() {
   return (
@@ -111,6 +112,7 @@ function App() {
           <Route path="billing" element={<Billing />} />
           <Route path="webdata" element={<WebsiteData />} />
           <Route path="packagesdata" element={<ManagePackageData />} />
+          <Route path="seeusers" element={<SeeUser />} />
         </Route>
 
       </Routes>

@@ -21,6 +21,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { icon: Package, label: 'পণ্য ম্যানেজ করুন', path: '/admin/products' },
     { icon: Tag, label: 'ক্যাটাগরি ম্যানেজ করুন', path: '/admin/categories' },
     { icon: Users, label: 'ব্যবহারকারী ম্যানেজ করুন', path: '/admin/users' },
+    { icon: Users, label: 'ব্যবহারকারী ড্যাশবোর্ড দেখুন  ', path: '/admin/seeusers' },
     { icon: ShoppingCart, label: 'অর্ডার ম্যানেজ করুন', path: '/admin/orders' },
     { icon: PackageIcon, label: 'প্যাকেজ অর্ডার  করুন', path: '/admin/packages' },
     { icon: PackageIcon, label: 'প্যাকেজ ম্যানেজ করুন', path: '/admin/packagesdata' },
