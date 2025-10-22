@@ -131,16 +131,16 @@ const AccountSettingsPage = () => {
                         {/* Profile photo upload */}
                         <Card className="mb-6">
                             <CardHeader>
-                                <CardTitle>প্রোফাইল ছবি পরিবর্তন</CardTitle>
-                                <CardDescription>আপনার প্রোফাইল ছবি পরিবর্তন করুন।</CardDescription>
+                                <CardTitle>প্রোফাইল ছবি </CardTitle>
+                                <CardDescription>আপনার প্রোফাইল ছবি </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <form onSubmit={handleSubmit}>
+                                {/* <form onSubmit={handleSubmit}>
                                     <div className="flex flex-col items-center">
-                                        {formData.profileImage ? (
+                                        {formData?.storeInfo?.shopImage ? (
                                             <img
                                                 referrerPolicy='no-referrer'
-                                                src={formData?.profileImage} alt="Profile" className="w-24 h-24 rounded-full" />
+                                                src={formData?.storeInfo?.shopImage} alt="Profile" className="w-24 h-24 rounded-full" />
 
                                         ) : (
                                             <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
@@ -160,7 +160,10 @@ const AccountSettingsPage = () => {
                                             {loading ? <Loader className="animate-spin w-5 h-5" /> : 'ছবি আপডেট করুন'}
                                         </Button>
                                     </div>
-                                </form>
+                                </form> */}
+                                <img
+                                    referrerPolicy='no-referrer'
+                                    src={formData?.storeInfo?.shopImage} alt="Profile" className="w-24 h-24 rounded-full" />
                             </CardContent>
                         </Card>
                         {/* Account info */}
@@ -196,7 +199,7 @@ const AccountSettingsPage = () => {
                                         {formData?.storeInfo?.shopImage ? (
                                             <img src={formData?.storeInfo?.shopImage}
                                                 referrerPolicy='no-referrer'
-                                                alt="StoreImage" className="h-full w-full  rounded-t-lg" />
+                                                alt="StoreImage" className="h-full w-full  rounded-lg max-h-[200px]" />
                                         ) : (
                                             <div className="w-24 h-24 rounded bg-gray-200 flex items-center justify-center">
                                                 <span className="text-2xl font-bold text-gray-500">S</span>
