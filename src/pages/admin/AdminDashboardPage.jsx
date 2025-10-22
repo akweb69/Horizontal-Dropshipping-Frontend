@@ -161,7 +161,7 @@ const AdminDashboardPage = () => {
                     ?.map(order => ({
                         id: order?._id,
                         customer: order?.email ?? 'Unknown',
-                        total: order?.total ?? 0,
+                        total: order?.amar_bikri_mullo ?? 0,
                         status: order?.status ?? 'Unknown'
                     })) ?? [];
 
@@ -343,8 +343,9 @@ const AdminDashboardPage = () => {
                                         </TableHeader>
                                         <TableBody>
                                             <AnimatePresence>
-                                                {recentOrders.map((order, i) => (
+                                                {recentOrders?.map((order, i) => (
                                                     <motion.tr
+                                                        className='border hover:bg-teal-100'
                                                         key={order.id}
                                                         initial={{ opacity: 0, y: 10 }}
                                                         animate={{ opacity: 1, y: 0 }}
@@ -362,7 +363,7 @@ const AdminDashboardPage = () => {
                                                             </Badge>
                                                         </TableCell>
                                                         <TableCell className="text-right font-medium text-gray-900">
-                                                            ৳{order.total}
+                                                            {order?.total} TK
                                                         </TableCell>
                                                     </motion.tr>
                                                 ))}
