@@ -223,7 +223,7 @@ const BillingPage = () => {
                                         <TableHead>পেমেন্ট পদ্ধতি</TableHead>
                                         <TableHead>স্ট্যাটাস</TableHead>
                                         <TableHead>তারিখ</TableHead>
-                                        <TableHead className="text-right">অ্যাকশন</TableHead>
+                                        {/* <TableHead className="text-right">অ্যাকশন</TableHead> */}
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -264,12 +264,12 @@ const BillingPage = () => {
                                             <TableCell className="text-sm">
                                                 {formatDate(item.date)}
                                             </TableCell>
-                                            <TableCell className="text-right">
+                                            {/* <TableCell className="text-right">
                                                 <Button variant="outline" size="sm" disabled>
                                                     <Download className="h-4 w-4 mr-1" />
                                                     ডাউনলোড
                                                 </Button>
-                                            </TableCell>
+                                            </TableCell> */}
                                         </TableRow>
                                     ))}
                                 </TableBody>
