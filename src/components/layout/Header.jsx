@@ -69,7 +69,16 @@ const Header = () => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full bg-gray-100 hover:bg-gray-200">
               <div className="flex items-center justify-center w-full h-full text-primary font-bold">
-                {user?.name?.charAt(0).toUpperCase() || <User />}
+                {user?.storeInfo?.shopImage ? (
+                  <img
+                    src={user.storeInfo.shopImage}
+                    alt="Shop"
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  <span>{user?.name?.charAt(0).toUpperCase() || <User />}</span>
+                )}
+
               </div>
             </Button>
           </DropdownMenuTrigger>
