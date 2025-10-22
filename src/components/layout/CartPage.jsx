@@ -26,6 +26,7 @@ const CartPage = () => {
     const [deliveryPhone, setDeliveryPhone] = useState('');
     const [deliveryLocation, setDeliveryLocation] = useState('inside');
     const [step, setStep] = useState(1);
+    const [size, setSize] = useState('');
 
     useEffect(() => {
         fetchPaymentInfo();
@@ -255,6 +256,8 @@ const CartPage = () => {
                 order_date: orderDate,
                 email: email,
                 amar_bikri_mullo: amarBikriMullo,
+                size: size,
+                store_info: user?.storeInfo,
             };
         } else {
             orderData = {
@@ -273,7 +276,8 @@ const CartPage = () => {
                 order_date: orderDate,
                 email: email,
                 amar_bikri_mullo: amarBikriMullo,
-                store_info: user?.storeInfo
+                store_info: user?.storeInfo,
+                size: size,
             };
         }
 
@@ -580,6 +584,19 @@ const CartPage = () => {
                                             </select>
                                         </div>
                                     </div>
+                                </div>
+                                {/* available size */}
+                                <div className="p-4 shadow-sm border rounded-2xl bg-white">
+                                    <p className="text-lg font-semibold mb-2">Available Sizes:</p>
+                                    {
+                                        selectedItems && <div className="flex items-center gap-2 ">
+                                            {selectedItems[0]?.availableSizes.split(",").map((s, ind) => (
+                                                <span
+                                                    onClick={() => setSize(s)}
+                                                    key={ind} className={`text-sm p-2 px-4 rounded-md hover:shadow-md cursor-pointer border bg-white ${size === s ? 'bg-blue-300 border-blue-100' : ''}`}>{s}</span>
+                                            ))}
+                                        </div>
+                                    }
                                 </div>
 
                                 {/* Amar Bikri Mullo */}
