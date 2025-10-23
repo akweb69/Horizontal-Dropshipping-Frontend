@@ -49,6 +49,7 @@ import ManagePackageData from './pages/admin/ManagePackageData';
 import SeeUser from './components/layout/SeeUser';
 import ManagePromodata from './pages/admin/ManagePromodata';
 import ManageContactUs from './pages/admin/ManageContactUs';
+import ClassRequest from './components/layout/ClassRequest';
 
 function App() {
   return (
@@ -92,6 +93,7 @@ function App() {
           <Route path="order-tracking" element={<OrderTrackingDashboardPage />} />
           <Route path="settings" element={<AccountSettingsPage />} />
           <Route path="support" element={<SupportPage />} />
+          <Route path="class-requests" element={<ClassRequest />} />
         </Route>
 
         <Route path="/admin/login" element={<AdminLoginPage />} />
