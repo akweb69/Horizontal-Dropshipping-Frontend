@@ -11,7 +11,7 @@ const ProductDetails = () => {
     const { id } = useParams();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState({});
-    const [selectedSize, setSelectedSize] = useState("");
+    const [selectedSize, setSelectedSize] = useState(null); // { size, price, stock }
     const { user, setLoveData, setCartData } = useAuth();
 
     useEffect(() => {
@@ -21,9 +21,12 @@ const ProductDetails = () => {
                 const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/products`);
                 const found = res.data.find((item) => item._id === id);
                 setData(found || {});
-                if (found?.availableSizes) {
-                    setSelectedSize(found.availableSizes.split(",")[0].trim());
+
+                // Set default selected size (first available size)
+                if (found?.sizes && found.sizes.length > 0) {
+                    setSelectedSize(found.sizes[0]);
                 }
+
                 if (!found) toast.warning("Product not found");
             } catch (error) {
                 console.error(error);
@@ -52,17 +55,20 @@ const ProductDetails = () => {
     };
 
     const handleCopy = () => {
+        const sizeDetails = data.sizes
+            ? data.sizes.map(s => `${s.size}: ৳${s.price} (Stock: ${s.stock})`).join("\n")
+            : "N/A";
+
         const details = `
 Name: ${data.name}
-Price: ${data.price} টাকা
+Price Range: ${getPriceRange()}
 Category: ${data.category}
 Section: ${data.sectionName}
-Stock: ${data.stock}
-Sizes: ${data.availableSizes}
-Rating: ${data.rating}/5
-Sales: ${data.totalSell}
+Total Stock: ${getTotalStock()}
+Sizes & Prices:
+${sizeDetails}
 Description: ${data.description}
-    `.trim();
+        `.trim();
 
         navigator.clipboard.writeText(details)
             .then(() => toast.success("Details copied!"))
@@ -104,17 +110,24 @@ Description: ${data.description}
             return;
         }
 
+        const sizeStock = parseInt(selectedSize.stock, 10);
+        if (sizeStock <= 0) {
+            toast.warning(`Sorry, ${selectedSize.size} is out of stock!`);
+            return;
+        }
+
         try {
             const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/cart`, {
                 productId,
                 email: user.email,
-                size: selectedSize,
+                size: selectedSize.size,
+                price: selectedSize.price,
             });
 
             if (res.data) {
                 const cartRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/cart`);
                 setCartData(cartRes.data.filter((item) => item.email === user.email));
-                toast.success("Added to cart!");
+                toast.success(`Added ${selectedSize.size} to cart!`);
             }
         } catch (error) {
             toast.error("Failed to add to cart!");
@@ -122,14 +135,34 @@ Description: ${data.description}
     };
 
     const renderStars = (rating) => {
+        const num = rating || 0;
         return [...Array(5)].map((_, i) => (
             <Star
                 key={i}
                 size={18}
-                className={i < Math.floor(rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}
+                className={i < Math.floor(num) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}
             />
         ));
     };
+
+    // Helper: Get price range
+    const getPriceRange = () => {
+        if (!data.sizes || data.sizes.length === 0) return "N/A";
+        const prices = data.sizes.map(s => parseFloat(s.price));
+        const min = Math.min(...prices);
+        const max = Math.max(...prices);
+        return min === max ? `৳${min}` : `৳${min} - ৳${max}`;
+    };
+
+    // Helper: Get total stock
+    const getTotalStock = () => {
+        if (!data.sizes || data.sizes.length === 0) return 0;
+        return data.sizes.reduce((sum, s) => sum + parseInt(s.stock, 10), 0);
+    };
+
+    // Helper: Check stock status
+    const isOutOfStock = getTotalStock() === 0;
+    const isLowStock = getTotalStock() > 0 && getTotalStock() < 10;
 
     if (loading) {
         return (
@@ -158,10 +191,6 @@ Description: ${data.description}
             </div>
         );
     }
-
-    const sizes = data.availableSizes?.split(",").map(s => s.trim()) || [];
-    const isLowStock = data.stock < 10;
-    const isOutOfStock = data.stock === 0;
 
     return (
         <div className="container mx-auto px-4 py-8 md:py-12 max-w-7xl min-h-screen">
@@ -223,13 +252,14 @@ Description: ${data.description}
                         </motion.button>
                     </div>
 
+                    {/* Price & Stock Status */}
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="flex items-center gap-3"
                     >
                         <p className="text-3xl font-bold text-orange-600">
-                            {parseFloat(data.price).toFixed(2)} টাকা
+                            {getPriceRange()}
                         </p>
                         {isOutOfStock && (
                             <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
@@ -238,13 +268,12 @@ Description: ${data.description}
                         )}
                         {isLowStock && !isOutOfStock && (
                             <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">
-                                Only {data.stock} left!
+                                Only {getTotalStock()} left!
                             </span>
                         )}
                     </motion.div>
 
-
-
+                    {/* Category & Section */}
                     <div className="flex flex-wrap gap-3">
                         <span className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-1.5 rounded-full text-sm font-medium">
                             {data.category}
@@ -254,40 +283,56 @@ Description: ${data.description}
                         </span>
                     </div>
 
-                    {/* Size Selector */}
-                    {sizes.length > 0 && (
+                    {/* Size Selector with Price & Stock */}
+                    {data.sizes && data.sizes.length > 0 && (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="space-y-2"
+                            className="space-y-3"
                         >
                             <p className="font-semibold text-gray-700">Select Size:</p>
-                            <div className="flex flex-wrap gap-2">
-                                {sizes.map((size) => (
-                                    <motion.button
-                                        key={size}
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => setSelectedSize(size)}
-                                        className={`px-4 py-2 rounded-lg font-medium transition-all ${selectedSize === size
-                                            ? "bg-orange-600 text-white shadow-md"
-                                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                                            }`}
-                                    >
-                                        {size}
-                                    </motion.button>
-                                ))}
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                {data.sizes.map((s, i) => {
+                                    const inStock = parseInt(s.stock, 10) > 0;
+                                    return (
+                                        <motion.button
+                                            key={i}
+                                            whileHover={inStock ? { scale: 1.05 } : {}}
+                                            whileTap={inStock ? { scale: 0.95 } : {}}
+                                            onClick={() => inStock && setSelectedSize(s)}
+                                            disabled={!inStock}
+                                            className={`p-3 rounded-xl border-2 font-medium transition-all relative ${selectedSize?.size === s.size
+                                                ? "border-orange-600 bg-orange-50 text-orange-700 shadow-md"
+                                                : inStock
+                                                    ? "border-gray-300 bg-white hover:border-orange-400 hover:bg-orange-50"
+                                                    : "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
+                                                }`}
+                                        >
+                                            <div className="text-sm font-bold">{s.size}</div>
+                                            <div className="text-xs mt-1">৳{s.price}</div>
+                                            <div className="text-xs text-gray-500">
+                                                Stock: {s.stock}
+                                            </div>
+                                            {!inStock && (
+                                                <div className="absolute inset-0 bg-white/70 rounded-xl flex items-center justify-center">
+                                                    <span className="text-xs font-medium text-red-600">Sold Out</span>
+                                                </div>
+                                            )}
+                                        </motion.button>
+                                    );
+                                })}
                             </div>
                         </motion.div>
                     )}
 
-                    <div className="space-y-2">
+                    {/* Total Stock */}
+                    <div className="space-y-1">
                         <p className="text-gray-600">
-                            <span className="font-semibold">Stock:</span> {data.stock} units
+                            <span className="font-semibold">Total Stock:</span> {getTotalStock()} units
                         </p>
-
                     </div>
 
+                    {/* Description */}
                     <div>
                         <h3 className="text-lg font-semibold text-gray-800 mb-2">Description</h3>
                         <p className="text-gray-600 leading-relaxed whitespace-pre-line">{data.description}</p>
@@ -303,14 +348,14 @@ Description: ${data.description}
                             whileHover={{ scale: 1.03 }}
                             whileTap={{ scale: 0.97 }}
                             onClick={() => handleAddToCart(data._id)}
-                            disabled={isOutOfStock}
-                            className={`flex-1 py-3 px-6 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-lg ${isOutOfStock
+                            disabled={isOutOfStock || !selectedSize}
+                            className={`flex-1 py-3 px-6 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-lg ${isOutOfStock || !selectedSize
                                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                 : "bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700"
                                 }`}
                         >
                             <ShoppingCart size={20} />
-                            {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+                            {isOutOfStock ? "Out of Stock" : !selectedSize ? "Select Size" : "Add to Cart"}
                         </motion.button>
 
                         <motion.button
@@ -319,7 +364,7 @@ Description: ${data.description}
                             onClick={() => handleLoveClick(data._id)}
                             className="px-6 py-3 bg-white border-2 border-gray-300 rounded-xl font-semibold flex items-center justify-center gap-2 hover:border-orange-500 hover:text-orange-600 transition-all"
                         >
-                            <Heart size={20} className="transition-all" />
+                            <Heart size={20} className={`transition-all ${user?.love?.includes(data._id) ? "fill-orange-600 text-orange-600" : ""}`} />
                             Wishlist
                         </motion.button>
                     </motion.div>
