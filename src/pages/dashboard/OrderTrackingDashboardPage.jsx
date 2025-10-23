@@ -36,10 +36,6 @@ import axios from 'axios';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-
-
-
-
 const OrderTrackingDashboardPage = () => {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -50,62 +46,61 @@ const OrderTrackingDashboardPage = () => {
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
 
-  // Process orders data to handle both single and multiple items
+  // Process only SINGLE ITEM orders
   const processOrdersData = (rawOrders) => {
     const processed = [];
 
     rawOrders.forEach(order => {
-      if (order.items && Array.isArray(order.items)) {
-        // Multiple items order
-        order.items.forEach((item) => {
-          processed.push({
-            orderId: order._id?.$oid || order._id || `LD-${Date.now()}`,
-            productId: item.productId,
-            productName: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            subtotal: item.subtotal,
-            total: order.total,
-            status: order.status || 'pending',
-            payment_method: order.payment_method || 'bkash',
-            payment_number: order.payment_number,
-            tnx_id: order.tnx_id,
-            amount: order.amount,
-            order_date: order.order_date,
-            email: order.email,
-            type: 'multiple',
-            trackingLink: order.trackingLink,
-            itemsCount: order.items.length
-          });
-        });
-      } else {
-        // Single item order
-        processed.push({
-          orderId: order._id?.$oid || order._id || `LD-${Date.now()}`,
+      // Only process if it has NO items array (i.e. single item) OR items array has exactly 1 item
+      const hasMultipleItems = order.items && Array.isArray(order.items) && order.items.length > 1;
+
+      if (hasMultipleItems) {
+        return; // Skip multiple item orders
+      }
+
+      // Handle single item (either from items[0] or direct fields)
+      const item = Array.isArray(order.items) && order.items.length === 1
+        ? order.items[0]
+        : {
           productId: order.productId,
-          productName: order.name,
+          name: order.name,
           price: order.price,
           quantity: order.quantity || 1,
-          total: order.total,
-          status: order.status || 'pending',
-          payment_method: order.payment_method || 'bkash',
-          payment_number: order.payment_number,
-          tnx_id: order.tnx_id,
-          amount: order.amount,
-          order_date: order.order_date,
-          email: order.email,
-          type: 'single',
-          trackingLink: order.trackingLink,
-          itemsCount: 1
-        });
-      }
+          subtotal: order.subtotal || order.price
+        };
+
+      if (!item.name) return; // Skip invalid
+
+      processed.push({
+        orderId: order._id?.$oid || order._id || `LD-${Date.now()}`,
+        productId: item.productId,
+        productName: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        subtotal: item.subtotal,
+        total: order.total || item.subtotal,
+        status: order.status || 'pending',
+        payment_method: order.payment_method || 'bkash',
+        payment_number: order.payment_number,
+        tnx_id: order.tnx_id,
+        amount: order.amount,
+        order_date: order.order_date,
+        email: order.email,
+        type: 'single',
+        trackingLink: order.trackingLink,
+        itemsCount: 1,
+        grand_total: order.amar_bikri_mullo,
+        fullOrder: order // Keep full order for invoice & tracking
+      });
     });
 
     return processed;
   };
 
   useEffect(() => {
-    loadOrders();
+    if (user?.email) {
+      loadOrders();
+    }
   }, [user?.email]);
 
   const loadOrders = () => {
@@ -120,8 +115,8 @@ const OrderTrackingDashboardPage = () => {
       .catch(err => {
         console.error('Error loading orders:', err);
         toast({
-          title: "ত্রুটি!",
-          description: "অর্ডার লোড করতে সমস্যা হয়েছে।",
+          title: "Error!",
+          description: "Failed to load orders.",
           variant: "destructive"
         });
       })
@@ -148,39 +143,39 @@ const OrderTrackingDashboardPage = () => {
     const normalizedStatus = status?.trim();
     let variant = 'default';
     let icon = <Clock className="h-4 w-4 mr-2" />;
-    let label = normalizedStatus || 'অজানা';
+    let label = normalizedStatus || 'Unknown';
 
     switch (normalizedStatus) {
       case 'Shipped':
         variant = 'warning';
         icon = <Truck className="h-4 w-4 mr-2" />;
-        label = 'পাঠানো হয়েছে';
+        label = 'Shipped';
         break;
       case 'Delivered':
         variant = 'success';
         icon = <CheckCheck className="h-4 w-4 mr-2" />;
-        label = 'ডেলিভারি হয়েছে';
+        label = 'Delivered';
         break;
       case 'Processing':
         variant = 'info';
         icon = <Package className="h-4 w-4 mr-2" />;
-        label = 'প্রসেসিং চলছে';
+        label = 'Processing';
         break;
       case 'Returned':
         variant = 'destructive';
         icon = <RefreshCcw className="h-4 w-4 mr-2" />;
-        label = 'রিটার্ন';
+        label = 'Returned';
         break;
       case 'pending':
       case 'Pending':
         variant = 'default';
         icon = <Clock className="h-4 w-4 mr-2" />;
-        label = 'অপেক্ষমাণ';
+        label = 'Pending';
         break;
       default:
         variant = 'default';
         icon = <Clock className="h-4 w-4 mr-2" />;
-        label = normalizedStatus || 'অজানা';
+        label = normalizedStatus || 'Unknown';
     }
 
     return { variant, icon, label };
@@ -203,25 +198,27 @@ const OrderTrackingDashboardPage = () => {
   });
 
   const handleTrackOrder = async (order) => {
-    const status = order.status?.trim();
-
     setTrackingLoading(true);
-    setSelectedOrder(order);
     setModalOpen(true);
 
-    // Simulate tracking API call
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
+      const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/orders`);
+      const fullOrder = res.data.find(o => (o._id?.$oid || o._id) === order.orderId);
+
+      if (!fullOrder) throw new Error('Order not found');
+
+      setSelectedOrder(fullOrder);
       toast({
-        title: `ট্র্যাকিং শুরু`,
-        description: `অর্ডার #${order.orderId.substring(0, 8)}... ট্র্যাক করা হচ্ছে।`,
+        title: "Tracking Started",
+        description: `Tracking order #${order.orderId.substring(0, 8)}...`,
       });
     } catch (error) {
       toast({
-        title: "ত্রুটি!",
-        description: "ট্র্যাকিং তথ্য লোড করতে সমস্যা হয়েছে।",
+        title: "Error!",
+        description: "Failed to load tracking info.",
         variant: "destructive"
       });
+      setModalOpen(false);
     } finally {
       setTrackingLoading(false);
     }
@@ -232,41 +229,30 @@ const OrderTrackingDashboardPage = () => {
     setSelectedOrder(null);
   };
 
-  // dfjsl;kf
-  // Updated handleGenerateInvoice with toast fixes
-  const [invoiceData, setInvoiceData] = useState({});
-
   const handleGenerateInvoice = async (order) => {
     try {
       const orderId = order.orderId;
-
-      // Fetch order data
       const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/orders`);
       const orderData = res.data.find(i => (i._id?.$oid || i._id) === orderId);
 
       if (!orderData) {
-        toast({
-          title: "Error!",
-          description: "Order data not found.",
-          variant: "destructive",
-        });
+        toast({ title: "Error!", description: "Order not found.", variant: "destructive" });
         return;
       }
 
-      // Fetch store info
-      const resUsers = await axios.get(`${import.meta.env.VITE_BASE_URL}/users`);
-      const storeData = resUsers.data.find(u => u.email === user.email)?.storeInfo || {};
-      const { shopName, shopAddress, shopContact, shopImage } = storeData;
+      const { shopName, shopAddress, shopContact, shopImage } = orderData.store_info || {};
+      const isCOD = orderData.payment_method?.toLowerCase().includes('cash') || orderData.payment_method?.toLowerCase() === 'cod';
+      const grandTotal = isCOD ? (orderData.amar_bikri_mullo - orderData.delivery_charge || 0) : (orderData.amar_bikri_mullo || 0);
 
       const doc = new jsPDF("p", "mm", "a4");
 
-      // HEADER
+      // Header
       doc.setFontSize(20);
-      doc.setTextColor("#0D6EFD"); // Blue header
+      doc.setTextColor("#0D6EFD");
       doc.text("Order Invoice", 14, 20);
 
       if (shopImage) {
-        doc.addImage(shopImage, "JPEG", 150, 10, 50, 30); // shop logo top-right
+        doc.addImage(shopImage, "JPEG", 150, 10, 50, 30);
       }
 
       doc.setFontSize(12);
@@ -274,12 +260,9 @@ const OrderTrackingDashboardPage = () => {
       doc.text(`Shop: ${shopName || "N/A"}`, 14, 30);
       doc.text(`Address: ${shopAddress || "N/A"}`, 14, 38);
       doc.text(`Contact: ${shopContact || "N/A"}`, 14, 46);
+      doc.line(14, 50, 196, 50);
 
-      doc.setDrawColor(200);
-      doc.setLineWidth(0.5);
-      doc.line(14, 50, 196, 50); // horizontal line
-
-      // ORDER & DELIVERY INFO
+      // Order Info
       doc.setFontSize(12);
       doc.setTextColor("#555555");
       doc.text(`Invoice ID: ${orderData._id?.$oid || orderData._id}`, 14, 58);
@@ -289,25 +272,27 @@ const OrderTrackingDashboardPage = () => {
       doc.text(`Customer: ${delivery.name || "N/A"}`, 14, 74);
       doc.text(`Address: ${delivery.address || "N/A"}`, 14, 82);
       doc.text(`Phone: ${delivery.phone || "N/A"}`, 14, 90);
-
       doc.line(14, 95, 196, 95);
 
-      // TABLE OF ITEMS
-      const tableColumn = ["Product Name", "Price", "Qty", "Size", "Delivery", "Subtotal"];
+      // Items Table
+      const tableColumn = ["Product Name", "Price", "Qty", "Size", "Subtotal"];
       const tableRows = [];
 
-      orderData.items.forEach(item => {
-        const price = parseFloat(orderData.amar_bikri_mullo - orderData.delivery_charge);
-        const subtotal = parseFloat(price * item.quantity + orderData.delivery_charge);
-        tableRows.push([
-          item.name,
-          `${price.toFixed(2)}`,
-          item.quantity,
-          `${orderData.size || 'N/A'}`,
-          `${orderData.delivery_charge.toFixed(2)}`,
-          `${subtotal.toFixed(2)}`
-        ]);
-      });
+      const item = Array.isArray(orderData.items) && orderData.items.length === 1
+        ? orderData.items[0]
+        : { name: orderData.name, price: orderData.price, quantity: orderData.quantity || 1, size: orderData.size, amar_bikri_mullo: orderData.amar_bikri_mullo };
+
+      const price = parseFloat(orderData.amar_bikri_mullo - (orderData.delivery_charge || 0) || 0);
+      const quantity = parseFloat(item.quantity || 1);
+      const subtotal = price + orderData.delivery_charge || 0;
+
+      tableRows.push([
+        item.name || 'N/A',
+        `${price.toFixed(2)} Tk`,
+        quantity,
+        `${item.size || 'N/A'}`,
+        `${subtotal.toFixed(2)} Tk`
+      ]);
 
       autoTable(doc, {
         startY: 100,
@@ -319,99 +304,90 @@ const OrderTrackingDashboardPage = () => {
         alternateRowStyles: { fillColor: [245, 245, 245] }
       });
 
-      const finalY = doc.lastAutoTable.finalY + 10;
+      let currentY = doc.lastAutoTable.finalY + 10;
 
-      // PAYMENT INFO
-      doc.setFontSize(12);
-      doc.setTextColor(0);
-      doc.text("Payment Information", 14, finalY);
-      doc.setFontSize(11);
-      doc.text(`Method: ${orderData.payment_method || "N/A"}`, 14, finalY + 8);
-      doc.text(`Transaction ID: ${orderData.tnx_id || "N/A"}`, 14, finalY + 16);
-      doc.text(`Payment Number: ${orderData.payment_number || "N/A"}`, 14, finalY + 24);
+      if (isCOD) {
+        doc.setFontSize(11);
+        doc.text(`Delivery Charge: ${(orderData.delivery_charge || 0).toFixed(2)} Tk , Paid`, 14, currentY);
+        currentY += 10;
+        doc.setFontSize(12);
+        doc.setTextColor(0);
+        doc.text("Payment Information", 14, currentY);
+        currentY += 8;
+        doc.setFontSize(11);
+        doc.text(`Method: ${orderData.payment_method || "N/A"}`, 14, currentY);
+        doc.setFontSize(13);
+        doc.setTextColor("#000000");
+        doc.text(`Grand Total: ${grandTotal.toFixed(2)} Tk`, 120, currentY + 10);
+      }
 
-      // GRAND TOTAL
-      const grandTotal = parseFloat(orderData.amar_bikri_mullo) || 0;
-      doc.setFontSize(13);
-      doc.setTextColor("#000000");
-      doc.text(`Grand Total: ${grandTotal.toFixed(2)}`, 14, finalY + 40);
 
-      // FOOTER
+
+      if (!isCOD) {
+        doc.setFontSize(13);
+        doc.setTextColor("#000000");
+        doc.text(`Grand Total with Delivery Charge: ${grandTotal.toFixed(2)} Tk`, 60, currentY + 10);
+      }
+
       doc.setFontSize(10);
       doc.setTextColor("#888888");
       doc.text("Thank you for shopping with LetsDropship!", 14, 285);
 
-      // SAVE PDF
       doc.save(`Invoice_${orderData._id?.$oid || orderData._id}.pdf`);
 
-      toast({
-        title: "Success!",
-        description: "Invoice generated successfully.",
-        variant: "default",
-      });
+      toast({ title: "Success!", description: "Invoice generated.", variant: "default" });
     } catch (error) {
-      console.error("Invoice generation error:", error);
-      toast({
-        title: "Error!",
-        description: "Failed to generate invoice.",
-        variant: "destructive",
-      });
+      console.error("Invoice error:", error);
+      toast({ title: "Error!", description: "Failed to generate invoice.", variant: "destructive" });
     }
   };
 
-
-
-
-
-
-
-
   if (loading) {
-    return <div className="flex justify-center items-center">
-      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
-    </div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
+      </div>
+    );
   }
-
-
 
   return (
     <>
       <Helmet>
-        <title>অর্ডার ট্র্যাকিং - LetsDropship</title>
+        <title>Order Tracking - LetsDropship</title>
       </Helmet>
-      <div className="space-y-6">
+      <div className="space-y-6 p-4 md:p-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">অর্ডার ট্র্যাকিং প্যানেল</h1>
-          <p className="text-muted-foreground">আপনার সকল অর্ডারের বর্তমান অবস্থা দেখুন।</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Order Tracking Panel</h1>
+          <p className="text-muted-foreground">View the status of your orders.</p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>আপনার অর্ডারসমূহ</CardTitle>
+            <CardTitle>Your Orders</CardTitle>
             <CardDescription>
-              মোট অর্ডার: {orders.length} | সক্রিয়: {filteredOrders.length}
+              Total Orders: {orders.length} | Active: {filteredOrders.length}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="all">সকল ({orders.length})</TabsTrigger>
-                <TabsTrigger value="delivered">ডেলিভারি</TabsTrigger>
-                <TabsTrigger value="processing">প্রসেসিং</TabsTrigger>
-                <TabsTrigger value="returned">রিটার্ন</TabsTrigger>
-                <TabsTrigger value="shipped">শিপড</TabsTrigger>
+                <TabsTrigger value="all">All ({orders.length})</TabsTrigger>
+                <TabsTrigger value="delivered">Delivered</TabsTrigger>
+                <TabsTrigger value="processing">Processing</TabsTrigger>
+                <TabsTrigger value="returned">Returned</TabsTrigger>
+                <TabsTrigger value="shipped">Shipped</TabsTrigger>
               </TabsList>
               <TabsContent value={activeTab} className="mt-6">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>অর্ডার আইডি</TableHead>
-                      <TableHead>পণ্য</TableHead>
-                      <TableHead>মোট</TableHead>
-                      <TableHead>স্ট্যাটাস</TableHead>
-                      <TableHead>তারিখ</TableHead>
-                      <TableHead>ইনভয়েস</TableHead>
-                      <TableHead className="text-right">ট্র্যাকিং</TableHead>
+                      <TableHead>Order ID</TableHead>
+                      <TableHead>Product</TableHead>
+                      <TableHead>Total</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Invoice</TableHead>
+                      <TableHead className="text-right">Track</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -421,22 +397,13 @@ const OrderTrackingDashboardPage = () => {
                         return (
                           <TableRow key={order.orderId}>
                             <TableCell className="font-mono">
-                              <div>
-                                <p className="font-medium">
-                                  #{order.orderId.substring(0, 8)}...
-                                </p>
-                                {order.itemsCount > 1 && (
-                                  <p className="text-xs text-muted-foreground">
-                                    {order.itemsCount} আইটেম
-                                  </p>
-                                )}
-                              </div>
+                              #{order.orderId.substring(0, 8)}...
                             </TableCell>
                             <TableCell className="font-medium max-w-xs">
                               {order.productName}
                             </TableCell>
                             <TableCell className="font-semibold">
-                              ৳{order.total || order.subtotal}
+                              ৳{order.grand_total || order.total}
                             </TableCell>
                             <TableCell>
                               <Badge variant={variant} className="flex items-center w-fit">
@@ -447,26 +414,24 @@ const OrderTrackingDashboardPage = () => {
                             <TableCell className="text-sm">
                               {formatDate(order.order_date)}
                             </TableCell>
-                            <TableCell className="text-right">
+                            <TableCell>
                               <Button
                                 variant="link"
                                 size="sm"
                                 onClick={() => handleGenerateInvoice(order)}
                               >
                                 <Eye className="h-4 w-4 mr-2" />
-                                ইনভয়েস
+                                Invoice
                               </Button>
                             </TableCell>
-
                             <TableCell className="text-right">
                               <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => handleTrackOrder(order)}
-
                               >
                                 {trackingLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                                ট্র্যাক করুন
+                                Track
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -474,15 +439,10 @@ const OrderTrackingDashboardPage = () => {
                       })
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-12">
+                        <TableCell colSpan={7} className="text-center py-12">
                           <ShoppingCart className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                           <p className="text-muted-foreground text-lg">
-                            কোনো অর্ডার পাওয়া যায়নি
-                          </p>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {activeTab === 'all' ? 'আপনার অর্ডার এখানে দেখাবে।' :
-                              `${getStatusInfo(activeTab === 'processing' ? 'Processing' : activeTab)?.label || activeTab
-                              } অর্ডার নেই।`}
+                            No orders found
                           </p>
                         </TableCell>
                       </TableRow>
@@ -498,109 +458,93 @@ const OrderTrackingDashboardPage = () => {
         <Dialog open={modalOpen} onOpenChange={setModalOpen}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="flex items-center justify-between">
-                <span>অর্ডার ট্র্যাকিং বিস্তারিত</span>
-
-              </DialogTitle>
+              <DialogTitle>Order Tracking Details</DialogTitle>
               <DialogDescription>
-                অর্ডার #{selectedOrder?.orderId?.substring(0, 8)}... এর ট্র্যাকিং তথ্য
+                Order #{selectedOrder?._id?.$oid?.substring(0, 8) || selectedOrder?._id?.substring(0, 8) || ''}...
               </DialogDescription>
             </DialogHeader>
 
-            {selectedOrder && (
+            {trackingLoading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            ) : selectedOrder ? (
               <div className="space-y-6 pt-4">
-                {/* Order Summary */}
+                {/* Summary */}
                 <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold">অর্ডার সারাংশ</h3>
+                    <h3 className="font-semibold">Order Summary</h3>
                     <Badge variant={getStatusInfo(selectedOrder.status).variant}>
                       {getStatusInfo(selectedOrder.status).label}
                     </Badge>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">অর্ডার আইডি:</span>
-                      <p className="font-mono">#{selectedOrder.orderId}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">তারিখ:</span>
-                      <p>{formatDate(selectedOrder.order_date)}</p>
-                    </div>
+                    <div><span className="text-muted-foreground">Order ID:</span> <p className="font-mono">#{selectedOrder._id?.$oid || selectedOrder._id}</p></div>
+                    <div><span className="text-muted-foreground">Date:</span> <p>{formatDate(selectedOrder.order_date)}</p></div>
                     <div className="col-span-2">
-                      <span className="text-muted-foreground">পণ্য:</span>
-                      <p className="font-medium">{selectedOrder.productName}</p>
+                      <span className="text-muted-foreground">Product:</span>
+                      <p className="font-medium">
+                        {selectedOrder.name || (selectedOrder.items?.[0]?.name) || 'N/A'} x {selectedOrder.quantity || selectedOrder.items?.[0]?.quantity || 1}
+                      </p>
                     </div>
-                    {/* <div>
-                      <span className="text-muted-foreground">মোট:</span>
-                      <p className="font-semibold">৳{selectedOrder.total}</p>
-                    </div> */}
+                    <div><span className="text-muted-foreground">Total:</span> <p className="font-semibold">৳{selectedOrder.amar_bikri_mullo || selectedOrder.grand_total || 0}</p></div>
+                  </div>
+                </div>
+
+                {/* Delivery */}
+                <div className="space-y-3 p-4 bg-blue-50 rounded-lg">
+                  <h3 className="font-semibold flex items-center gap-2"><MapPin className="h-4 w-4" /> Delivery Info</h3>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div><span className="text-muted-foreground">Name:</span> <p>{selectedOrder.delivery_details?.name || 'N/A'}</p></div>
+                    <div><span className="text-muted-foreground">Phone:</span> <p>{selectedOrder.delivery_details?.phone || 'N/A'}</p></div>
+                    <div className="col-span-2"><span className="text-muted-foreground">Address:</span> <p>{selectedOrder.delivery_details?.address || 'N/A'}</p></div>
                   </div>
                 </div>
 
                 {/* Tracking Steps */}
                 <div className="space-y-4">
-                  <h4 className="font-semibold flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    ডেলিভারি স্ট্যাটাস
-                  </h4>
-                  <div className="space-y-3">
-                    {[
-                      { step: 'অর্ডার নেওয়া হয়েছে', status: 'pending', completed: true },
-                      { step: 'প্রসেসিং', status: 'Processing', completed: selectedOrder.status !== 'pending' && selectedOrder.status !== 'Pending' },
-                      { step: 'শিপিং', status: 'Shipped', completed: ['Shipped', 'Delivered'].includes(selectedOrder.status) },
-                      { step: 'ডেলিভারি সম্পন্ন', status: 'Delivered', completed: selectedOrder.status === 'Delivered' }
-                    ].map((step, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div className={`w - 8 h - 8 rounded - full flex items - center justify - center text - sm font - medium ${step.completed
-                          ? 'bg-green-500 text-white'
-                          : 'bg-gray-200 text-gray-600'
-                          } `}>
-                          {step.completed ? '✓' : index + 1}
+                  <h4 className="font-semibold flex items-center gap-2"><MapPin className="h-4 w-4" /> Delivery Status</h4>
+                  <div className="relative space-y-2">
+                    {(() => {
+                      const status = selectedOrder.status?.trim().toLowerCase();
+                      const steps = [
+                        { step: 'Order Placed', icon: Clock, completed: true },
+                        { step: 'Processing', icon: Package, completed: status !== 'pending' },
+                        { step: 'Shipped', icon: Truck, completed: ['shipped', 'delivered', 'returned'].includes(status) },
+                        { step: 'Delivered', icon: CheckCheck, completed: status === 'delivered' },
+                      ];
+                      if (status === 'returned') steps.push({ step: 'Returned', icon: RefreshCcw, completed: true });
+                      return steps.map((s, i) => (
+                        <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${s.completed ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                            <s.icon className="h-4 w-4" />
+                          </div>
+                          <div><p className="font-medium">{s.step}</p><p className="text-xs text-muted-foreground">{s.completed ? 'Completed' : 'Pending'}</p></div>
                         </div>
-                        <div className="flex-1">
-                          <p className="font-medium">{step.step}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {step.completed ? 'সম্পন্ন' : 'অপেক্ষমাণ'}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                      ));
+                    })()}
                   </div>
                 </div>
 
-                {/* Payment Info */}
+                {/* Payment */}
                 <div className="p-4 bg-blue-50 rounded-lg">
-                  <h4 className="font-semibold flex items-center gap-2 mb-3">
-                    <CreditCard className="h-4 w-4" />
-                    পেমেন্ট তথ্য
-                  </h4>
+                  <h4 className="font-semibold flex items-center gap-2 mb-3"><CreditCard className="h-4 w-4" /> Payment Info</h4>
                   <div className="text-sm space-y-2">
-                    <p><span className="font-medium">পদ্ধতি:</span> {selectedOrder.payment_method?.toUpperCase()}</p>
-                    <p><span className="font-medium">ট্রানজেকশন ID:</span> {selectedOrder.tnx_id}</p>
-                    <p><span className="font-medium">পেমেন্ট নম্বর:</span> {selectedOrder.payment_number}</p>
+                    <p><span className="font-medium">Method:</span> {selectedOrder.payment_method?.toUpperCase() || 'N/A'}</p>
+                    <p><span className="font-medium">Txn ID:</span> {selectedOrder.tnx_id || 'N/A'}</p>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                  <Button variant="outline" className="flex-1" onClick={closeModal}>
-                    <Eye className="h-4 w-4 mr-2" />
-                    বন্ধ করুন
-                  </Button>
+                <div className="flex gap-3 pt-4">
+                  <Button variant="outline" className="flex-1" onClick={closeModal}>Close</Button>
                   {selectedOrder.trackingLink && (
                     <Button asChild className="flex-1">
-                      <a
-                        href={selectedOrder.trackingLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1"
-                      >
-                        বাহ্যিক ট্র্যাকিং
-                      </a>
+                      <a href={selectedOrder.trackingLink} target="_blank" rel="noopener noreferrer">External Tracking</a>
                     </Button>
                   )}
                 </div>
               </div>
-            )}
+            ) : null}
           </DialogContent>
         </Dialog>
       </div>
