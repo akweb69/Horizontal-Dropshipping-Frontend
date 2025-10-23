@@ -394,6 +394,8 @@ const ManageOrdersPage = () => {
                 <div><strong>তারিখ:</strong> {formatDate(selectedOrder.order_date)}</div>
                 <div><strong>মোট:</strong> <span className="font-bold">৳{selectedOrder.amar_bikri_mullo}</span></div>
                 <div><strong>পেমেন্ট:</strong> {selectedOrder.payment_method}</div>
+                <div><strong>পেমেন্ট নাম্বার:</strong> {selectedOrder.payment_number}</div>
+                <div><strong>পেমেন্ট ট্রানজেক্টর:</strong> {selectedOrder.tnx_id}</div>
               </div>
 
               <div className="p-4 bg-blue-50 rounded-lg space-y-2">
