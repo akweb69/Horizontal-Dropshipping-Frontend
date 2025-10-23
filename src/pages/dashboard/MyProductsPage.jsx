@@ -159,7 +159,7 @@ const MyProductsPage = () => {
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead>পণ্যের নাম</TableHead>
-                                            <TableHead>মূল্য</TableHead>
+                                            <TableHead>ক্রয় মূল্য</TableHead>
                                             <TableHead>পরিমাণ</TableHead>
                                             <TableHead>সাবটোটাল</TableHead>
                                             <TableHead>স্ট্যাটাস</TableHead>
