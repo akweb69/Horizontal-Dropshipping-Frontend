@@ -31,20 +31,20 @@ const TrackOrderPage = () => {
                         <PackageSearch className="w-16 h-16 text-orange-500 mx-auto mb-4" />
                         <h1 className="text-3xl font-bold text-gray-800">আপনার অর্ডার ট্র্যাক করুন</h1>
                         <p className="mt-2 text-gray-600 mb-6">আপনার অর্ডার আইডি এবং ইমেইল দিয়ে সর্বশেষ আপডেট জানুন।</p>
-                        
+
                         <form onSubmit={handleTrackOrder} className="space-y-4">
                             <div>
-                                <input 
-                                    type="text" 
-                                    placeholder="অর্ডার আইডি লিখুন" 
+                                <input
+                                    type="text"
+                                    placeholder="অর্ডার আইডি লিখুন"
                                     required
                                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500"
                                 />
                             </div>
                             <div>
-                                <input 
-                                    type="email" 
-                                    placeholder="আপনার বিলিং ইমেইল" 
+                                <input
+                                    type="email"
+                                    placeholder="আপনার বিলিং ইমেইল"
                                     required
                                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500"
                                 />
