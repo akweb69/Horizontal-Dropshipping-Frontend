@@ -6,7 +6,8 @@ import {
   LayoutDashboard, Package, Users, ShoppingCart, Tag, Menu, X, LogOut, User, Home,
   PackageIcon,
   DollarSignIcon,
-  LucideDollarSign
+  LucideDollarSign,
+  AlertTriangleIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -28,7 +29,8 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { icon: DollarSignIcon, label: 'ওয়াইথড্র ম্যানেজ করুন', path: '/admin/withdraw' },
     { icon: LucideDollarSign, label: 'বিলিং ম্যানেজ করুন', path: '/admin/billing' },
     { icon: User, label: 'ওয়েবসাইট ডাটা ম্যানেজ করুন', path: '/admin/webdata' },
-    { icon: PackageIcon, label: 'প্রমোডাটা', path: '/admin/promodata' },
+    { icon: PackageIcon, label: 'প্রমোডাটা ম্যানেজ করুন', path: '/admin/promodata' },
+    { icon: AlertTriangleIcon, label: 'রিকুয়েস্ট ম্যানেজ করুন', path: '/admin/requestdata' },
 
   ];
   const handleLogout = () => {
