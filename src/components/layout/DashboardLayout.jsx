@@ -4,7 +4,8 @@ import { Outlet } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import {
   LayoutDashboard, Package, FileText, Settings, LifeBuoy, Menu, X, LogOut, User, BarChart2, Gift, Truck,
-  Plus
+  Plus,
+  Home
 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
 
   const navItems = [
+    { icon: Home, label: 'হোম পেজে ফিরে যান', path: '/' },
     { icon: LayoutDashboard, label: 'ড্যাশবোর্ড', path: '/dashboard' },
     { icon: Package, label: 'আমার পণ্য', path: '/dashboard/my-products' },
     { icon: Truck, label: 'অর্ডার ট্র্যাকিং', path: '/dashboard/order-tracking' },
@@ -31,13 +33,28 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     { icon: FileText, label: 'বিলিং ও সাবস্ক্রিপশন', path: '/dashboard/billing' },
     { icon: Settings, label: 'অ্যাকাউন্ট সেটিংস', path: '/dashboard/settings' },
     { icon: LifeBuoy, label: 'সহায়তা কেন্দ্র', path: '/dashboard/support' },
+
   ];
 
+  const [websiteLogo, setWebsiteLogo] = useState('');
+  useEffect(() => {
+    axios.get(`${import.meta.env.VITE_BASE_URL}/website-logo`)
+      .then(res => {
+        setWebsiteLogo(res.data.logo);
+
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }, [])
   return (
     <>
       <aside className={`fixed top-0 left-0 z-40 w-64 h-screen bg-white border-r transition-transform md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between h-16 px-6 border-b">
-          <NavLink to="/" className="text-2xl font-bold text-primary">LetsDropship</NavLink>
+          <NavLink to="/" className="text-2xl font-bold text-primary">
+            {websiteLogo ? <img src={websiteLogo} alt="Logo" className="h-8 w-auto mx-w-[200px]" /> : 'ড্যাশবোর্ড'}
+
+          </NavLink>
           <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsOpen(false)}>
             <X className="h-6 w-6" />
           </Button>

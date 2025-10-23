@@ -68,7 +68,7 @@ const DashboardPage = () => {
                         <p className="text-muted-foreground">আপনার ড্যাশবোর্ডে স্বাগতম। এখানে আপনার ব্যবসার একটি সংক্ষিপ্ত চিত্র দেখুন।</p>
                     </div>
                     <Button asChild>
-                        <NavLink to="/dashboard/my-products">নতুন পণ্য ইম্পোর্ট করুন</NavLink>
+                        <NavLink to="/">নতুন পণ্য দেখুন</NavLink>
                     </Button>
                 </div>
 
