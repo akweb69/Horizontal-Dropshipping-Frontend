@@ -112,9 +112,7 @@ const Header = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-8">
               <Link to="/" onClick={scrollToTop} className="text-3xl font-extrabold tracking-tight">
-                {/* <span className="text-gray-900">Lets</span>
-                <span className="text-red-500">Drop</span>
-                <span className="text-gray-900">ship</span> */}
+
                 <img
                   className='max-h-16'
                   src={runningLogo} alt="" />
@@ -132,10 +130,10 @@ const Header = () => {
               <button onClick={openSearch} className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                 <FontAwesomeIcon icon={faSearch} className="text-gray-600 w-5 h-5" />
               </button>
-              <Link to="/wishlist" className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors relative">
+              {/* <Link to="/wishlist" className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors relative">
                 <Heart className="text-gray-600 w-5 h-5" />
                 <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{loveData?.length || 0}</span>
-              </Link>
+              </Link> */}
               <button onClick={showToast} className="relative flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                 <ShoppingCart className="text-gray-600 w-5 h-5" />
                 <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{cartData?.length || 0}</span>
@@ -149,21 +147,21 @@ const Header = () => {
       <header className="md:hidden bg-white shadow-sm sticky top-0 z-40">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
-            <Link to="/" onClick={scrollToTop} className="text-2xl font-extrabold tracking-tight">
-              <span className="text-gray-900">Lets</span>
-              <span className="text-red-500">Drop</span>
-              <span className="text-gray-900">ship</span>
+            <Link to="/" onClick={scrollToTop} className="text-3xl font-extrabold tracking-tight">
+              <img
+                className='max-h-16'
+                src={runningLogo} alt="" />
             </Link>
             <div className="flex items-center space-x-3">
               <button onClick={openSearch} className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                 <FontAwesomeIcon icon={faSearch} className="text-gray-600 w-5 h-5" />
               </button>
-              <Link to="/wishlist" className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+              {/* <Link to="/wishlist" className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                 <Heart className="text-gray-600 w-5 h-5" />
-              </Link>
+              </Link> */}
               <button onClick={showToast} className="relative flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                 <ShoppingCart className="text-gray-600 w-5 h-5" />
-                <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">0</span>
+                <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{cartData?.length || 0}</span>
               </button>
               {renderUserActions()}
             </div>

@@ -56,7 +56,9 @@ const ProductCard = ({ product }) => {
     try {
       const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/love`, {
         productId,
-        email: user.email
+        email: user.email,
+        price: product.sizes && product.sizes.length > 0 ? product.sizes[0].price : 0,
+        size: product.sizes && product.sizes.length > 0 ? product.sizes[0].size : 'N/A',
       });
 
       if (res.data.acknowledged) {
@@ -132,17 +134,19 @@ const ProductCard = ({ product }) => {
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
         {/* Love Icon */}
-        <motion.div
+        {/* <motion.div
           onClick={() => handleLoveClick(product._id)}
           className="absolute top-4 right-4 z-10 cursor-pointer"
           whileHover={{ scale: 1.2 }}
           whileTap={{ scale: 0.9 }}
         >
           <Heart className={`w-6 h-6 transition-colors ${isMember ? 'text-red-500 hover:text-red-600' : 'text-gray-400'}`} />
-        </motion.div>
+        </motion.div> */}
 
         {/* Product Image */}
-        <div className="relative aspect-square bg-gray-50 rounded-t-xl overflow-hidden">
+        <div
+          onClick={() => handleProductDetails(product._id)}
+          className="relative aspect-square bg-gray-50 rounded-t-xl overflow-hidden cursor-pointer">
           <motion.img
             alt={product.name}
             className="w-full h-full object-cover"

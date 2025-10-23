@@ -13,7 +13,7 @@ const CartPage = () => {
     const { loading, cartData, setCartData, user, fetchCart } = useAuth();
     const [quantities, setQuantities] = useState({});
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedItem, setSelectedItem] = useState(null); // শুধু একটি আইটেম
+    const [selectedItem, setSelectedItem] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState('bKash');
     const [paymentNumber, setPaymentNumber] = useState('');
     const [tnxId, setTnxId] = useState('');
@@ -60,35 +60,30 @@ const CartPage = () => {
         }
     }, [cartData]);
 
-    const handleIncrement = async (id) => {
+    const handleIncrement = (id) => {
         const item = cartData.find(i => i._id === id);
         const maxStock = item.sizeStock || 999;
         if ((quantities[id] || 1) >= maxStock) {
             toast({ title: "স্টক সীমিত", description: `এই সাইজে মাত্র ${maxStock} টি আছে`, variant: "destructive" });
             return;
         }
-        setQuantities((prev) => ({ ...prev, [id]: (prev[id] || 1) + 1 }));
+        setQuantities(prev => ({ ...prev, [id]: (prev[id] || 1) + 1 }));
     };
 
-    const handleDecrement = async (id) => {
-        setQuantities((prev) => ({ ...prev, [id]: Math.max((prev[id] || 1) - 1, 1) }));
+    const handleDecrement = (id) => {
+        setQuantities(prev => ({ ...prev, [id]: Math.max((prev[id] || 1) - 1, 1) }));
     };
 
     const handleDelete = async (id) => {
         try {
-            const res = await fetch(`${import.meta.env.VITE_BASE_URL}/cart/${id}`, {
-                method: 'DELETE',
-            });
-
+            const res = await fetch(`${import.meta.env.VITE_BASE_URL}/cart/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 const updatedCart = cartData.filter(item => item._id !== id);
                 setCartData(updatedCart);
                 toast({ title: "সফল", description: "পণ্য কার্ট থেকে মুছে ফেলা হয়েছে।" });
-            } else {
-                throw new Error("Failed to delete item");
-            }
+            } else throw new Error("Failed to delete");
         } catch (e) {
-            toast({ title: "ত্রুটি", description: "কার্ট থেকে পণ্য মুছতে ব্যর্থ হয়েছে।", variant: "destructive" });
+            toast({ title: "ত্রুটি", description: "কার্ট থেকে পণ্য মুছতে ব্যর্থ।", variant: "destructive" });
         }
     };
 
@@ -97,9 +92,7 @@ const CartPage = () => {
         return (qty * parseFloat(item.price || 0)).toFixed(2);
     };
 
-    const getDeliveryCharge = () => {
-        return deliveryLocation === 'inside' ? 80 : 150;
-    };
+    const getDeliveryCharge = () => deliveryLocation === 'inside' ? 80 : 150;
 
     const calculateGrandTotal = () => {
         if (!selectedItem) return 0;
@@ -110,10 +103,9 @@ const CartPage = () => {
 
     const openModal = (item) => {
         if (!paymentInfo) {
-            toast({ title: "ত্রুটি", description: "পেমেন্ট তথ্য লোড হয়নি। পুনরায় চেষ্টা করুন।", variant: "destructive" });
+            toast({ title: "ত্রুটি", description: "পেমেন্ট তথ্য লোড হয়নি।", variant: "destructive" });
             return;
         }
-
         setSelectedItem(item);
         setPaymentMethod('bKash');
         setPaymentNumber('');
@@ -128,16 +120,30 @@ const CartPage = () => {
     };
 
     const handleBuyNow = (id) => {
-        const item = cartData.find((i) => i._id === id);
+        const item = cartData.find(i => i._id === id);
         if (item) openModal(item);
     };
 
     const copyPaymentNumber = () => {
-        if (!paymentInfo || !paymentMethod) return;
-        const numberToCopy = paymentMethod === 'bKash' ? paymentInfo.bkashNumber : paymentInfo.nagadNumber;
-        navigator.clipboard.writeText(numberToCopy).then(() => {
-            toast({ title: "নাম্বার কপি হয়েছে!", description: `${paymentMethod}: ${numberToCopy}` });
+        if (!paymentInfo || !['bKash', 'Nagad'].includes(paymentMethod)) return;
+        const number = paymentMethod === 'bKash' ? paymentInfo.bkashNumber : paymentInfo.nagadNumber;
+        navigator.clipboard.writeText(number).then(() => {
+            toast({ title: "কপি হয়েছে!", description: `${paymentMethod}: ${number}` });
         });
+    };
+
+    const validateAndProceed = () => {
+        const grandTotal = parseFloat(calculateGrandTotal());
+        const bikriMullo = parseFloat(amarBikriMullo) || 0;
+        if (bikriMullo < grandTotal) {
+            toast({
+                title: "মূল্য ত্রুটি",
+                description: `আপনার বিক্রয় মূল্য (৳${bikriMullo}) গ্র্যান্ড টোটাল (৳${grandTotal}) এর চেয়ে কম হতে পারবে না।`,
+                variant: "destructive"
+            });
+            return false;
+        }
+        return true;
     };
 
     const handlePlaceOrder = async () => {
@@ -146,7 +152,9 @@ const CartPage = () => {
             return;
         }
 
-        if (['bKash', 'Nagad'].includes(paymentMethod) && (!paymentNumber || !tnxId || tnxId.length < 8)) {
+        if (!validateAndProceed()) return;
+
+        if (!paymentNumber || !tnxId || tnxId.length < 8) {
             toast({ title: "ত্রুটি", description: "পেমেন্ট নাম্বার ও TxID দিন", variant: "destructive" });
             return;
         }
@@ -157,6 +165,12 @@ const CartPage = () => {
         const grandTotal = itemTotal + deliveryCharge;
         const orderDate = new Date().toISOString();
         const email = user?.email || selectedItem?.email;
+
+        const isCOD = paymentMethod === 'Cash on Delivery';
+        const bikriMullo = parseFloat(amarBikriMullo);
+
+        const paidAmount = isCOD ? deliveryCharge : bikriMullo;
+        const dueAmount = isCOD ? (grandTotal - deliveryCharge) : 0;
 
         const deliveryDetails = {
             name: deliveryName,
@@ -173,20 +187,23 @@ const CartPage = () => {
                 size: selectedItem.size,
                 sizeStock: selectedItem.sizeStock,
                 quantity: qty,
-                subtotal: qty * parseFloat(selectedItem.price),
+                subtotal: itemTotal,
                 thumbnail: selectedItem.thumbnail,
             }],
             items_total: itemTotal,
             delivery_charge: deliveryCharge,
             grand_total: grandTotal,
+            paid_amount: paidAmount,
+            due_amount: dueAmount,
+            is_delivery_pay: isCOD,
             delivery_details: deliveryDetails,
             status: 'pending',
             payment_method: paymentMethod,
-            payment_number: paymentMethod === 'Cash on Delivery' ? 'N/A' : paymentNumber,
-            tnx_id: paymentMethod === 'Cash on Delivery' ? 'N/A' : tnxId,
+            payment_number: paymentNumber,
+            tnx_id: tnxId,
             order_date: orderDate,
             email: email,
-            amar_bikri_mullo: amarBikriMullo,
+            amar_bikri_mullo: bikriMullo,
             store_info: user?.storeInfo,
         };
 
@@ -199,15 +216,21 @@ const CartPage = () => {
             });
 
             if (res.ok) {
-                toast({ title: "অর্ডার সফল!", description: paymentMethod === 'Cash on Delivery' ? "COD অর্ডার প্লেস হয়েছে।" : "অর্ডার প্লেস হয়েছে।" });
-
+                toast({
+                    title: "অর্ডার সফল!",
+                    description: isCOD
+                        ? `COD অর্ডার প্লেস হয়েছে। ডেলিভারির সময় ৳${dueAmount} পেমেন্ট করুন।`
+                        : "অর্ডার প্লেস হয়েছে।",
+                });
                 await handleDelete(selectedItem._id);
                 setIsModalOpen(false);
                 if (fetchCart) await fetchCart();
             } else {
-                throw new Error("Failed to place order");
+                const error = await res.text();
+                throw new Error(error || "Failed to place order");
             }
         } catch (e) {
+            console.error(e);
             toast({ title: "অর্ডার ব্যর্থ", description: "অর্ডার প্লেস করতে সমস্যা হয়েছে", variant: "destructive" });
         } finally {
             setIsSubmitting(false);
@@ -273,35 +296,19 @@ const CartPage = () => {
 
                             <div className="flex items-center justify-between w-full lg:w-auto gap-4 lg:gap-6">
                                 <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleDecrement(item._id)}
-                                        className="h-10 w-10 p-0"
-                                        disabled={qty <= 1}
-                                    >
+                                    <Button variant="ghost" size="sm" onClick={() => handleDecrement(item._id)} disabled={qty <= 1}>
                                         <Minus className="h-4 w-4" />
                                     </Button>
-                                    <span className="px-4 py-2 text-center min-w-[50px] bg-gray-50 text-sm font-medium">
-                                        {qty}
-                                    </span>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleIncrement(item._id)}
-                                        className="h-10 w-10 p-0"
-                                        disabled={qty >= maxStock}
-                                    >
+                                    <span className="px-4 py-2 text-center min-w-[50px] bg-gray-50 text-sm font-medium">{qty}</span>
+                                    <Button variant="ghost" size="sm" onClick={() => handleIncrement(item._id)} disabled={qty >= maxStock}>
                                         <Plus className="h-4 w-4" />
                                     </Button>
                                 </div>
 
-                                <p className="text-lg font-bold text-gray-800 whitespace-nowrap">
-                                    ৳{subtotal.toFixed(2)}
-                                </p>
+                                <p className="text-lg font-bold text-gray-800 whitespace-nowrap">৳{subtotal.toFixed(2)}</p>
 
                                 <div className="flex items-center gap-2">
-                                    <Button onClick={() => handleBuyNow(item._id)} size="sm" className="bg-blue-600 hover:bg-blue-700">
+                                    <Button onClick={() => handleBuyNow(item._id)} size="sm" className="bg-orange-600 hover:bg-orange-700">
                                         <ShoppingBag className="w-4 h-4 mr-2" /> কিনুন
                                     </Button>
                                     <Button variant="destructive" size="sm" onClick={() => handleDelete(item._id)}>
@@ -317,12 +324,11 @@ const CartPage = () => {
             {/* Checkout Modal */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="sm:max-w-4xl md:max-w-6xl w-full max-h-[95vh] overflow-y-auto bg-white p-0">
-                    {/* Step Indicator */}
                     <div className="sticky top-0 bg-white border-b z-10 px-6 py-4 flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${step === 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>1</div>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${step === 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>1</div>
                             <div className="w-20 h-1 bg-gray-200"><div className={`h-full transition-all ${step === 2 ? 'bg-blue-600 w-full' : 'bg-gray-200'}`}></div></div>
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${step === 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>2</div>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${step === 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>2</div>
                         </div>
                         <p className="text-sm font-medium text-gray-600">Step {step === 1 ? '০১: অর্ডার বিস্তারিত' : '০২: পেমেন্ট'}</p>
                     </div>
@@ -365,7 +371,7 @@ const CartPage = () => {
                                             <div className="w-full h-[0.5px] bg-green-500"></div>
                                             <div className="flex justify-between font-bold text-green-600 mt-1">
                                                 <span>আপনার লাভ</span>
-                                                <span>৳{(amarBikriMullo - calculateGrandTotal()).toFixed(2)}</span>
+                                                <span>৳{(parseFloat(amarBikriMullo) - parseFloat(calculateGrandTotal())).toFixed(2)}</span>
                                             </div>
                                         </div>
                                     )}
@@ -378,12 +384,12 @@ const CartPage = () => {
                                         <Truck className="w-5 h-5 mr-2 text-green-600" /> ডেলিভারি বিস্তারিত
                                     </h3>
                                     <div className="space-y-4">
-                                        <div><Label>নাম</Label><Input value={deliveryName} onChange={(e) => setDeliveryName(e.target.value)} placeholder="আপনার পুরো নাম" className="mt-1" /></div>
-                                        <div><Label>মোবাইল</Label><Input type="tel" value={deliveryPhone} onChange={(e) => setDeliveryPhone(e.target.value)} placeholder="০১XXXXXXXXX" className="mt-1" /></div>
-                                        <div><Label>ঠিকানা</Label><Input value={deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} placeholder="বিস্তারিত ঠিকানা" className="mt-1" /></div>
+                                        <div><Label>নাম</Label><Input value={deliveryName} onChange={e => setDeliveryName(e.target.value)} placeholder="আপনার পুরো নাম" className="mt-1" /></div>
+                                        <div><Label>মোবাইল</Label><Input type="tel" value={deliveryPhone} onChange={e => setDeliveryPhone(e.target.value)} placeholder="০১XXXXXXXXX" className="mt-1" /></div>
+                                        <div><Label>ঠিকানা</Label><Input value={deliveryAddress} onChange={e => setDeliveryAddress(e.target.value)} placeholder="বিস্তারিত ঠিকানা" className="mt-1" /></div>
                                         <div>
                                             <Label>লোকেশন</Label>
-                                            <select value={deliveryLocation} onChange={(e) => setDeliveryLocation(e.target.value)} className="w-full mt-1 p-2 border rounded-lg text-sm">
+                                            <select value={deliveryLocation} onChange={e => setDeliveryLocation(e.target.value)} className="w-full mt-1 p-2 border rounded-lg text-sm">
                                                 <option value="inside">ঢাকা সিটির ভিতরে (৳80)</option>
                                                 <option value="outside">ঢাকা সিটির বাইরে (৳150)</option>
                                             </select>
@@ -393,7 +399,17 @@ const CartPage = () => {
 
                                 <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-5 rounded-2xl border">
                                     <h3 className="font-bold text-lg mb-3">আমার বিক্রি মূল্য</h3>
-                                    <Input type="number" value={amarBikriMullo} onChange={(e) => setAmarBikriMullo(e.target.value ? Number(e.target.value) : '')} placeholder="আপনার বিক্রয় মূল্য লিখুন" className="text-lg font-bold" />
+                                    <Input
+                                        type="number"
+                                        value={amarBikriMullo}
+                                        onChange={e => setAmarBikriMullo(e.target.value ? Number(e.target.value) : '')}
+                                        placeholder="আপনার বিক্রয় মূল্য লিখুন"
+                                        className="text-lg font-bold"
+                                        min={calculateGrandTotal()}
+                                    />
+                                    {amarBikriMullo && parseFloat(amarBikriMullo) < parseFloat(calculateGrandTotal()) && (
+                                        <p className="text-red-600 text-xs mt-1">মূল্য গ্র্যান্ড টোটাল এর চেয়ে কম হতে পারবে না!</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -420,33 +436,69 @@ const CartPage = () => {
                                     ))}
                                 </div>
 
-                                {['bKash', 'Nagad'].includes(paymentMethod) && paymentInfo && (
-                                    <div className="mt-4 p-4 bg-gray-50 rounded-xl flex items-center justify-between">
+                                {/* Payment Info */}
+                                {paymentInfo && (
+                                    <div className="mt-4 p-4 bg-orange-100 rounded-xl flex items-center justify-between">
                                         <div>
-                                            <p className="text-sm text-gray-600">পেমেন্ট করুন:</p>
-                                            <p className="font-mono font-bold text-lg">
-                                                {paymentMethod === 'bKash' ? paymentInfo.bkashNumber : paymentInfo.nagadNumber}
-                                            </p>
+                                            {['bKash', 'Nagad'].includes(paymentMethod) && (
+                                                <>
+                                                    <p className="text-sm text-gray-600">সেন্ড মানি করুন:</p>
+                                                    <p className="font-mono font-bold text-lg">
+                                                        {paymentMethod === 'bKash' ? paymentInfo.bkashNumber : paymentInfo.nagadNumber}
+                                                    </p>
+                                                </>
+                                            )}
+                                            {paymentMethod === 'Cash on Delivery' && (
+                                                <div className="space-y-1">
+                                                    <p className="text-sm font-medium">অগ্রিম ডেলিভারি চার্জ সেন্ড মানি করুন:</p>
+                                                    <p className="text-xs">Bkash: {paymentInfo.bkashNumber}</p>
+                                                    <p className="text-xs">Nagad: {paymentInfo.nagadNumber}</p>
+                                                    <p className="text-xs text-green-700 mt-1">
+                                                        বাকি ৳{(parseFloat(calculateGrandTotal()) - getDeliveryCharge()).toFixed(2)} ডেলিভারির সময় ক্যাশে দিন।
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
-                                        <Button size="sm" onClick={copyPaymentNumber}><Copy className="w-4 h-4 mr-1" /> কপি</Button>
+                                        {['bKash', 'Nagad'].includes(paymentMethod) && (
+                                            <Button size="sm" onClick={copyPaymentNumber}>
+                                                <Copy className="w-4 h-4 mr-1" /> কপি
+                                            </Button>
+                                        )}
                                     </div>
                                 )}
 
+                                {/* Send Money Amount */}
+                                {paymentMethod === 'bKash' && amarBikriMullo && (
+                                    <div className="mt-4 p-2 bg-yellow-50 border border-yellow-200 rounded-xl flex flex-col md:flex-row md:items-center md:justify-between">
+                                        <p className="p-2 px-4 text-lg border border-orange-500 rounded-lg">Send Money: {amarBikriMullo} TK</p>
+                                        <p className="p-2 px-4 text-sm border border-orange-500 rounded-lg text-center">ট্রানজেকশন আইডি (TxID) সংরক্ষণ করুন</p>
+                                    </div>
+                                )}
+                                {paymentMethod === 'Nagad' && amarBikriMullo && (
+                                    <div className="mt-4 p-2 bg-yellow-50 border border-yellow-200 rounded-xl flex flex-col md:flex-row md:items-center md:justify-between">
+                                        <p className="p-2 px-4 text-lg border border-orange-500 rounded-lg">Send Money: {amarBikriMullo} TK</p>
+                                        <p className="p-2 px-4 text-sm border border-orange-500 rounded-lg text-center">ট্রানজেকশন আইডি (TxID) সংরক্ষণ করুন</p>
+                                    </div>
+                                )}
                                 {paymentMethod === 'Cash on Delivery' && (
-                                    <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
-                                        <p className="text-sm text-green-800 flex items-center">
-                                            <Truck className="w-5 h-5 mr-2" /> ডেলিভারির সময় নগদে পেমেন্ট করুন।
-                                        </p>
+                                    <div className="mt-4 p-2 bg-green-50 border border-green-200 rounded-xl flex flex-col md:flex-row md:items-center md:justify-between">
+                                        <p className="p-2 px-4 text-lg border border-green-500 rounded-lg">Send Money: {getDeliveryCharge()} TK</p>
+                                        <p className="p-2 px-4 text-sm border border-green-500 rounded-lg text-center">ডেলিভারি চার্জ অগ্রিম সেন্ড করুন</p>
                                     </div>
                                 )}
-                            </div>
 
-                            {['bKash', 'Nagad'].includes(paymentMethod) && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div><Label>পেমেন্ট মোবাইল নাম্বার</Label><Input type="tel" value={paymentNumber} onChange={(e) => setPaymentNumber(e.target.value)} placeholder="০১XXXXXXXXX" className="mt-1" /></div>
-                                    <div><Label>ট্রানজেকশন আইডি (TxID)</Label><Input value={tnxId} onChange={(e) => setTnxId(e.target.value)} placeholder="১৬ অঙ্কের TxID" className="mt-1" /></div>
+                                {/* Payment Inputs */}
+                                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <Label>পেমেন্ট মোবাইল নাম্বার</Label>
+                                        <Input type="tel" value={paymentNumber} onChange={e => setPaymentNumber(e.target.value)} placeholder="০১XXXXXXXXX" className="mt-1" />
+                                    </div>
+                                    <div>
+                                        <Label>ট্রানজেকশন আইডি (TxID)</Label>
+                                        <Input value={tnxId} onChange={e => setTnxId(e.target.value)} placeholder="১৬ অঙ্কের TxID" className="mt-1" />
+                                    </div>
                                 </div>
-                            )}
+                            </div>
                         </div>
                     )}
 
@@ -460,6 +512,7 @@ const CartPage = () => {
                                         toast({ title: "সকল তথ্য পূরণ করুন", variant: "destructive" });
                                         return;
                                     }
+                                    if (!validateAndProceed()) return;
                                     setStep(2);
                                 }}
                                 className="flex-1 bg-blue-600 hover:bg-blue-700"
@@ -470,7 +523,7 @@ const CartPage = () => {
                         {step === 2 && (
                             <Button
                                 onClick={handlePlaceOrder}
-                                disabled={isSubmitting || (['bKash', 'Nagad'].includes(paymentMethod) && (!paymentNumber || !tnxId))}
+                                disabled={isSubmitting || !paymentNumber || !tnxId}
                                 className="flex-1 bg-green-600 hover:bg-green-700"
                             >
                                 {isSubmitting ? (
