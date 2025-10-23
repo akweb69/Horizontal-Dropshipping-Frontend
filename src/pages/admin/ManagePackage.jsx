@@ -57,7 +57,7 @@ const ManagePackage = () => {
         try {
             const response = await axios.patch(
                 `${import.meta.env.VITE_BASE_URL}/buy-package/${selectedPackage._id}`,
-                { packageStatus: newStatus, email: selectedPackage.email, planName: selectedPackage.planName, storeInfo: selectedPackage.storeInfo }
+                { packageStatus: newStatus, email: selectedPackage.email, planName: selectedPackage.planName, storeInfo: selectedPackage.storeInfo, validityDays: selectedPackage.validityDays }
             );
             if (response.data) {
                 setPackages(packages.map(pkg =>

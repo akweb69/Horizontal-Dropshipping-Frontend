@@ -28,7 +28,7 @@ const MembershipPlan = ({ plan, onBuyNow }) => (
             )}
             <h2 className="text-2xl font-bold text-gray-800 text-center">{plan.name}</h2>
             <p className="text-4xl font-extrabold text-gray-900 text-center my-4">
-                ৳{plan.price}<span className="text-lg font-normal text-gray-500">/বছর</span>
+                ৳{plan.price}<span className="text-lg font-normal text-gray-500">/{plan.validityDays}দিন</span>
             </p>
             <ul className="space-y-3 mb-8">
                 {plan.benefits.map((benefit, index) => (
@@ -249,6 +249,7 @@ const MembershipPage = () => {
                 storeInfo,
                 use_refferal: isDiscountApplied,
                 invite_user_email: invite_user_email,
+                validityDays: selectedPlan.validityDays,
             };
 
             const res = await fetch(`${import.meta.env.VITE_BASE_URL}/buy-package`, {

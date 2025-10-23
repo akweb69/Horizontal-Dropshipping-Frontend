@@ -38,8 +38,9 @@ const DashboardPage = () => {
             });
     }, [user?.email]);
 
+    const timeRemaining = user?.validityDays * 24 * 60 * 60 * 1000;
     // Calculate plan validity date
-    const expiryDate = new Date(new Date(validUntil).getTime() + 90 * 24 * 60 * 60 * 1000);
+    const expiryDate = new Date(new Date(validUntil).getTime() + timeRemaining);
 
     // Countdown Timer
     useEffect(() => {
