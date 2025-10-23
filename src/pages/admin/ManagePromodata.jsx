@@ -174,8 +174,8 @@ const ManagePromodata = () => {
                                             <label
                                                 key={icon}
                                                 className={`flex flex-col items-center p-3 border-2 rounded-lg cursor-pointer transition-all ${formData.icon === icon
-                                                        ? 'border-blue-500 bg-blue-50'
-                                                        : 'border-gray-300 hover:border-gray-400'
+                                                    ? 'border-blue-500 bg-blue-50'
+                                                    : 'border-gray-300 hover:border-gray-400'
                                                     }`}
                                             >
                                                 <input
