@@ -47,6 +47,7 @@ import WebsiteData from './pages/admin/WebsiteData';
 import ProductDetails from './components/layout/ProductDetails';
 import ManagePackageData from './pages/admin/ManagePackageData';
 import SeeUser from './components/layout/SeeUser';
+import ManagePromodata from './pages/admin/ManagePromodata';
 
 function App() {
   return (
@@ -113,6 +114,7 @@ function App() {
           <Route path="webdata" element={<WebsiteData />} />
           <Route path="packagesdata" element={<ManagePackageData />} />
           <Route path="seeusers" element={<SeeUser />} />
+          <Route path="promodata" element={<ManagePromodata />} />
         </Route>
 
       </Routes>
