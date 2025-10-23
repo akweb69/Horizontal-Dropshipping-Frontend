@@ -118,7 +118,7 @@ const ManageClassRequest = () => {
                             onChange={e => setTopicFilter(e.target.value)}
                             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition"
                         >
-                            <option value="all">সব বি�.reflectয়</option>
+                            <option value="all">সব বিষয়</option>
                             <option value="dropshipping">ড্রপশিপিং</option>
                             <option value="facebook-marketing">ফেসবুক মার্কেটিং</option>
                             <option value="seo">এসইও</option>
