@@ -51,6 +51,7 @@ import ManagePromodata from './pages/admin/ManagePromodata';
 import ManageContactUs from './pages/admin/ManageContactUs';
 import ClassRequest from './components/layout/ClassRequest';
 import ManageClassRequest from './pages/admin/ManageClassRequest';
+import ManageRefferWithDraw from './pages/admin/ManageRefferWithDraw';
 
 function App() {
   return (
@@ -121,6 +122,7 @@ function App() {
           <Route path="promodata" element={<ManagePromodata />} />
           <Route path="requestdata" element={<ManageContactUs />} />
           <Route path="classrequestdata" element={<ManageClassRequest />} />
+          <Route path="reffer_withdraw" element={<ManageRefferWithDraw />} />
         </Route>
 
       </Routes>

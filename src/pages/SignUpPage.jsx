@@ -59,6 +59,7 @@ const SignUpPage = () => {
         })
           .then((response) => {
             console.log(response.data);
+            setTimeout(() => window.location.reload(), 1000);
           })
           .catch((error) => {
             console.error(error);

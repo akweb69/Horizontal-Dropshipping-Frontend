@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
-import { Copy, DollarSign, Users, Gift, Loader2, Download, Send, X } from 'lucide-react';
+import { Copy, DollarSign, Users, Gift, Loader2, Download, Send, X, CheckCircle, XCircle as XCircleIcon, Clock } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
     Dialog,
@@ -18,53 +18,73 @@ import {
 } from "@/components/ui/dialog";
 import axios from 'axios';
 
-// Custom Select Component (Fallback)
-const Select = ({ children, value, onValueChange, ...props }) => {
+// =================== FULLY FUNCTIONAL CUSTOM SELECT ===================
+const Select = ({ value, onValueChange, children, placeholder = "Select an option", ...props }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const selectedValue = React.Children.toArray(children).find(child =>
-        child.props.value === value
+
+    const selectedChild = React.Children.toArray(children).find(
+        child => child && child.props && child.props.value === value
     );
 
     return (
         <div className="relative">
+            {/* Trigger Button */}
             <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-full p-3 border border-gray-300 rounded-md text-left bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                type="button"
+                onClick={() => setIsOpen(prev => !prev)}
+                className="w-full flex items-center justify-between p-3 border border-gray-300 rounded-md bg-white text-left hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                 {...props}
             >
-                {selectedValue?.props.children || 'Select an option'}
+                <span className={value ? "text-gray-900 font-medium" : "text-gray-500"}>
+                    {selectedChild?.props?.children || placeholder}
+                </span>
+                <svg
+                    className={`w-4 h-4 ml-2 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
             </button>
+
+            {/* Dropdown */}
             {isOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                    {React.Children.map(children, child =>
-                        React.cloneElement(child, {
+                <div className="absolute z-30 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                    {React.Children.map(children, (child) => {
+                        if (!child || !child.props) return null;
+                        return React.cloneElement(child, {
                             onClick: () => {
                                 onValueChange(child.props.value);
                                 setIsOpen(false);
                             },
-                            className: "w-full px-4 py-2 text-left hover:bg-gray-100 cursor-pointer"
-                        })
-                    )}
+                        });
+                    })}
                 </div>
             )}
         </div>
     );
 };
 
-const SelectTrigger = ({ children, ...props }) => <>{children}</>;
-const SelectValue = ({ children }) => children;
-const SelectContent = ({ children }) => children;
+// Select Item
 const SelectItem = ({ children, value, onClick, ...props }) => (
-    <div onClick={onClick} className="px-4 py-2 hover:bg-gray-100 cursor-pointer" {...props}>
+    <div
+        onClick={onClick}
+        className="px-4 py-2.5 text-left hover:bg-gray-100 cursor-pointer transition-colors duration-150"
+        {...props}
+    >
         {children}
     </div>
 );
+// =====================================================================
 
 const ReferralDashboardPage = () => {
     const { user: authUser } = useAuth();
     const { toast } = useToast();
     const [userData, setUserData] = useState(null);
+    const [withdrawHistory, setWithdrawHistory] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [historyLoading, setHistoryLoading] = useState(false);
     const [copyLoading, setCopyLoading] = useState(false);
     const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
     const [withdrawData, setWithdrawData] = useState({
@@ -74,7 +94,9 @@ const ReferralDashboardPage = () => {
     });
     const [withdrawLoading, setWithdrawLoading] = useState(false);
 
-    // Fetch full user data from /users API
+    const minimumWithdraw = 1000;
+
+    // Fetch user data
     useEffect(() => {
         if (!authUser?.email) {
             setLoading(false);
@@ -86,42 +108,44 @@ const ReferralDashboardPage = () => {
             .then(res => {
                 const users = res.data || [];
                 const currentUser = users.find(u => u.email === authUser.email);
-                if (currentUser) {
-                    setUserData(currentUser);
-                }
+                if (currentUser) setUserData(currentUser);
             })
             .catch(err => {
-                console.error('Error fetching users:', err);
-                toast({
-                    title: "ত্রুটি!",
-                    description: "রেফারেল ডেটা লোড করতে সমস্যা হয়েছে।",
-                    variant: "destructive"
-                });
+                console.error(err);
+                toast({ title: "ত্রুটি!", description: "রেফারেল ডেটা লোড করতে সমস্যা।", variant: "destructive" });
             })
-            .finally(() => {
-                setLoading(false);
-            });
+            .finally(() => setLoading(false));
+    }, [authUser?.email, toast]);
+
+    // Fetch withdraw history
+    useEffect(() => {
+        if (!authUser?.email) return;
+
+        setHistoryLoading(true);
+        axios.get(`${import.meta.env.VITE_BASE_URL}/refer-withdraw`)
+            .then(res => {
+                const allWithdraws = res.data || [];
+                const userWithdraws = allWithdraws.filter(w => w.email === authUser.email);
+                setWithdrawHistory(userWithdraws);
+            })
+            .catch(err => {
+                console.error(err);
+                toast({ title: "ত্রুটি!", description: "উত্তোলনের ইতিহাস লোড করতে সমস্যা।", variant: "destructive" });
+            })
+            .finally(() => setHistoryLoading(false));
     }, [authUser?.email, toast]);
 
     const referredUsers = userData?.myReferralUser || [];
     const referralCode = userData?.myReferralCode || 'N/A';
-    const referIncome = referredUsers.length * 50;
-    const minimumWithdraw = 1000;
+    const referIncome = userData?.referIncome || 0;
 
     const copyReferralCode = async () => {
         setCopyLoading(true);
         try {
             await navigator.clipboard.writeText(referralCode);
-            toast({
-                title: "সফল!",
-                description: "আপনার রেফারেল কোড কপি করা হয়েছে।",
-            });
-        } catch (err) {
-            toast({
-                title: "ত্রুটি!",
-                description: "কোড কপি করতে সমস্যা হয়েছে।",
-                variant: "destructive"
-            });
+            toast({ title: "সফল!", description: "রেফারেল কোড কপি হয়েছে।" });
+        } catch {
+            toast({ title: "ত্রুটি!", description: "কোড কপি করতে সমস্যা।", variant: "destructive" });
         } finally {
             setCopyLoading(false);
         }
@@ -131,7 +155,7 @@ const ReferralDashboardPage = () => {
         if (referIncome < minimumWithdraw) {
             toast({
                 title: "যোগ্য নয়!",
-                description: `ন্যূনতম ${minimumWithdraw} টাকা থাকতে হবে উত্তোলনের জন্য। বর্তমান আয়: ৳${referIncome}`,
+                description: `ন্যূনতম ${minimumWithdraw} টাকা প্রয়োজন। বর্তমান: ৳${referIncome}`,
                 variant: "destructive"
             });
             return;
@@ -149,96 +173,64 @@ const ReferralDashboardPage = () => {
     const handleWithdrawSubmit = async () => {
         const { method, amount, number } = withdrawData;
 
-        // Validation
         if (!amount || parseFloat(amount) < minimumWithdraw) {
-            toast({
-                title: "ত্রুটি!",
-                description: `উত্তোলনের পরিমাণ ন্যূনতম ${minimumWithdraw} টাকা হতে হবে।`,
-                variant: "destructive"
-            });
+            toast({ title: "ত্রুটি!", description: `ন্যূনতম ${minimumWithdraw} টাকা।`, variant: "destructive" });
             return;
         }
-
         if (!number || number.length < 10) {
-            toast({
-                title: "ত্রুটি!",
-                description: "সঠিক মোবাইল নম্বর দিন (১০+ ডিজিট)।",
-                variant: "destructive"
-            });
+            toast({ title: "ত্রুটি!", description: "সঠিক নম্বর দিন।", variant: "destructive" });
             return;
         }
-
         if (parseFloat(amount) > referIncome) {
-            toast({
-                title: "ত্রুটি!",
-                description: "উত্তোলনের পরিমাণ আপনার আয়ের চেয়ে বেশি হতে পারে না।",
-                variant: "destructive"
-            });
+            toast({ title: "ত্রুটি!", description: "উত্তোলন আয়ের চেয়ে বেশি।", variant: "destructive" });
             return;
         }
 
         setWithdrawLoading(true);
         try {
-            const withdrawRequest = {
+            const payload = {
                 email: authUser.email,
                 name: userData.name,
                 phone: userData.phone,
                 method: method.toUpperCase(),
                 amount: parseFloat(amount),
                 number,
-                referralIncome: referIncome,
                 status: 'Pending',
-                date: new Date().toISOString(),
-                withdrawId: `WD-${Date.now()}`
+                requestDate: new Date().toISOString(),
+                withdrawId: `REF-WD-${Date.now()}`
             };
 
-            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/withdraw`, withdrawRequest);
+            const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/refer-withdraw`, payload);
 
-            if (response.data) {
+            if (res.data.acknowledged) {
                 toast({
                     title: "সফল!",
-                    description: `উত্তোলনের অনুরোধ জমা দেওয়া হয়েছে। Withdraw ID: ${withdrawRequest.withdrawId}`,
+                    description: `উত্তোলনের অনুরোধ জমা দেওয়া হয়েছে। ID: ${payload.withdrawId}`
                 });
                 setWithdrawModalOpen(false);
                 setWithdrawData({ method: 'bkash', amount: '', number: '' });
-
-                // Refresh user data
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
+                setTimeout(() => window.location.reload(), 1000);
             }
-        } catch (error) {
-            console.error('Withdraw error:', error);
-            toast({
-                title: "ত্রুটি!",
-                description: "উত্তোলনের অনুরোধ জমা দিতে সমস্যা হয়েছে। আবার চেষ্টা করুন।",
-                variant: "destructive"
-            });
+        } catch (err) {
+            console.error(err);
+            toast({ title: "ত্রুটি!", description: "অনুরোধ জমা দিতে ব্যর্থ।", variant: "destructive" });
         } finally {
             setWithdrawLoading(false);
         }
     };
 
     const formatDate = (dateString) => {
-        try {
-            return new Date(dateString).toLocaleDateString('bn-BD', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        } catch {
-            return 'তারিখ উপলব্ধ নেই';
-        }
+        if (!dateString) return '—';
+        return new Date(dateString).toLocaleString('bn-BD', {
+            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
     };
 
-    // Simple Loading Spinner
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen space-y-4">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-                <p className="text-muted-foreground">ডেটা লোড হচ্ছে...</p>
+                <p className="text-muted-foreground">লোড হচ্ছে...</p>
             </div>
         );
     }
@@ -246,32 +238,27 @@ const ReferralDashboardPage = () => {
     if (!userData) {
         return (
             <div className="space-y-6">
-                <Helmet>
-                    <title>রেফারেল প্রোগ্রাম - LetsDropship</title>
-                </Helmet>
-                <Card>
-                    <CardContent className="text-center py-8">
-                        <p className="text-muted-foreground">রেফারেল ডেটা লোড করতে সমস্যা হয়েছে।</p>
-                    </CardContent>
-                </Card>
+                <Helmet><title>রেফারেল - LetsDropship</title></Helmet>
+                <Card><CardContent className="text-center py-8 text-muted-foreground">ডেটা লোড করতে সমস্যা।</CardContent></Card>
             </div>
         );
     }
 
     return (
         <>
-            <Helmet>
-                <title>রেফারেল প্রোগ্রাম - LetsDropship</title>
-            </Helmet>
-            <div className="space-y-6">
+            <Helmet><title>রেফারেল প্রোগ্রাম - LetsDropship</title></Helmet>
+            <div className="space-y-6 p-4 md:p-6">
+
+                {/* Header */}
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800">রেফারেল প্রোগ্রাম</h1>
-                    <p className="text-muted-foreground">আপনার বন্ধুদের রেফার করে আয় করুন। প্রতি রেফারেলে ৫০ টাকা বোনাস!</p>
+                    <p className="text-muted-foreground">প্রতি রেফারেলে ৫০ টাকা বোনাস! আপনার বন্ধুদের আমন্ত্রণ জানান।</p>
                 </div>
 
+                {/* Stats */}
                 <div className="grid gap-4 md:grid-cols-2">
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-sm font-medium">মোট রেফারেল আয়</CardTitle>
                             <DollarSign className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
@@ -280,49 +267,49 @@ const ReferralDashboardPage = () => {
                                 ৳ {referIncome}
                             </div>
                             <p className="text-xs text-muted-foreground">
-                                {referredUsers.length} জন × ৫০ টাকা = মোট আয়
+                                {referredUsers.length} জন × ৫০ = মোট আয়
                                 {referIncome < minimumWithdraw && (
-                                    <span className="block text-red-600">
-                                        ন্যূনতম উত্তোলন: ৳{minimumWithdraw}
-                                    </span>
+                                    <span className="block text-red-600">ন্যূনতম উত্তোলন: ৳{minimumWithdraw}</span>
                                 )}
                             </p>
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">মোট রেফার করা ব্যবহারকারী</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium">রেফার করা ব্যবহারকারী</CardTitle>
                             <Users className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{referredUsers.length}</div>
-                            <p className="text-xs text-muted-foreground">সফলভাবে সাইন আপ করেছেন</p>
+                            <p className="text-xs text-muted-foreground">সফল সাইনআপ</p>
                         </CardContent>
                     </Card>
                 </div>
 
+                {/* Referral Code */}
                 <Card>
                     <CardHeader>
                         <CardTitle>আপনার রেফারেল কোড</CardTitle>
-                        <CardDescription>আপনার বন্ধুদের সাথে এই কোডটি শেয়ার করুন এবং তারা সাইন আপ করলে ৫০ টাকা বোনাস পান।</CardDescription>
+                        <CardDescription>শেয়ার করুন এবং বোনাস পান</CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col sm:flex-row items-center gap-4">
-                        <div className="relative w-full">
+                        <div className="relative flex-1">
                             <Gift className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            <Input readOnly value={referralCode} className="text-lg font-mono pl-10" />
+                            <Input readOnly value={referralCode} className="pl-10 font-mono text-lg" />
                         </div>
-                        <Button onClick={copyReferralCode} className="w-full sm:w-auto shrink-0" disabled={copyLoading}>
+                        <Button onClick={copyReferralCode} disabled={copyLoading} className="w-full sm:w-auto">
                             {copyLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Copy className="mr-2 h-4 w-4" />}
-                            কোড কপি করুন
+                            কপি করুন
                         </Button>
                     </CardContent>
                 </Card>
 
+                {/* Referred Users */}
                 <Card>
                     <CardHeader className="flex flex-row justify-between items-center">
                         <div>
-                            <CardTitle>রেফার করা ব্যবহারকারীদের তালিকা</CardTitle>
-                            <CardDescription>যারা আপনার কোড ব্যবহার করে সাইন আপ করেছেন। প্রত্যেকের জন্য ৫০ টাকা বোনাস।</CardDescription>
+                            <CardTitle>রেফার করা ব্যবহারকারী</CardTitle>
+                            <CardDescription>প্রত্যেকের জন্য ৫০ টাকা বোনাস</CardDescription>
                         </div>
                         <Button
                             onClick={handleWithdrawModalOpen}
@@ -330,7 +317,7 @@ const ReferralDashboardPage = () => {
                             className={referIncome >= minimumWithdraw ? 'bg-green-600 hover:bg-green-700' : ''}
                         >
                             <Download className="mr-2 h-4 w-4" />
-                            উত্তোলন করুন
+                            উত্তোলন
                         </Button>
                     </CardHeader>
                     <CardContent>
@@ -338,78 +325,138 @@ const ReferralDashboardPage = () => {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>নাম</TableHead>
-                                        <TableHead>সাইন আপের তারিখ</TableHead>
-                                        <TableHead className="text-right">অর্জিত পরিমাণ</TableHead>
+                                        <TableHead>ইমেইল</TableHead>
+                                        <TableHead>প্ল্যান</TableHead>
+                                        <TableHead className="text-right">বোনাস</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {referredUsers.map((refUser, index) => (
-                                        <TableRow key={`${refUser.name}-${index}`}>
-                                            <TableCell className="font-medium">{refUser.name}</TableCell>
-                                            <TableCell>{formatDate(refUser.date)}</TableCell>
-                                            <TableCell className="text-right font-semibold text-green-600">৳50</TableCell>
+                                    {referredUsers.map((u, i) => (
+                                        <TableRow key={i}>
+                                            <TableCell className="font-medium">{u.email}</TableCell>
+                                            <TableCell>{u.planName}</TableCell>
+                                            <TableCell className="text-right text-green-600 font-semibold">৳50</TableCell>
                                         </TableRow>
                                     ))}
                                     <TableRow>
-                                        <TableCell colSpan={2} className="text-right font-semibold">মোট আয়:</TableCell>
-                                        <TableCell className="text-right font-bold text-green-600">৳{referIncome}</TableCell>
+                                        <TableCell colSpan={2} className="text-right font-bold">মোট:</TableCell>
+                                        <TableCell className="text-right text-green-600 font-bold">৳{referIncome}</TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>
                         ) : (
                             <div className="text-center py-8 text-muted-foreground">
                                 <Users className="mx-auto h-12 w-12 mb-2" />
-                                <p>এখনো কোনো রেফারেল নেই। আপনার কোড শেয়ার করুন!</p>
+                                <p>কোনো রেফারেল নেই। কোড শেয়ার করুন!</p>
                             </div>
                         )}
                     </CardContent>
                 </Card>
 
-                {/* Withdraw Modal */}
+                {/* Withdraw History */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>উত্তোলনের ইতিহাস</CardTitle>
+                        <CardDescription>আপনার সকল উত্তোলনের অনুরোধ</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {historyLoading ? (
+                            <div className="flex justify-center py-8">
+                                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                            </div>
+                        ) : withdrawHistory.length > 0 ? (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>ID</TableHead>
+                                        <TableHead>পদ্ধতি</TableHead>
+                                        <TableHead>পরিমাণ</TableHead>
+                                        <TableHead>অনুরোধ</TableHead>
+                                        <TableHead>অনুমোদন</TableHead>
+                                        <TableHead className="text-center">স্ট্যাটাস</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {withdrawHistory.map(w => (
+                                        <TableRow key={w._id}>
+                                            <TableCell className="font-mono text-xs">{w.withdrawId}</TableCell>
+                                            <TableCell>
+                                                <span className="flex items-center gap-1">
+                                                    {w.method === 'BKASH' ? 'বিকাশ' : 'নগদ'}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell className="font-semibold">৳{w.amount}</TableCell>
+                                            <TableCell className="text-xs">{formatDate(w.requestDate)}</TableCell>
+                                            <TableCell className="text-xs">{formatDate(w.approvedAt)}</TableCell>
+                                            <TableCell className="text-center">
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+                                                    ${w.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                                                        w.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                                                            'bg-yellow-100 text-yellow-800'}`}>
+                                                    {w.status === 'Approved' && <CheckCircle className="w-3 h-3 mr-1" />}
+                                                    {w.status === 'Rejected' && <XCircleIcon className="w-3 h-3 mr-1" />}
+                                                    {w.status === 'Pending' && <Clock className="w-3 h-3 mr-1" />}
+                                                    {w.status}
+                                                </span>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        ) : (
+                            <div className="text-center py-8 text-muted-foreground">
+                                <DollarSign className="mx-auto h-12 w-12 mb-2" />
+                                <p>কোনো উত্তোলনের অনুরোধ নেই।</p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* ================ WITHDRAW MODAL - FULLY WORKING ================ */}
                 <Dialog open={withdrawModalOpen} onOpenChange={setWithdrawModalOpen}>
-                    <DialogContent className="max-w-md">
+                    <DialogContent className="max-w-[550px] max-h-[500px] overflow-y-auto">
                         <DialogHeader>
-                            <DialogTitle className="flex items-center justify-between">
+                            <DialogTitle className="flex items-center justify-between text-xl">
                                 উত্তোলনের অনুরোধ
-                                <button
-                                    onClick={() => setWithdrawModalOpen(false)}
-                                    className="p-1 hover:bg-gray-100 rounded"
-                                >
-                                    <X className="h-4 w-4" />
-                                </button>
+
                             </DialogTitle>
-                            <DialogDescription>
-                                ন্যূনতম {minimumWithdraw} টাকা উত্তোলন করতে পারবেন। আপনার বর্তমান আয়: ৳{referIncome}
+                            <DialogDescription className="text-sm">
+                                ন্যূনতম {minimumWithdraw} টাকা। বর্তমান আয়: <strong className="text-green-600">৳{referIncome}</strong>
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="space-y-4 py-4">
+
+                        <div className="space-y-5 py-4">
+                            {/* Payment Method - NOW WORKING */}
                             <div className="space-y-2">
-                                <Label htmlFor="method">উত্তোলনের পদ্ধতি</Label>
-                                <Select value={withdrawData.method} onValueChange={(value) => handleInputChange('method', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="bkash">বিকাশ</SelectItem>
-                                        <SelectItem value="nagad">নগদ</SelectItem>
-                                    </SelectContent>
+                                <Label htmlFor="method" className="font-medium">পদ্ধতি</Label>
+                                <Select
+                                    value={withdrawData.method}
+                                    onValueChange={(v) => handleInputChange('method', v)}
+                                    placeholder="পদ্ধতি নির্বাচন করুন"
+                                >
+                                    <SelectItem value="bkash">বিকাশ</SelectItem>
+                                    <SelectItem value="nagad">নগদ</SelectItem>
                                 </Select>
                             </div>
+
+                            {/* Amount */}
                             <div className="space-y-2">
-                                <Label htmlFor="amount">উত্তোলনের পরিমাণ (৳)</Label>
+                                <Label htmlFor="amount" className="font-medium">পরিমাণ (৳)</Label>
                                 <Input
                                     id="amount"
                                     type="number"
-                                    placeholder="ন্যূনতম ১০০০ টাকা"
+                                    placeholder={`ন্যূনতম ${minimumWithdraw}`}
                                     value={withdrawData.amount}
-                                    onChange={(e) => handleInputChange('amount', e.target.value)}
+                                    onChange={e => handleInputChange('amount', e.target.value)}
                                     min={minimumWithdraw}
                                     max={referIncome}
+                                    className="text-lg"
                                 />
                             </div>
+
+                            {/* Number - Dynamic Label */}
                             <div className="space-y-2">
-                                <Label htmlFor="number">
+                                <Label htmlFor="number" className="font-medium">
                                     {withdrawData.method === 'bkash' ? 'বিকাশ' : 'নগদ'} নম্বর
                                 </Label>
                                 <Input
@@ -417,21 +464,25 @@ const ReferralDashboardPage = () => {
                                     type="tel"
                                     placeholder="01XXXXXXXXX"
                                     value={withdrawData.number}
-                                    onChange={(e) => handleInputChange('number', e.target.value)}
+                                    onChange={e => handleInputChange('number', e.target.value)}
+                                    className="font-mono"
                                 />
                             </div>
                         </div>
-                        <DialogFooter>
+
+                        <DialogFooter className="flex gap-3 sm:justify-end">
                             <Button
                                 variant="outline"
                                 onClick={() => setWithdrawModalOpen(false)}
                                 disabled={withdrawLoading}
+                                className="px-6"
                             >
                                 বাতিল
                             </Button>
                             <Button
                                 onClick={handleWithdrawSubmit}
                                 disabled={withdrawLoading || !withdrawData.amount || !withdrawData.number}
+                                className="px-8 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
                             >
                                 {withdrawLoading ? (
                                     <>

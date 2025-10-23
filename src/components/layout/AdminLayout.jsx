@@ -27,11 +27,13 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { icon: PackageIcon, label: 'প্যাকেজ অর্ডার  করুন', path: '/admin/packages' },
     { icon: PackageIcon, label: 'প্যাকেজ ম্যানেজ করুন', path: '/admin/packagesdata' },
     { icon: DollarSignIcon, label: 'ওয়াইথড্র ম্যানেজ করুন', path: '/admin/withdraw' },
+    { icon: DollarSignIcon, label: 'রেফারেল ওয়াইথড্র ম্যানেজ করুন', path: '/admin/reffer_withdraw' },
     { icon: LucideDollarSign, label: 'বিলিং ম্যানেজ করুন', path: '/admin/billing' },
     { icon: User, label: 'ওয়েবসাইট ডাটা ম্যানেজ করুন', path: '/admin/webdata' },
     { icon: PackageIcon, label: 'প্রমোডাটা ম্যানেজ করুন', path: '/admin/promodata' },
     { icon: AlertTriangleIcon, label: 'রিকুয়েস্ট ম্যানেজ করুন', path: '/admin/requestdata' },
     { icon: AlertTriangleIcon, label: 'ক্লাসের রিকুয়েস্ট ম্যানেজ করুন', path: '/admin/classrequestdata' },
+
 
   ];
   const handleLogout = () => {

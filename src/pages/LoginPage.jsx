@@ -17,8 +17,9 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const success = await login(email, password); // Firebase login ফাংশন কল
+      const success = await login(email, password);
       if (success) {
+        setTimeout(() => window.location.reload(), 1000);
         toast({
           title: "🎉 লগইন সফল হয়েছে!",
           description: "আপনাকে ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে।",
