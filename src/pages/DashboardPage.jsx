@@ -1,46 +1,34 @@
-
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '@/context/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DollarSign, Package, ShoppingCart } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import CircleStatCard from '@/components/CircleStatCard';
 import axios from 'axios';
-
-const salesData = [
-    { name: 'জান', sales: 120000 },
-    { name: 'ফেব্রু', sales: 150000 },
-    { name: 'মার্চ', sales: 175000 },
-    { name: 'এপ্রিল', sales: 210000 },
-    { name: 'মে', sales: 190000 },
-    { name: 'জুন', sales: 230000 },
-];
 
 const DashboardPage = () => {
     const { user, setLoading, loading } = useAuth();
     const { subscription } = user;
     const { plan, validUntil } = subscription;
-    const [name, setName] = useState(' ');
+    const [name, setName] = useState('');
+    const [countdown, setCountdown] = useState('');
+
+    // Fetch user name
     useEffect(() => {
         axios.get(`${import.meta.env.VITE_BASE_URL}/users/${user?.email}`)
-            .then((response) => {
-                setName(response.data.name);
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    }, [user?.email])
-    // load sell data
+            .then((response) => setName(response.data.name))
+            .catch(console.error);
+    }, [user?.email]);
+
+    // Load sell data
     const [sells, setSells] = useState([]);
     useEffect(() => {
         axios.get(`${import.meta.env.VITE_BASE_URL}/orders`)
             .then(response => {
                 if (response.data) {
                     setSells(response.data.filter(item => item.email === user?.email));
-                    // console.log(response.data.filter(item => item.email === user?.email));
                 }
                 setLoading(false);
             })
@@ -48,13 +36,53 @@ const DashboardPage = () => {
                 console.error('Error fetching sell product data:', error);
                 setLoading(false);
             });
-    }, [user?.email])
+    }, [user?.email]);
 
-    if (loading) {
-        return <div className="flex justify-center items-center h-screen">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
-        </div>
+    // Calculate plan validity date
+    const expiryDate = new Date(new Date(validUntil).getTime() + 90 * 24 * 60 * 60 * 1000);
+
+    // Countdown Timer
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = expiryDate - now;
+
+            if (distance <= 0) {
+                clearInterval(interval);
+                setCountdown('প্ল্যানের মেয়াদ শেষ!');
+                handlePlanExpired(); // Function call when expired
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            setCountdown(`${days} দিন ${hours} ঘন্টা ${minutes} মিনিট ${seconds} সেকেন্ড`);
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [expiryDate]);
+
+    // Function triggered when plan expires
+    const handlePlanExpired = () => {
+        const data = {
+            email: user.email,
+        }
+        alert('⚠️ আপনার সাবস্ক্রিপশন মেয়াদ শেষ হয়েছে! দয়া করে প্ল্যান আপগ্রেড করুন।');
+        axios.patch(`${import.meta.env.VITE_BASE_URL}/users_mayead_sesh`, data)
+            .then(response => {
+                console.log('User plan status updated due to expiry:', response.data);
+            })
+            .catch(error => {
+                console.error('Error updating user plan status:', error);
+            });
+
+
     }
+
+
     return (
         <>
             <Helmet>
@@ -78,8 +106,18 @@ const DashboardPage = () => {
                     </CardHeader>
                     <CardContent className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 bg-primary/5 rounded-lg">
                         <div>
-                            <h3 className="text-xl font-bold text-primary">{plan}</h3>
-                            <p className="text-muted-foreground">আপনার প্ল্যানটি {new Date(new Date(validUntil).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })} পর্যন্ত বৈধ।</p>
+                            <h3 className="text-xl md:text-2xl font-bold text-primary">{plan}</h3>
+                            <p className="text-muted-foreground">
+                                বৈধ থাকবে:{" "}
+                                {expiryDate.toLocaleDateString('bn-BD', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })}
+                            </p>
+                            <p className="text-sm mt-2 md:text-xl text-red-700 font-medium">
+                                ⏳ বাকি সময়: {countdown}
+                            </p>
                         </div>
                         <Button asChild className="mt-4 sm:mt-0">
                             <NavLink to="/membership">প্ল্যান আপগ্রেড করুন</NavLink>
@@ -116,26 +154,6 @@ const DashboardPage = () => {
                         icon={<Package className="h-5 w-5 text-muted-foreground" />}
                     />
                 </div>
-
-                {/* <div className="grid grid-cols-1 gap-6">
-                    <Card className="">
-                        <CardHeader>
-                            <CardTitle>বিক্রয় সারসংক্ষেপ</CardTitle>
-                            <CardDescription>গত ৬ মাসের বিক্রয় ডেটা দেখুন।</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <BarChart data={salesData}>
-                                    <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `৳${value / 1000}k`} />
-                                    <Tooltip cursor={{ fill: 'hsl(var(--primary)/0.1)' }} contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', border: '1px solid #ccc', borderRadius: '0.5rem' }} />
-                                    <Bar dataKey="sales" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </CardContent>
-                    </Card>
-
-                </div> */}
             </div>
         </>
     );
