@@ -210,10 +210,10 @@ const ManageWithdraw = () => {
                                         <td className="py-4 px-6">
                                             <span
                                                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${withdrawal.status === 'Approved'
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : withdrawal.status === 'Rejected'
-                                                            ? 'bg-red-100 text-red-800'
-                                                            : 'bg-yellow-100 text-yellow-800'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : withdrawal.status === 'Rejected'
+                                                        ? 'bg-red-100 text-red-800'
+                                                        : 'bg-yellow-100 text-yellow-800'
                                                     }`}
                                             >
                                                 {withdrawal.status}
@@ -282,18 +282,18 @@ const ManageWithdraw = () => {
                                 <p><strong>Amount:</strong> ৳{selectedWithdrawal.amount}</p>
                                 <p><strong>Payment Method:</strong> {selectedWithdrawal.paymentMethod}</p>
                                 <p><strong>Payment Number:</strong> {selectedWithdrawal.paymentNumber}</p>
-                                <p><strong>Charge:</strong> ৳{selectedWithdrawal.charge}</p>
-                                <p><strong>Withdrawable Balance:</strong> ৳{selectedWithdrawal.withdrawableBalance}</p>
+                                <p><strong>Charge:</strong> ৳ {selectedWithdrawal.charge.toFixed(2)}</p>
+                                <p><strong>Withdrawable Balance:</strong> ৳{parseInt(selectedWithdrawal.withdrawableBalance)}</p>
                                 <p><strong>Request Date:</strong> {selectedWithdrawal.request_date}</p>
                                 <p><strong>Approval Date:</strong> {selectedWithdrawal.approval_date || '-'}</p>
                                 <p>
                                     <strong>Status:</strong>{' '}
                                     <span
                                         className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${selectedWithdrawal.status === 'Approved'
-                                                ? 'bg-green-100 text-green-800'
-                                                : selectedWithdrawal.status === 'Rejected'
-                                                    ? 'bg-red-100 text-red-800'
-                                                    : 'bg-yellow-100 text-yellow-800'
+                                            ? 'bg-green-100 text-green-800'
+                                            : selectedWithdrawal.status === 'Rejected'
+                                                ? 'bg-red-100 text-red-800'
+                                                : 'bg-yellow-100 text-yellow-800'
                                             }`}
                                     >
                                         {selectedWithdrawal.status}
