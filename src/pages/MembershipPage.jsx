@@ -70,6 +70,8 @@ const MembershipPage = () => {
     const [referralCode, setReferralCode] = useState('');
     const [discount, setDiscount] = useState(0);
     const [showCongrats, setShowCongrats] = useState(false);
+    const [isDiscountApplied, setIsDiscountApplied] = useState(false);
+    const [invite_user_email, set_invite_user_email] = useState('');
 
     useEffect(() => {
         fetchPaymentNumbers();
@@ -93,6 +95,8 @@ const MembershipPage = () => {
         if (foundUser && discount === 0) {
             const newDiscount = 60;
             setDiscount(newDiscount);
+            setIsDiscountApplied(true);
+            set_invite_user_email(foundUser.email);
             setPayableAmount(selectedPlan.price - newDiscount);
             toast({
                 title: "সফল",
@@ -101,6 +105,7 @@ const MembershipPage = () => {
             setShowCongrats(true);
             setTimeout(() => setShowCongrats(false), 1500);
         } else if (!foundUser) {
+            setIsDiscountApplied(false);
             toast({
                 title: "ত্রুটি",
                 description: "অবৈধ রেফারেল কোড!",
@@ -242,6 +247,8 @@ const MembershipPage = () => {
                 timestamp: new Date().toISOString(),
                 packageStatus: 'pending',
                 storeInfo,
+                use_refferal: isDiscountApplied,
+                invite_user_email: invite_user_email,
             };
 
             const res = await fetch(`${import.meta.env.VITE_BASE_URL}/buy-package`, {
