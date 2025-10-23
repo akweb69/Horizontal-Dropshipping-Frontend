@@ -31,6 +31,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { icon: User, label: 'ওয়েবসাইট ডাটা ম্যানেজ করুন', path: '/admin/webdata' },
     { icon: PackageIcon, label: 'প্রমোডাটা ম্যানেজ করুন', path: '/admin/promodata' },
     { icon: AlertTriangleIcon, label: 'রিকুয়েস্ট ম্যানেজ করুন', path: '/admin/requestdata' },
+    { icon: AlertTriangleIcon, label: 'ক্লাসের রিকুয়েস্ট ম্যানেজ করুন', path: '/admin/classrequestdata' },
 
   ];
   const handleLogout = () => {

@@ -50,6 +50,7 @@ import SeeUser from './components/layout/SeeUser';
 import ManagePromodata from './pages/admin/ManagePromodata';
 import ManageContactUs from './pages/admin/ManageContactUs';
 import ClassRequest from './components/layout/ClassRequest';
+import ManageClassRequest from './pages/admin/ManageClassRequest';
 
 function App() {
   return (
@@ -119,6 +120,7 @@ function App() {
           <Route path="seeusers" element={<SeeUser />} />
           <Route path="promodata" element={<ManagePromodata />} />
           <Route path="requestdata" element={<ManageContactUs />} />
+          <Route path="classrequestdata" element={<ManageClassRequest />} />
         </Route>
 
       </Routes>
