@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, AlertDialogFooter } from "@/components/ui/alert-dialog"; // Added AlertDialogFooter to imports
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from '@/components/ui/use-toast';
 
@@ -20,13 +20,11 @@ const ManageProductsPage = () => {
   const [currentProduct, setCurrentProduct] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    price: '',
     category: '',
-    stock: '',
     thumbnail: '',
     sectionName: '',
     description: '',
-    availableSizes: ''
+    sizes: []
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -74,6 +72,29 @@ const ManageProductsPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleSizeChange = (index, field, value) => {
+    setFormData(prev => {
+      const newSizes = [...prev.sizes];
+      newSizes[index][field] = value;
+      return { ...prev, sizes: newSizes };
+    });
+  };
+
+  const addSize = () => {
+    setFormData(prev => ({
+      ...prev,
+      sizes: [...prev.sizes, { size: '', price: '', stock: '' }]
+    }));
+  };
+
+  const removeSize = (index) => {
+    setFormData(prev => {
+      const newSizes = [...prev.sizes];
+      newSizes.splice(index, 1);
+      return { ...prev, sizes: newSizes };
+    });
+  };
+
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
   };
@@ -102,13 +123,11 @@ const ManageProductsPage = () => {
     setCurrentProduct(null);
     setFormData({
       name: '',
-      price: '',
       category: '',
-      stock: '',
       thumbnail: '',
       sectionName: '',
       description: '',
-      availableSizes: ''
+      sizes: []
     });
     setSelectedFile(null);
     setIsDialogOpen(true);
@@ -118,13 +137,15 @@ const ManageProductsPage = () => {
     setCurrentProduct(product);
     setFormData({
       name: product.name,
-      price: product.price,
       category: product.category || '',
-      stock: product.stock,
       thumbnail: product.thumbnail || '',
       sectionName: product.sectionName || '',
       description: product.description || '',
-      availableSizes: product.availableSizes || ''
+      sizes: product.sizes ? product.sizes.map(s => ({
+        size: s.size,
+        price: s.price.toString(),
+        stock: s.stock.toString()
+      })) : []
     });
     setSelectedFile(null);
     setIsDialogOpen(true);
@@ -133,7 +154,8 @@ const ManageProductsPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setBtnLoading(true);
-    if (!formData.name || !formData.price || !formData.category || !formData.stock || !formData.sectionName || !formData.description) {
+
+    if (!formData.name || !formData.category || !formData.sectionName || !formData.description || formData.sizes.length === 0 || formData.sizes.some(s => !s.size || !s.price || !s.stock)) {
       toast({ title: "ত্রুটি", description: "অনুগ্রহ করে সমস্ত ঘর পূরণ করুন।", variant: "destructive" });
       setBtnLoading(false);
       return;
@@ -145,11 +167,20 @@ const ManageProductsPage = () => {
       if (uploadedUrl) {
         thumbnailUrl = uploadedUrl;
       } else {
+        setBtnLoading(false);
         return;
       }
     }
 
-    const productData = { ...formData, thumbnail: thumbnailUrl };
+    const productData = {
+      ...formData,
+      thumbnail: thumbnailUrl,
+      sizes: formData.sizes.map(s => ({
+        size: s.size,
+        price: parseFloat(s.price),
+        stock: parseInt(s.stock, 10)
+      }))
+    };
 
     try {
       let res;
@@ -159,7 +190,6 @@ const ManageProductsPage = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(productData),
         });
-        setBtnLoading(false);
       } else {
         res = await fetch(`${base_url}/products`, {
           method: 'POST',
@@ -171,12 +201,12 @@ const ManageProductsPage = () => {
         toast({ title: "সফল", description: currentProduct ? "পণ্য সফলভাবে আপডেট করা হয়েছে।" : "নতুন পণ্য সফলভাবে যোগ করা হয়েছে।" });
         setIsDialogOpen(false);
         fetchProducts();
-        setBtnLoading(false);
       } else {
         toast({ title: "ত্রুটি", description: "অপারেশন ব্যর্থ হয়েছে।", variant: "destructive" });
       }
     } catch (error) {
       toast({ title: "ত্রুটি", description: "এরর হয়েছে।", variant: "destructive" });
+    } finally {
       setBtnLoading(false);
     }
   };
@@ -198,6 +228,24 @@ const ManageProductsPage = () => {
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const getPriceRange = (sizes) => {
+    if (!sizes || sizes.length === 0) return 'N/A';
+    const prices = sizes.map(s => s.price);
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+    return min === max ? `৳${min}` : `৳${min} - ৳${max}`;
+  };
+
+  const getTotalStock = (sizes) => {
+    if (!sizes || sizes.length === 0) return 0;
+    return sizes.reduce((sum, s) => sum + s.stock, 0);
+  };
+
+  const getAvailableSizes = (sizes) => {
+    if (!sizes || sizes.length === 0) return 'নেই';
+    return sizes.map(s => s.size).join(', ');
+  };
 
   return (
     <>
@@ -249,12 +297,12 @@ const ManageProductsPage = () => {
                     )}
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>৳{product.price}</TableCell>
+                  <TableCell>{getPriceRange(product.sizes)}</TableCell>
                   <TableCell>{product.category}</TableCell>
                   <TableCell>{product.sectionName}</TableCell>
-                  <TableCell>{product.stock}</TableCell>
+                  <TableCell>{getTotalStock(product.sizes)}</TableCell>
                   <TableCell>{product?.description?.slice(0, 50) + " ..." || 'নেই'}</TableCell>
-                  <TableCell>{product?.availableSizes || 'নেই'}</TableCell>
+                  <TableCell>{getAvailableSizes(product.sizes)}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}><Edit className="h-4 w-4" /></Button>
                     <AlertDialog>
@@ -281,87 +329,213 @@ const ManageProductsPage = () => {
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{currentProduct ? 'পণ্য সম্পাদনা করুন' : 'নতুন পণ্য যোগ করুন'}</DialogTitle>
+            <DialogTitle className="text-xl font-bold">
+              {currentProduct ? 'পণ্য সম্পাদনা করুন' : 'নতুন পণ্য যোগ করুন'}
+            </DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="name">নাম</Label>
-              <Input id="name" name="name" value={formData.name} onChange={handleFormChange} required />
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Product Name & Category */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name" className="text-sm font-medium">পণ্যের নাম <span className="text-red-500">*</span></Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleFormChange}
+                  placeholder="যেমন: পুরুষদের টি-শার্ট"
+                  className="mt-1"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="category" className="text-sm font-medium">ক্যাটাগরি <span className="text-red-500">*</span></Label>
+                <select
+                  id="category"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleFormChange}
+                  className="mt-1 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  required
+                >
+                  <option value="" disabled>ক্যাটাগরি নির্বাচন করুন</option>
+                  {categories?.map((cat) => (
+                    <option key={cat._id} value={cat.name}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="price">মূল্য (৳)</Label>
-              <Input id="price" name="price" type="number" value={formData.price} onChange={handleFormChange} required />
+
+            {/* Section & Description */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="sectionName" className="text-sm font-medium">সেকশন <span className="text-red-500">*</span></Label>
+                <select
+                  id="sectionName"
+                  name="sectionName"
+                  value={formData.sectionName}
+                  onChange={handleFormChange}
+                  className="mt-1 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  required
+                >
+                  <option value="" disabled>সেকশন নির্বাচন করুন</option>
+                  {sectionOptions.map((option) => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <Label htmlFor="description" className="text-sm font-medium">বিবরণ <span className="text-red-500">*</span></Label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleFormChange}
+                  placeholder="পণ্যের বিস্তারিত বিবরণ লিখুন..."
+                  className="mt-1 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[80px]"
+                  required
+                />
+              </div>
             </div>
+
+            {/* Size, Price, Stock - Dynamic */}
+            <Card className="p-4 border">
+              <div className="flex justify-between items-center mb-3">
+                <Label className="text-sm font-semibold">সাইজ, মূল্য ও স্টক <span className="text-red-500">*</span></Label>
+                <Button type="button" size="sm" onClick={addSize} className="flex items-center gap-1">
+                  <PlusCircle className="h-4 w-4" /> সাইজ যোগ করুন
+                </Button>
+              </div>
+
+              <div className="space-y-3">
+                {formData.sizes.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    কোনো সাইজ যোগ করা হয়নি। "সাইজ যোগ করুন" বাটনে ক্লিক করুন।
+                  </p>
+                ) : (
+                  formData.sizes.map((s, index) => (
+                    <div key={index} className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end border-b pb-3 last:border-0">
+                      <div>
+                        <Label htmlFor={`size-${index}`} className="text-xs">সাইজ</Label>
+                        <Input
+                          id={`size-${index}`}
+                          placeholder="S, M, L, XL"
+                          value={s.size}
+                          onChange={(e) => handleSizeChange(index, 'size', e.target.value)}
+                          className="h-9"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`price-${index}`} className="text-xs">মূল্য (৳)</Label>
+                        <Input
+                          id={`price-${index}`}
+                          type="number"
+                          placeholder="299"
+                          value={s.price}
+                          onChange={(e) => handleSizeChange(index, 'price', e.target.value)}
+                          className="h-9"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <Label htmlFor={`stock-${index}`} className="text-xs">স্টক</Label>
+                          <Input
+                            id={`stock-${index}`}
+                            type="number"
+                            placeholder="50"
+                            value={s.stock}
+                            onChange={(e) => handleSizeChange(index, 'stock', e.target.value)}
+                            className="h-9"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="h-9 w-9"
+                          onClick={() => removeSize(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Card>
+
+            {/* Thumbnail */}
             <div>
-              <Label htmlFor="category">ক্যাটাগরি</Label>
-              <select
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleFormChange}
-                className="p-2 rounded-lg outline outline-accent w-full"
-                required
+              <Label className="text-sm font-medium">থাম্বনেইল ছবি</Label>
+              <div className="mt-2 flex items-center gap-4">
+                {formData.thumbnail ? (
+                  <div className="relative">
+                    <img
+                      src={formData.thumbnail}
+                      alt="Preview"
+                      className="h-24 w-24 object-cover rounded-lg border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, thumbnail: '' }));
+                        setSelectedFile(null);
+                      }}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="h-24 w-24 border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground">
+                    <span className="text-xs text-center">কোনো ছবি নেই</span>
+                  </div>
+                )}
+                <div className="flex-1">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="cursor-pointer"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    সর্বোচ্চ 2MB, JPG/PNG
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <DialogFooter className="flex justify-end gap-2 sm:gap-3 flex-wrap">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsDialogOpen(false)}
+                disabled={btnLoading}
               >
-                <option value="" disabled>ক্যাটাগরি নির্বাচন করুন</option>
-                {categories?.map((cat) => (
-                  <option key={cat._id} value={cat.name}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="sectionName">পণ্যের সেকশন</Label>
-              <select
-                id="sectionName"
-                name="sectionName"
-                value={formData.sectionName}
-                onChange={handleFormChange}
-                className="p-2 rounded-lg outline outline-accent w-full"
-                required
+                বাতিল
+              </Button>
+              <Button
+                type="submit"
+                disabled={btnLoading || formData.sizes.length === 0}
+                className="min-w-[120px]"
               >
-                <option value="" disabled>সেকশন নির্বাচন করুন</option>
-                {sectionOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="stock">স্টক</Label>
-              <Input id="stock" name="stock" type="number" value={formData.stock} onChange={handleFormChange} required />
-            </div>
-            <div>
-              <Label htmlFor="description">বিবরণ</Label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleFormChange}
-                className="p-2 rounded-lg outline outline-accent w-full"
-                rows="4"
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="availableSizes">উপলব্ধ সাইজ</Label>
-              <Input
-                id="availableSizes"
-                name="availableSizes"
-                value={formData.availableSizes}
-                onChange={handleFormChange}
-                placeholder="Available sizes separated by comma"
-              />
-            </div>
-            <div>
-              <Label>থাম্বনেইল</Label>
-              {formData.thumbnail && (
-                <img src={formData.thumbnail} alt="থাম্বনেইল" className="h-20 w-20 object-cover mb-2 rounded" />
-              )}
-              <Input id="thumbnail" type="file" onChange={handleFileChange} accept="image/*" />
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="secondary" onClick={() => setIsDialogOpen(false)}>বাতিল</Button>
-              <Button type="submit">{btnLoading ? "Loading..." : "সংরক্ষণ করুন"}</Button>
+                {btnLoading ? (
+                  <>
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                    সংরক্ষণ হচ্ছে...
+                  </>
+                ) : (
+                  'সংরক্ষণ করুন'
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
