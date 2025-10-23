@@ -24,9 +24,6 @@ const CategoriesSection = () => {
   }, []);
   const navigate = useNavigate();
   const showToast = (category) => {
-    // toast({
-    //   title: "🚧 এই ফিচারটি এখনও চালু হয়নি—তবে চিন্তা করবেন না! আপনি পরবর্তী প্রম্পটে এটি যোগ করার জন্য অনুরোধ করতে পারেন! 🚀"
-    // });
     navigate(`/products/${category}`);
   };
 
@@ -52,9 +49,9 @@ const CategoriesSection = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <div className={`${category.color} p-4 rounded-lg text-center`}>
-                    <div className="text-3xl md:text-4xl mb-2">{category.icon}</div>
-                    <div className="text-xs md:text-sm font-medium text-gray-700 truncate">{category.name}</div>
+                  <div className={`${category?.color}  p-4 rounded-lg text-center flex flex-col items-center justify-center`}>
+                    <img className="h-12 w-10 mx-auto mb-2 object-cover " src={category?.iconImage} alt={category?.name} />
+                    <div className="text-xs md:text-base font-medium text-gray-700 truncate">{category?.name}</div>
                   </div>
                 </motion.button>
               </CarouselItem>

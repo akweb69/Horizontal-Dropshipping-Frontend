@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -33,7 +33,12 @@ const ManageCategoriesPage = () => {
   const [categories, setCategories] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(null);
-  const [formData, setFormData] = useState({ name: '', icon: '', color: '' });
+  const [formData, setFormData] = useState({ name: '', iconImage: '', color: '' });
+  const [previewImage, setPreviewImage] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const imgbb_api_key = import.meta.env.VITE_IMGBB_API_KEY;
+  const base_url = import.meta.env.VITE_BASE_URL;
 
   useEffect(() => {
     const handleCategoriesUpdate = async () => {
@@ -53,24 +58,59 @@ const ManageCategoriesPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+
+      // Upload to ImgBB
+      const formDataUpload = new FormData();
+      formDataUpload.append('image', file);
+
+      fetch(`https://api.imgbb.com/1/upload?key=${imgbb_api_key}`, {
+        method: 'POST',
+        body: formDataUpload,
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setFormData(prev => ({ ...prev, iconImage: data.data.url }));
+            toast({ title: "সফল", description: "ছবি আপলোড হয়েছে।" });
+          } else {
+            toast({ title: "ত্রুটি", description: "ছবি আপলোড ব্যর্থ।", variant: "destructive" });
+          }
+        })
+        .catch(() => {
+          toast({ title: "ত্রুটি", description: "ইন্টারনেট সংযোগ সমস্যা।", variant: "destructive" });
+        });
+    }
+  };
+
   const handleAddNew = () => {
     setCurrentCategory(null);
-    setFormData({ name: '', icon: '✨', color: 'bg-gray-100' });
+    setFormData({ name: '', iconImage: '', color: 'bg-gray-100' });
+    setPreviewImage(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
     setIsDialogOpen(true);
   };
 
   const handleEdit = (category) => {
     setCurrentCategory(category);
-    setFormData({ name: category.name, icon: category.icon, color: category.color });
+    setFormData({ name: category.name, iconImage: category.iconImage || '', color: category.color || 'bg-gray-100' });
+    setPreviewImage(category.iconImage || null);
     setIsDialogOpen(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.icon) {
+    if (!formData.name || !formData.iconImage) {
       toast({
         title: "ত্রুটি",
-        description: "অনুগ্রহ করে ক্যাটাগরির নাম এবং আইকন দিন।",
+        description: "অনুগ্রহ করে ক্যাটাগরির নাম এবং ছবি দিন।",
         variant: "destructive",
       });
       return;
@@ -106,7 +146,7 @@ const ManageCategoriesPage = () => {
                 <PlusCircle className="mr-2 h-4 w-4" /> নতুন ক্যাটাগরি
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[625px] max-h-[500px] md:max-h-[360px] overflow-y-auto">
+            <DialogContent className="sm:max-w-[625px] max-h-[500px] md:max-h-[400px] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{currentCategory ? 'ক্যাটাগরি সম্পাদনা করুন' : 'নতুন ক্যাটাগরি যোগ করুন'}</DialogTitle>
               </DialogHeader>
@@ -116,10 +156,29 @@ const ManageCategoriesPage = () => {
                     <Label htmlFor="name" className="text-right">নাম</Label>
                     <Input id="name" name="name" value={formData.name} onChange={handleFormChange} className="col-span-3" required />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="icon" className="text-right">আইকন (ইমোজি)</Label>
-                    <Input id="icon" name="icon" value={formData.icon} onChange={handleFormChange} className="col-span-3" required />
+
+                  {/* File Input for Image */}
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label className="text-right">ছবি</Label>
+                    <div className="col-span-3 space-y-2">
+                      <Input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="cursor-pointer"
+                      />
+                      {previewImage && (
+                        <div className="mt-2 flex justify-center">
+                          <img src={previewImage} alt="Preview" className="h-20 w-20 object-cover rounded border" />
+                        </div>
+                      )}
+                      {formData.iconImage && !previewImage && (
+                        <div className="mt-2 text-xs text-green-600">ছবি আপলোড হয়েছে</div>
+                      )}
+                    </div>
                   </div>
+
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="color" className="text-right">রঙ (Tailwind)</Label>
                     <Input id="color" name="color" value={formData.color} onChange={handleFormChange} className="col-span-3" placeholder="e.g., bg-blue-100" />
@@ -139,7 +198,7 @@ const ManageCategoriesPage = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>আইকন</TableHead>
+                <TableHead>ছবি</TableHead>
                 <TableHead>নাম</TableHead>
                 <TableHead>রঙ</TableHead>
                 <TableHead className="text-right">অ্যাকশন</TableHead>
@@ -148,15 +207,23 @@ const ManageCategoriesPage = () => {
             <TableBody>
               {categories.map((category) => (
                 <TableRow key={category._id}>
-                  <TableCell className="text-2xl">{category.icon}</TableCell>
+                  <TableCell>
+                    {category.iconImage ? (
+                      <img src={category.iconImage} alt={category.name} className="h-10 w-10 object-cover rounded" />
+                    ) : (
+                      <div className="h-10 w-10 bg-gray-200 border-2 border-dashed rounded flex items-center justify-center text-xs">
+                        নেই
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell className="font-medium">{category.name}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <div className={`w-6 h-6 rounded ${category.color}`}></div>
-                      <span className="text-sm text-gray-500">{category.color}</span>
+                      <div className={`w-6 h-6 rounded ${category.color || 'bg-gray-100'}`}></div>
+                      <span className="text-sm text-gray-500">{category.color || 'bg-gray-100'}</span>
                     </div>
                   </TableCell>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(category)}>
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -179,7 +246,7 @@ const ManageCategoriesPage = () => {
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
-                  </td>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

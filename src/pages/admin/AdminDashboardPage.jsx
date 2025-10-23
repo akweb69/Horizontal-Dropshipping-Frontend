@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
-// Updated StatCard with gradient background, icon in circle, hover effect
+// StatCard (অপরিবর্তিত)
 const StatCard = ({ title, value, icon, description, isLoading, gradient }) => (
     <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -122,7 +122,6 @@ const AdminDashboardPage = () => {
                     pendingOrderAmount,
                     deliveredOrderAmount,
                     totalUserBalance
-
                 });
 
                 const withdraws = await axios.get(`${import.meta.env.VITE_BASE_URL}/withdraw`);
@@ -139,6 +138,7 @@ const AdminDashboardPage = () => {
                     completedWithdrawAmount
                 });
 
+                // ========== আপডেটেড: grand_total দিয়ে মাসিক বিক্রয় ==========
                 const monthlySales = [
                     { name: 'জান', sales: 0 }, { name: 'ফেব্রু', sales: 0 }, { name: 'মার্চ', sales: 0 },
                     { name: 'এপ্রিল', sales: 0 }, { name: 'মে', sales: 0 }, { name: 'জুন', sales: 0 },
@@ -147,14 +147,15 @@ const AdminDashboardPage = () => {
                 ];
 
                 orders?.forEach(order => {
-                    const date = new Date(order?.createdAt);
+                    const date = new Date(order?.order_date || order?.createdAt);
                     const monthIndex = date?.getMonth?.() ?? 0;
                     if (monthlySales[monthIndex]) {
-                        monthlySales[monthIndex].sales += order?.total ?? 0;
+                        monthlySales[monthIndex].sales += order?.items_total ?? 0;
                     }
                 });
 
                 setSalesData(monthlySales);
+                // =========================================================
 
                 const recent = orders
                     ?.slice?.(0, 5)
@@ -180,7 +181,7 @@ const AdminDashboardPage = () => {
         fetchData();
     }, []);
 
-    // Gradient list for all stat cards
+    // Gradient, icons, statItems — সব অপরিবর্তিত
     const gradients = [
         "from-blue-100 via-blue-50 to-white",
         "from-purple-100 via-indigo-50 to-white",
@@ -308,7 +309,7 @@ const AdminDashboardPage = () => {
                                                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                                             }}
                                         />
-                                        <Bar dataKey="sales" fill="#4F46E5" radius={[4, 4, 0, 0]} />
+                                        <Bar dataKey="sales" fill="#FF5F1F" radius={[4, 4, 0, 0]} />
                                     </ReBarChart>
                                 </ResponsiveContainer>
                             )}
