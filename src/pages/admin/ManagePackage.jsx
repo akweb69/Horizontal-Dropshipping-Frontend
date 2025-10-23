@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { Loader } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { XCircle, Info, CreditCard, Calendar, User, BadgeCheck, Wallet, Edit3, Eye } from "lucide-react";
+import { Loader, Search, Filter, X, Calendar, XCircle } from 'lucide-react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Info, CreditCard, Calendar as CalendarIcon, User, BadgeCheck, Wallet, Edit3, Eye } from "lucide-react";
+import { toast } from '@/components/ui/use-toast';
 
 const ManagePackage = () => {
     const [packages, setPackages] = useState([]);
@@ -12,6 +13,13 @@ const ManagePackage = () => {
     const [selectedPackage, setSelectedPackage] = useState(null);
     const [newStatus, setNewStatus] = useState('');
     const [statusLoading, setStatusLoading] = useState(false);
+
+    // Filter States
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState('All');
+    const [paymentFilter, setPaymentFilter] = useState('All');
+    const [fromDate, setFromDate] = useState('');
+    const [toDate, setToDate] = useState('');
 
     // Load data
     useEffect(() => {
@@ -24,6 +32,7 @@ const ManagePackage = () => {
             .catch(err => {
                 setLoading(false);
                 console.error(err);
+                toast({ title: 'ডেটা লোড করতে ব্যর্থ', variant: 'destructive' });
             });
     }, []);
 
@@ -55,17 +64,53 @@ const ManagePackage = () => {
                     pkg._id === selectedPackage._id ? { ...pkg, packageStatus: newStatus } : pkg
                 ));
                 setIsStatusModalOpen(false);
-                alert('স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে!');
+                toast({ title: 'স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে!' });
             } else {
-                alert('কোনো পরিবর্তন হয়নি।');
+                toast({ title: 'কোনো পরিবর্তন হয়নি।', variant: 'destructive' });
             }
         } catch (error) {
             console.error(error);
-            alert('স্ট্যাটাস আপডেট করতে ব্যর্থ হয়েছে।');
+            toast({ title: 'স্ট্যাটাস আপডেট করতে ব্যর্থ।', variant: 'destructive' });
         } finally {
             setStatusLoading(false);
         }
     };
+
+    // Clear all filters
+    const clearFilters = () => {
+        setSearchQuery('');
+        setStatusFilter('All');
+        setPaymentFilter('All');
+        setFromDate('');
+        setToDate('');
+        toast({ title: 'সকল ফিল্টার ক্লিয়ার করা হয়েছে' });
+    };
+
+    // Filter Logic using useMemo
+    const filteredPackages = useMemo(() => {
+        return packages.filter(pkg => {
+            // Search
+            const matchesSearch = searchQuery === '' ||
+                pkg.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                pkg.transactionId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                pkg.planName?.toLowerCase().includes(searchQuery.toLowerCase());
+
+            // Status
+            const matchesStatus = statusFilter === 'All' || pkg.packageStatus === statusFilter;
+
+            // Payment Method
+            const matchesPayment = paymentFilter === 'All' || pkg.paymentMethod === paymentFilter;
+
+            // Date Range
+            const pkgDate = new Date(pkg.timestamp);
+            const from = fromDate ? new Date(fromDate) : null;
+            const to = toDate ? new Date(toDate) : null;
+
+            const matchesDate = (!from || pkgDate >= from) && (!to || pkgDate <= to);
+
+            return matchesSearch && matchesStatus && matchesPayment && matchesDate;
+        });
+    }, [packages, searchQuery, statusFilter, paymentFilter, fromDate, toDate]);
 
     // Loading UI
     if (loading) {
@@ -87,14 +132,95 @@ const ManagePackage = () => {
                 <p className="mt-2 text-gray-600 dark:text-gray-400">সকল ক্রয়কৃত প্যাকেজ দেখুন ও নিয়ন্ত্রণ করুন</p>
             </div>
 
-            {/* Detail Modal - Glassmorphism */}
+            {/* Filters Section */}
+            <div className="max-w-7xl mx-auto mb-8">
+                <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl shadow-xl p-6 border border-gray-200 dark:border-gray-700">
+                    <div className="flex flex-wrap gap-4 items-end">
+                        {/* Search */}
+                        <div className="flex-1 min-w-[200px]">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">সার্চ করুন</label>
+                            <div className="relative">
+                                <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder="ইমেইল, ট্রানজেকশন, প্ল্যান..."
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Status Filter */}
+                        <div className="min-w-[140px]">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">স্ট্যাটাস</label>
+                            <select
+                                value={statusFilter}
+                                onChange={e => setStatusFilter(e.target.value)}
+                                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
+                            >
+                                <option value="All">সব</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
+
+                        {/* Payment Method */}
+                        <div className="min-w-[140px]">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">পেমেন্ট</label>
+                            <select
+                                value={paymentFilter}
+                                onChange={e => setPaymentFilter(e.target.value)}
+                                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
+                            >
+                                <option value="All">সব</option>
+                                <option value="Bkash">Bkash</option>
+                                <option value="Nagad">Nagad</option>
+                                <option value="Rocket">Rocket</option>
+                                <option value="Bank">Bank</option>
+                            </select>
+                        </div>
+
+                        {/* From Date */}
+                        <div className="min-w-[140px]">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">শুরু</label>
+                            <input
+                                type="date"
+                                value={fromDate}
+                                onChange={e => setFromDate(e.target.value)}
+                                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
+                            />
+                        </div>
+
+                        {/* To Date */}
+                        <div className="min-w-[140px]">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">শেষ</label>
+                            <input
+                                type="date"
+                                value={toDate}
+                                onChange={e => setToDate(e.target.value)}
+                                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
+                            />
+                        </div>
+
+                        {/* Clear Filters */}
+                        <button
+                            onClick={clearFilters}
+                            className="px-5 py-2.5 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg flex items-center gap-2 transition-all"
+                        >
+                            <X className="w-4 h-4" />
+                            ক্লিয়ার
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Detail Modal */}
             {isDetailOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50">
-                    <div className="relative bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl w-full max-w-2xl p-8 rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700 transform transition-all scale-100 hover:scale-[1.01]">
-                        <button
-                            onClick={() => setIsDetailOpen(false)}
-                            className="absolute top-4 right-4 text-gray-500 hover:text-red-600 transition"
-                        >
+                    <div className="relative bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl w-full max-w-2xl p-8 rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700">
+                        <button onClick={() => setIsDetailOpen(false)} className="absolute top-4 right-4 text-gray-500 hover:text-red-600">
                             <XCircle className="w-8 h-8" />
                         </button>
 
@@ -137,7 +263,7 @@ const ManagePackage = () => {
                             </div>
 
                             <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/30 dark:to-blue-900/30 rounded-xl col-span-2">
-                                <Calendar className="w-6 h-6 text-cyan-600" />
+                                <CalendarIcon className="w-6 h-6 text-cyan-600" />
                                 <div>
                                     <p className="text-sm text-gray-500">তারিখ ও সময়</p>
                                     <p className="font-semibold">{new Date(modalData?.timestamp).toLocaleString('bn-BD')}</p>
@@ -152,10 +278,10 @@ const ManagePackage = () => {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 p-3 rounded-xl col-span-1
-                                ${modalData?.packageStatus === 'Approved' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 
-                                  modalData?.packageStatus === 'Rejected' ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white' : 
-                                  'bg-gradient-to-r from-yellow-400 to-amber-500 text-white'}">
+                            <div className={`flex items-center gap-3 p-3 rounded-xl col-span-1
+                                ${modalData?.packageStatus === 'Approved' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' :
+                                    modalData?.packageStatus === 'Rejected' ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white' :
+                                        'bg-gradient-to-r from-yellow-400 to-amber-500 text-white'}`}>
                                 <BadgeCheck className="w-6 h-6" />
                                 <div>
                                     <p className="text-sm">স্ট্যাটাস</p>
@@ -179,16 +305,13 @@ const ManagePackage = () => {
             {/* Status Update Modal */}
             {isStatusModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50">
-                    <div className="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 transform transition-all scale-100 hover:scale-105">
+                    <div className="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-center mb-5">
                             <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
                                 <Edit3 className="w-6 h-6 text-indigo-500" />
                                 স্ট্যাটাস আপডেট
                             </h2>
-                            <button
-                                onClick={() => setIsStatusModalOpen(false)}
-                                className="text-gray-500 hover:text-red-600 transition"
-                            >
+                            <button onClick={() => setIsStatusModalOpen(false)} className="text-gray-500 hover:text-red-600">
                                 <XCircle className="w-7 h-7" />
                             </button>
                         </div>
@@ -200,7 +323,7 @@ const ManagePackage = () => {
                             <select
                                 value={newStatus}
                                 onChange={(e) => setNewStatus(e.target.value)}
-                                className="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition"
+                                className="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                             >
                                 <option value="Pending">Pending</option>
                                 <option value="Approved">Approved</option>
@@ -211,7 +334,7 @@ const ManagePackage = () => {
                         <div className="flex justify-end gap-3">
                             <button
                                 onClick={() => setIsStatusModalOpen(false)}
-                                className="px-5 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                                className="px-5 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600"
                             >
                                 বাতিল
                             </button>
@@ -246,40 +369,48 @@ const ManagePackage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                {packages.map(pkg => (
-                                    <tr key={pkg._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200">
-                                        <td className="px-6 py-4 font-medium text-gray-800 dark:text-gray-200">{pkg?.planName}</td>
-                                        <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{pkg?.paymentMethod}</td>
-                                        <td className="px-6 py-4 text-sm font-mono text-gray-700 dark:text-gray-300">{pkg?.transactionId}</td>
-                                        <td className="px-6 py-4 text-center font-bold text-lg text-primary">{pkg?.amount}৳</td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider
-                                                ${pkg?.packageStatus === 'Approved' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                                                    pkg?.packageStatus === 'Rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                                                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}`}>
-                                                {pkg?.packageStatus}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button
-                                                    onClick={() => handleDetail(pkg)}
-                                                    className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
-                                                >
-                                                    <Eye className="w-4 h-4" />
-                                                    বিস্তারিত
-                                                </button>
-                                                <button
-                                                    onClick={() => handleStatusChange(pkg)}
-                                                    className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
-                                                >
-                                                    <Edit3 className="w-4 h-4" />
-                                                    স্ট্যাটাস
-                                                </button>
-                                            </div>
+                                {filteredPackages.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="6" className="text-center py-12 text-gray-500 dark:text-gray-400">
+                                            কোনো প্যাকেজ পাওয়া যায়নি
                                         </td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    filteredPackages.map(pkg => (
+                                        <tr key={pkg._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200">
+                                            <td className="px-6 py-4 font-medium text-gray-800 dark:text-gray-200">{pkg?.planName}</td>
+                                            <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{pkg?.paymentMethod}</td>
+                                            <td className="px-6 py-4 text-sm font-mono text-gray-700 dark:text-gray-300">{pkg?.transactionId}</td>
+                                            <td className="px-6 py-4 text-center font-bold text-lg text-primary">{pkg?.amount}৳</td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider
+                                                    ${pkg?.packageStatus === 'Approved' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                                                        pkg?.packageStatus === 'Rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                                                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}`}>
+                                                    {pkg?.packageStatus}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <button
+                                                        onClick={() => handleDetail(pkg)}
+                                                        className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                                                    >
+                                                        <Eye className="w-4 h-4" />
+                                                        বিস্তারিত
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleStatusChange(pkg)}
+                                                        className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                                                    >
+                                                        <Edit3 className="w-4 h-4" />
+                                                        স্ট্যাটাস
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
