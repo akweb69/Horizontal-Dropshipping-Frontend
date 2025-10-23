@@ -261,6 +261,13 @@ const ManagePackage = () => {
                                     <p className="font-semibold break-all">{modalData?.transactionId}</p>
                                 </div>
                             </div>
+                            <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/30 dark:to-rose-900/30 rounded-xl">
+                                <CreditCard className="w-6 h-6 text-pink-600" />
+                                <div>
+                                    <p className="text-sm text-gray-500">পেমেন্ট নাম্বার</p>
+                                    <p className="font-semibold break-all">{modalData?.paymentNumber}</p>
+                                </div>
+                            </div>
 
                             <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/30 dark:to-blue-900/30 rounded-xl col-span-2">
                                 <CalendarIcon className="w-6 h-6 text-cyan-600" />
