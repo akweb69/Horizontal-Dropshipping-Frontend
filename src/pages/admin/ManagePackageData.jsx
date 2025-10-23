@@ -16,6 +16,7 @@ const ManagePackageData = () => {
     const [currentPackage, setCurrentPackage] = useState({
         name: '',
         price: '',
+        validityDays: '',
         benefits: [''],
         recommended: false,
     });
@@ -36,7 +37,7 @@ const ManagePackageData = () => {
         } catch (error) {
             console.error('Fetch packages error:', error);
             toast({
-                title: "❌ ত্রুটি",
+                title: "ত্রুটি",
                 description: "প্যাকেজ তালিকা লোড করতে সমস্যা হয়েছে।",
                 variant: "destructive",
             });
@@ -81,20 +82,22 @@ const ManagePackageData = () => {
 
     // Handle form submission (create or update)
     const handleSubmit = async () => {
-        const { name, price, benefits } = currentPackage;
-        if (!name || !price || benefits.some((benefit) => !benefit.trim())) {
+        const { name, price, validityDays, benefits } = currentPackage;
+
+        // Validation
+        if (!name || !price || !validityDays || benefits.some((b) => !b.trim())) {
             toast({
-                title: "❌ ত্রুটি",
+                title: "ত্রুটি",
                 description: "সকল ফিল্ড পূরণ করুন এবং কোনো সুবিধা খালি রাখবেন না।",
                 variant: "destructive",
             });
             return;
         }
 
-        if (!/^\d+$/.test(price)) {
+        if (!/^\d+$/.test(price) || !/^\d+$/.test(validityDays)) {
             toast({
-                title: "❌ ত্রুটি",
-                description: "দাম শুধুমাত্র সংখ্যা হতে হবে।",
+                title: "ত্রুটি",
+                description: "দাম এবং মেয়াদ দিন শুধুমাত্র সংখ্যা হতে হবে।",
                 variant: "destructive",
             });
             return;
@@ -104,7 +107,9 @@ const ManagePackageData = () => {
         try {
             const packageData = {
                 ...currentPackage,
-                benefits: benefits.map((benefit) => benefit.trim()),
+                price: parseInt(price),
+                validityDays: parseInt(validityDays),
+                benefits: benefits.map((b) => b.trim()),
             };
 
             if (isEditMode) {
@@ -120,22 +125,21 @@ const ManagePackageData = () => {
                         )
                     );
                     toast({
-                        title: "✅ সফল",
+                        title: "সফল",
                         description: "প্যাকেজ সফলভাবে আপডেট হয়েছে।",
                     });
                 }
             } else {
-                // Create package - ✅ FIXED: response.data.ops[0] → response.data
-                const response = await axios.post(
+                // Create package
+                await axios.post(
                     `${import.meta.env.VITE_BASE_URL}/manage-package`,
                     packageData
                 );
-                // Optimistic update: নতুন package সরাসরি add করুন
-                const response1 = await axios.get(`${import.meta.env.VITE_BASE_URL}/manage-package`);
-                setPackages(response1.data);
-                // setPackages((prev) => [response.data, ...prev]);
+                // Refetch all packages
+                const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/manage-package`);
+                setPackages(response.data);
                 toast({
-                    title: "✅ সফল",
+                    title: "সফল",
                     description: "নতুন প্যাকেজ সফলভাবে যোগ হয়েছে।",
                 });
             }
@@ -143,7 +147,7 @@ const ManagePackageData = () => {
         } catch (error) {
             console.error('Submit error:', error);
             toast({
-                title: "❌ ত্রুটি",
+                title: "ত্রুটি",
                 description: "প্যাকেজ সংরক্ষণ করতে সমস্যা হয়েছে।",
                 variant: "destructive",
             });
@@ -158,9 +162,10 @@ const ManagePackageData = () => {
         setEditPackageId(pkg._id);
         setCurrentPackage({
             name: pkg.name,
-            price: pkg.price,
-            benefits: pkg.benefits,
-            recommended: pkg.recommended,
+            price: pkg.price?.toString() || '',
+            validityDays: pkg.validityDays?.toString() || '',
+            benefits: pkg.benefits || [''],
+            recommended: pkg.recommended || false,
         });
         setIsModalOpen(true);
     };
@@ -176,14 +181,14 @@ const ManagePackageData = () => {
             if (response.data.deletedCount > 0) {
                 setPackages((prev) => prev.filter((pkg) => pkg._id !== deleteConfirmId));
                 toast({
-                    title: "✅ সফল",
+                    title: "সফল",
                     description: "প্যাকেজ সফলভাবে মুছে ফেলা হয়েছে।",
                 });
             }
         } catch (error) {
             console.error('Delete error:', error);
             toast({
-                title: "❌ ত্রুটি",
+                title: "ত্রুটি",
                 description: "প্যাকেজ মুছতে সমস্যা হয়েছে।",
                 variant: "destructive",
             });
@@ -199,6 +204,7 @@ const ManagePackageData = () => {
         setCurrentPackage({
             name: '',
             price: '',
+            validityDays: '',
             benefits: [''],
             recommended: false,
         });
@@ -212,6 +218,7 @@ const ManagePackageData = () => {
         setCurrentPackage({
             name: '',
             price: '',
+            validityDays: '',
             benefits: [''],
             recommended: false,
         });
@@ -282,9 +289,11 @@ const ManagePackageData = () => {
                                     <h2 className="text-xl font-bold text-gray-800 text-center mb-2">
                                         {pkg.name}
                                     </h2>
-                                    <p className="text-2xl font-extrabold text-gray-900 text-center mb-4">
+                                    <p className="text-2xl font-extrabold text-gray-900 text-center mb-1">
                                         ৳{pkg.price}
-                                        <span className="text-sm font-normal text-gray-500">/বছর</span>
+                                    </p>
+                                    <p className="text-sm text-gray-500 text-center mb-4">
+                                        মেয়াদ: {pkg.validityDays} দিন
                                     </p>
                                     <ul className="space-y-2 mb-6">
                                         {pkg.benefits.map((benefit, index) => (
@@ -358,19 +367,40 @@ const ManagePackageData = () => {
                             />
                         </div>
 
-                        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                            <Label htmlFor="price" className="text-sm font-semibold text-gray-700 mb-2 block">
-                                দাম (টাকায়)
-                            </Label>
-                            <Input
-                                id="price"
-                                name="price"
-                                value={currentPackage.price}
-                                onChange={handleInputChange}
-                                placeholder="দাম লিখুন (যেমন: ৪৯৯)"
-                                className="text-lg p-4 border-2 border-gray-200 focus:border-orange-500 rounded-xl"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">শুধুমাত্র সংখ্যা লিখুন</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                                <Label htmlFor="price" className="text-sm font-semibold text-gray-700 mb-2 block">
+                                    দাম (টাকায়)
+                                </Label>
+                                <Input
+                                    id="price"
+                                    name="price"
+                                    type="number"
+                                    min="0"
+                                    value={currentPackage.price}
+                                    onChange={handleInputChange}
+                                    placeholder="499"
+                                    className="text-lg p-4 border-2 border-gray-200 focus:border-orange-500 rounded-xl"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">শুধুমাত্র সংখ্যা</p>
+                            </div>
+
+                            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                                <Label htmlFor="validityDays" className="text-sm font-semibold text-gray-700 mb-2 block">
+                                    মেয়াদ (দিন)
+                                </Label>
+                                <Input
+                                    id="validityDays"
+                                    name="validityDays"
+                                    type="number"
+                                    min="1"
+                                    value={currentPackage.validityDays}
+                                    onChange={handleInputChange}
+                                    placeholder="365"
+                                    className="text-lg p-4 border-2 border-gray-200 focus:border-orange-500 rounded-xl"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">যেমন: ৩৬৫ দিন</p>
+                            </div>
                         </div>
 
                         <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
@@ -431,7 +461,7 @@ const ManagePackageData = () => {
                                 disabled={isLoading}
                                 className="flex-1 h-12 text-gray-700 border-gray-300 hover:bg-gray-50 rounded-xl font-semibold"
                             >
-                                ❌ বাতিল করুন
+                                বাতিল করুন
                             </Button>
                             <Button
                                 onClick={handleSubmit}
