@@ -286,41 +286,140 @@ const ConnectStorePage = () => {
             </div>
 
             {/* Details Modal */}
+            {/* Enhanced Details Modal */}
             <AnimatePresence>
                 {selectedWithdrawal && (
                     <motion.div
-                        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        onClick={closeDetails}>
+                        className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={closeDetails}
+                    >
                         <motion.div
-                            className="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto"
-                            initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
-                            onClick={e => e.stopPropagation()}>
-
-                            <h3 className="text-2xl font-bold mb-4">উইথড্র বিস্তারিত</h3>
-                            <div className="space-y-2 text-sm">
-                                <p><strong>ইমেইল:</strong> {selectedWithdrawal.email}</p>
-                                <p><strong>পরিমাণ:</strong> ৳{toNum(selectedWithdrawal.amount).toFixed(2)}</p>
-                                <p><strong>চার্জ:</strong> ৳{toNum(selectedWithdrawal.charge).toFixed(2)}</p>
-                                <p><strong>পেমেন্ট মেথড:</strong> {selectedWithdrawal.paymentMethod}</p>
-                                <p><strong>পেমেন্ট নম্বর:</strong> {selectedWithdrawal.paymentNumber}</p>
-                                <p><strong>রিকোয়েস্ট তারিখ:</strong> {selectedWithdrawal.request_date}</p>
-                                <p><strong>অনুমোদন তারিখ:</strong> {selectedWithdrawal.approval_date || '-'}</p>
-                                <p><strong>স্ট্যাটাস:</strong>{' '}
-                                    <span className={`px-2 py-1 rounded text-xs
-                                        ${selectedWithdrawal.status === 'Approved' ? 'bg-green-100 text-green-800' :
-                                            selectedWithdrawal.status === 'Rejected' ? 'bg-red-100 text-red-800' :
-                                                'bg-yellow-100 text-yellow-800'}`}>
-                                        {selectedWithdrawal.status}
-                                    </span>
-                                </p>
+                            className="bg-white bg-opacity-95 backdrop-blur-lg rounded-3xl shadow-2xl p-6 max-w-md w-full border border-gray-200"
+                            initial={{ scale: 0.85, y: 50, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            exit={{ scale: 0.85, y: 50, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Header with Status */}
+                            <div className="flex items-center justify-between mb-5">
+                                <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                                    <span className="text-blue-600"></span> উইথড্র বিস্তারিত
+                                </h3>
+                                <span
+                                    className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1
+              ${selectedWithdrawal.status === 'Approved'
+                                            ? 'bg-green-100 text-green-700'
+                                            : selectedWithdrawal.status === 'Rejected'
+                                                ? 'bg-red-100 text-red-700'
+                                                : 'bg-yellow-100 text-yellow-700'
+                                        }`}
+                                >
+                                    {selectedWithdrawal.status === 'Approved' && 'Approved'}
+                                    {selectedWithdrawal.status === 'Rejected' && 'Rejected'}
+                                    {selectedWithdrawal.status === 'Pending' && 'Pending'}
+                                </span>
                             </div>
 
-                            <div className="mt-6 text-right">
-                                <button onClick={closeDetails}
-                                    className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
-                                    বন্ধ
-                                </button>
+                            {/* Content Grid */}
+                            <div className="space-y-4 text-sm">
+                                {/* Email */}
+                                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
+                                    <span className="font-medium text-gray-700">ইমেইল</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-gray-900 font-mono">{selectedWithdrawal.email}</span>
+                                        <button
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(selectedWithdrawal.email);
+                                                toast.success('ইমেইল কপি করা হয়েছে!');
+                                            }}
+                                            className="text-blue-600 hover:text-blue-800 transition"
+                                            title="কপি করুন"
+                                        >
+                                            Copy
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Amount */}
+                                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
+                                    <span className="font-medium text-gray-700">পরিমাণ</span>
+                                    <span className="text-xl font-bold text-blue-700">
+                                        ৳{toNum(selectedWithdrawal.amount).toFixed(2)}
+                                    </span>
+                                </div>
+
+                                {/* Charge */}
+                                <div className="flex justify-between items-center p-3 bg-red-50 rounded-xl">
+                                    <span className="font-medium text-gray-700">চার্জ (১%)</span>
+                                    <span className="font-bold text-red-700">
+                                        -৳{toNum(selectedWithdrawal.charge).toFixed(2)}
+                                    </span>
+                                </div>
+
+                                {/* Net Amount */}
+                                <div className="flex justify-between items-center p-3 bg-green-50 rounded-xl">
+                                    <span className="font-medium text-gray-700">প্রাপ্ত হবে</span>
+                                    <span className="text-lg font-bold text-green-700">
+                                        ৳{(toNum(selectedWithdrawal.amount) - toNum(selectedWithdrawal.charge)).toFixed(2)}
+                                    </span>
+                                </div>
+
+                                {/* Payment Method */}
+                                <div className="flex justify-between items-center p-3 bg-purple-50 rounded-xl">
+                                    <span className="font-medium text-gray-700">পেমেন্ট মেথড</span>
+                                    <span className="font-semibold text-purple-700 flex items-center gap-1">
+                                        {selectedWithdrawal.paymentMethod === 'Bkash' && 'Bkash'}
+                                        {selectedWithdrawal.paymentMethod === 'Nagad' && 'Nagad'}
+                                    </span>
+                                </div>
+
+                                {/* Payment Number */}
+                                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
+                                    <span className="font-medium text-gray-700">নম্বর</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-mono text-gray-900">{selectedWithdrawal.paymentNumber}</span>
+                                        <button
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(selectedWithdrawal.paymentNumber);
+                                                toast.success('নম্বর কপি করা হয়েছে!');
+                                            }}
+                                            className="text-blue-600 hover:text-blue-800 transition"
+                                            title="কপি করুন"
+                                        >
+                                            Copy
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Dates */}
+                                <div className="grid grid-cols-2 gap-3 text-xs">
+                                    <div className="p-3 bg-gray-50 rounded-xl text-center">
+                                        <p className="text-gray-600">রিকোয়েস্ট</p>
+                                        <p className="font-semibold text-gray-800">{selectedWithdrawal.request_date}</p>
+                                    </div>
+                                    <div className="p-3 bg-gray-50 rounded-xl text-center">
+                                        <p className="text-gray-600">অনুমোদন</p>
+                                        <p className="font-semibold text-gray-800">
+                                            {selectedWithdrawal.approval_date || <span className="text-gray-400">—</span>}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Close Button */}
+                            <div className="mt-6 flex justify-end">
+                                <motion.button
+                                    onClick={closeDetails}
+                                    className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    Close বন্ধ করুন
+                                </motion.button>
                             </div>
                         </motion.div>
                     </motion.div>

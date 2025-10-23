@@ -101,7 +101,7 @@ const SignUpPage = () => {
         <title>সাইন আপ - LetsDropship</title>
         <meta name="description" content="একটি নতুন অ্যাকাউন্ট তৈরি করুন এবং আমাদের সাথে আপনার যাত্রা শুরু করুন।" />
       </Helmet>
-      <div className="grid md:grid-cols-5 items-center min-h-[80vh]">
+      <div className="grid md:grid-cols-5 items-center min-h-[100vh]">
         <div className="col-span-3 w-full h-full">
           <img
             className='w-full h-full object-cover'

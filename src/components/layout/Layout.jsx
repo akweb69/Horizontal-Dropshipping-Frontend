@@ -3,6 +3,9 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
+import { useAuth } from '../../context/AuthContext';
+import AboutUsPage from '../../pages/AboutUsPage';
+import ContactPage from '../../pages/ContactPage';
 // import FloatingActionButtons from '@/components/FloatingActionButtons';
 
 const Layout = () => {
@@ -21,12 +24,23 @@ const Layout = () => {
     setActiveTab(getActiveTab(location.pathname));
   }, [location.pathname]);
 
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <Header />
+      {
+        user && user?.email ? <Header /> : null
+      }
+
       <main className="flex-grow mobile-content">
         <Outlet />
       </main>
+      {
+        !user && !user?.email ? <AboutUsPage></AboutUsPage> : null
+      }
+      {
+        !user && !user?.email ? <ContactPage></ContactPage> : null
+      }
       <Footer />
       <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
       {/* <FloatingActionButtons /> */}

@@ -358,7 +358,7 @@ Description: ${data.description}
                             {isOutOfStock ? "Out of Stock" : !selectedSize ? "Select Size" : "Add to Cart"}
                         </motion.button>
 
-                        <motion.button
+                        {/* <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => handleLoveClick(data._id)}
@@ -366,7 +366,7 @@ Description: ${data.description}
                         >
                             <Heart size={20} className={`transition-all ${user?.love?.includes(data._id) ? "fill-orange-600 text-orange-600" : ""}`} />
                             Wishlist
-                        </motion.button>
+                        </motion.button> */}
                     </motion.div>
                 </div>
             </motion.div>

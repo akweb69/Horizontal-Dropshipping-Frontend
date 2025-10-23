@@ -9,7 +9,7 @@ const AboutUsPage = () => {
   const navigate = useNavigate();
 
   const handleNavigateToMembership = () => {
-    navigate('/membership');
+    navigate('/');
   };
 
   return (
@@ -52,7 +52,7 @@ const AboutUsPage = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex justify-center"
             >
-              <img  class="rounded-xl shadow-lg w-full max-w-md" alt="একটি আধুনিক অফিসে বিভিন্ন পেশাদারদের একটি দল সহযোগিতা করছে" src="https://images.unsplash.com/photo-1566833546763-672775492199" />
+              <img class="rounded-xl shadow-lg w-full max-w-md" alt="একটি আধুনিক অফিসে বিভিন্ন পেশাদারদের একটি দল সহযোগিতা করছে" src="https://images.unsplash.com/photo-1566833546763-672775492199" />
             </motion.div>
           </div>
         </section>
@@ -82,27 +82,27 @@ const AboutUsPage = () => {
         </section>
 
         <section className="py-16 px-4 max-w-6xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-gray-800 mb-12">কেন আমাদের বেছে নেবেন?</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              <div className="flex flex-col items-center">
-                <MessageSquare className="w-10 h-10 text-orange-500 mb-3" />
-                <span className="font-semibold tracking-wide text-gray-700">২৪/৭ চ্যাট সাপোর্ট</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <CheckCircle className="w-10 h-10 text-orange-500 mb-3" />
-                <span className="font-semibold tracking-wide text-gray-700">যাচাইকৃত বিক্রেতা</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <Truck className="w-10 h-10 text-orange-500 mb-3" />
-                <span className="font-semibold tracking-wide text-gray-700">তাত্ক্ষণিক অর্ডার স্ট্যাটাস</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <Award className="w-10 h-10 text-orange-500 mb-3" />
-                <span className="font-semibold tracking-wide text-gray-700">রেফারেল বোনাস</span>
-              </div>
+          <h2 className="text-3xl font-bold text-gray-800 mb-12">কেন আমাদের বেছে নেবেন?</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="flex flex-col items-center">
+              <MessageSquare className="w-10 h-10 text-orange-500 mb-3" />
+              <span className="font-semibold tracking-wide text-gray-700">২৪/৭ চ্যাট সাপোর্ট</span>
             </div>
+            <div className="flex flex-col items-center">
+              <CheckCircle className="w-10 h-10 text-orange-500 mb-3" />
+              <span className="font-semibold tracking-wide text-gray-700">যাচাইকৃত বিক্রেতা</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <Truck className="w-10 h-10 text-orange-500 mb-3" />
+              <span className="font-semibold tracking-wide text-gray-700">তাত্ক্ষণিক অর্ডার স্ট্যাটাস</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <Award className="w-10 h-10 text-orange-500 mb-3" />
+              <span className="font-semibold tracking-wide text-gray-700">রেফারেল বোনাস</span>
+            </div>
+          </div>
         </section>
-        
+
         <section className="bg-slate-50 py-16">
           <div className="max-w-3xl mx-auto px-4 text-center bg-white p-10 rounded-xl shadow-lg">
             <h2 className="text-3xl font-bold text-gray-800 mb-4">ড্রপশিপিং শুরু করতে প্রস্তুত?</h2>
