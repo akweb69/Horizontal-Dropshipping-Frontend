@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'framer-motion';
-
+import { Wallet, CheckCircle, Clock, XCircle } from 'lucide-react';
 
 const ConnectStorePage = () => {
     const [orders, setOrders] = useState([]);
@@ -19,56 +19,39 @@ const ConnectStorePage = () => {
     const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
     const { user } = useAuth();
 
-    // Helper: Safe number conversion
     const toNum = (v) => (isNaN(v) ? 0 : Number(v));
 
-    // Fetch all data
     const fetchData = useCallback(() => {
         if (!user?.email) return;
-
         setLoading(true);
-        const email = user.email;
 
         Promise.all([
             axios.get(`${import.meta.env.VITE_BASE_URL}/orders`),
             axios.get(`${import.meta.env.VITE_BASE_URL}/withdraw`)
         ])
             .then(([ordersRes, withdrawRes]) => {
-                const myOrders = (ordersRes.data || []).filter(o => o.email === email);
-                const myWithdrawals = (withdrawRes.data || []).filter(w => w.email === email);
+                const email = user.email;
+                const myOrders = ordersRes.data?.filter(o => o.email === email) || [];
+                const myWithdrawals = withdrawRes.data?.filter(w => w.email === email) || [];
 
-                // Delivered total
                 const deliveredTotal = myOrders
-                    .filter(o => o.status?.trim() === 'Delivered')
-                    .reduce((acc, cur) => acc + toNum(cur.amar_bikri_mullo), 0);
+                    .filter(o => o.status === 'Delivered')
+                    .reduce((acc, cur) => acc + toNum(cur.amar_bikri_mullo - (cur.delivery_charge + cur.items_total)), 0);
 
-                // Withdrawals breakdown
-                const approved = myWithdrawals
-                    .filter(w => w.status?.trim() === 'Approved')
-                    .reduce((acc, cur) => acc + toNum(cur.amount), 0);
+                const approved = myWithdrawals.filter(w => w.status === 'Approved').reduce((a, c) => a + toNum(c.amount), 0);
+                const pending = myWithdrawals.filter(w => w.status === 'Pending').reduce((a, c) => a + toNum(c.amount), 0);
+                const rejected = myWithdrawals.filter(w => w.status === 'Rejected').reduce((a, c) => a + toNum(c.amount), 0);
 
-                const pending = myWithdrawals
-                    .filter(w => w.status?.trim() === 'Pending')
-                    .reduce((acc, cur) => acc + toNum(cur.amount), 0);
-
-                const rejected = myWithdrawals
-                    .filter(w => w.status?.trim() === 'Rejected')
-                    .reduce((acc, cur) => acc + toNum(cur.amount), 0);
-
-                // Correct withdrawable balance
                 const withdrawable = deliveredTotal - (approved + pending);
 
                 setOrders(myOrders);
                 setWithdrawData(myWithdrawals);
                 setWithdrawableBalance(withdrawable);
-                setPendingWithdrawals(pending); // Fixed: "ured);" ছিল
+                setPendingWithdrawals(pending);
                 setTotalApproved(approved);
                 setTotalRejected(rejected);
             })
-            .catch(err => {
-                console.error(err);
-                toast.error('ডেটা লোড করতে সমস্যা হয়েছে।');
-            })
+            .catch(() => toast.error('ডেটা লোড করতে সমস্যা হয়েছে।'))
             .finally(() => setLoading(false));
     }, [user]);
 
@@ -76,11 +59,9 @@ const ConnectStorePage = () => {
         fetchData();
     }, [fetchData]);
 
-    // Handle Withdraw Request
     const handleWithdraw = (e) => {
         e.preventDefault();
         setWithdrawLoading(true);
-
         const withdrawAmt = toNum(amount);
         const paymentMethod = e.target.paymentMethod.value;
         const paymentNumber = e.target.paymentNumber.value;
@@ -97,7 +78,6 @@ const ConnectStorePage = () => {
         }
 
         const charge = Math.round(withdrawAmt * 0.01 * 100) / 100;
-
         const payload = {
             email: user?.email,
             amount: withdrawAmt,
@@ -117,92 +97,83 @@ const ConnectStorePage = () => {
                 e.target.reset();
                 fetchData();
             })
-            .catch(err => {
-                console.error(err);
-                Swal.fire({ icon: 'error', title: 'ভুল!', text: 'রিকোয়েস্ট পাঠাতে ব্যর্থ', confirmButtonColor: '#2563eb' });
-            })
+            .catch(() => Swal.fire({ icon: 'error', title: 'ভুল!', text: 'রিকোয়েস্ট পাঠাতে ব্যর্থ', confirmButtonColor: '#2563eb' }))
             .finally(() => setWithdrawLoading(false));
     };
 
     const openDetails = (w) => setSelectedWithdrawal(w);
     const closeDetails = () => setSelectedWithdrawal(null);
 
-    // Loading UI
     if (loading) {
         return (
-            <motion.div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-gray-100"
+            <motion.div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600" />
+                <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-blue-600" />
             </motion.div>
         );
     }
 
     return (
         <motion.div
-            className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen"
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            className="max-w-7xl mx-auto px-6 py-10 min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 rounded-3xl shadow-inner"
+            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
 
             {/* Header */}
-            <motion.div className="mb-8 text-center">
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">উইথড্র ম্যানেজমেন্ট</h2>
-                <p className="mt-2 text-gray-600">স্টোরের উইথড্র রিকোয়েস্টগুলি সহজে পরিচালনা করুন।</p>
+            <motion.div className="text-center mb-10">
+                <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">💰 উইথড্র ম্যানেজমেন্ট</h1>
+                <p className="text-gray-600 mt-2 text-base">আপনার ব্যালেন্স ও রিকোয়েস্টগুলোর পূর্ণ নিয়ন্ত্রণ রাখুন।</p>
             </motion.div>
 
-            {/* Summary Cards */}
-            <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {/* Summary Section */}
+            <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                 {[
-                    { title: 'মোট অর্ডার', value: orders.length, color: 'bg-teal-100' },
-                    { title: 'মোট অর্ডার মূল্য', value: `৳${orders.reduce((a, o) => a + toNum(o.amar_bikri_mullo), 0)}`, color: 'bg-blue-100' },
-                    { title: 'উইথড্রযোগ্য ব্যালেন্স', value: `৳${withdrawableBalance.toFixed(2)}`, color: 'bg-indigo-100' },
-                    { title: 'পেন্ডিং উইথড্র', value: `৳${pendingWithdrawals.toFixed(2)}`, color: 'bg-purple-100' },
-                    { title: 'অনুমোদিত উইথড্র', value: `৳${totalApproved.toFixed(2)}`, color: 'bg-green-100' },
-                    { title: 'রিজেক্টেড উইথড্র', value: `৳${totalRejected.toFixed(2)}`, color: 'bg-red-100' },
+                    { title: 'উইথড্রযোগ্য ব্যালেন্স', value: `৳${withdrawableBalance.toFixed(2)}`, icon: <Wallet className="h-8 w-8 text-indigo-600" />, color: 'from-indigo-100 to-indigo-50' },
+                    { title: 'পেন্ডিং উইথড্র', value: `৳${pendingWithdrawals.toFixed(2)}`, icon: <Clock className="h-8 w-8 text-yellow-600" />, color: 'from-yellow-100 to-yellow-50' },
+                    { title: 'অনুমোদিত উইথড্র', value: `৳${totalApproved.toFixed(2)}`, icon: <CheckCircle className="h-8 w-8 text-green-600" />, color: 'from-green-100 to-green-50' },
+                    { title: 'রিজেক্টেড উইথড্র', value: `৳${totalRejected.toFixed(2)}`, icon: <XCircle className="h-8 w-8 text-red-600" />, color: 'from-red-100 to-red-50' },
                 ].map((c, i) => (
                     <motion.div
                         key={i}
-                        className={`${c.color} rounded-2xl p-6 shadow-lg flex items-center space-x-4`}
-                        whileHover={{ scale: 1.03 }}>
-
+                        className={`p-6 rounded-2xl shadow-lg bg-gradient-to-br ${c.color} flex items-center justify-between hover:shadow-2xl transition-all duration-300`}
+                        whileHover={{ scale: 1.05 }}>
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-800">{c.title}</h3>
-                            <p className="text-2xl font-bold text-gray-900">{c.value}</p>
+                            <p className="text-gray-800 font-semibold">{c.title}</p>
+                            <h3 className="text-2xl font-extrabold text-gray-900 mt-1">{c.value}</h3>
                         </div>
+                        {c.icon}
                     </motion.div>
                 ))}
             </motion.div>
 
-            {/* Main Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-
-                {/* Withdraw History */}
-                <motion.div className="lg:col-span-3 bg-white rounded-2xl shadow-lg p-6">
+            {/* Main Content */}
+            <div className="grid lg:grid-cols-5 gap-8">
+                {/* History Table */}
+                <motion.div className="lg:col-span-3 bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
                     <h2 className="text-2xl font-bold text-gray-800 mb-4">উইথড্র ইতিহাস</h2>
 
                     {withdrawData.length === 0 ? (
-                        <p className="text-gray-600">কোনো উইথড্র ইতিহাস নেই।</p>
+                        <p className="text-gray-600 text-center py-10">কোনো উইথড্র ইতিহাস নেই 😔</p>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-gray-50">
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-gray-50 text-gray-700">
                                     <tr>
-                                        {['পরিমাণ', 'স্ট্যাটাস', 'রিকোয়েস্ট তারিখ', 'পেমেন্ট মেথড', 'বিস্তারিত'].map(h => (
-                                            <th key={h} className="py-3 px-4 text-sm font-semibold text-gray-900">{h}</th>
+                                        {['পরিমাণ', 'স্ট্যাটাস', 'রিকোয়েস্ট তারিখ', 'পেমেন্ট', 'অ্যাকশন'].map(h => (
+                                            <th key={h} className="py-3 px-4 text-sm font-semibold">{h}</th>
                                         ))}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <AnimatePresence>
-                                        {withdrawData.map((w, idx) => (
-                                            <motion.tr
-                                                key={w._id?.$oid || w._id || idx}
+                                        {withdrawData.map((w, i) => (
+                                            <motion.tr key={i}
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0 }}
-                                                className="border-b hover:bg-gray-50">
-                                                <td className="py-3 px-4">৳{toNum(w.amount).toFixed(2)}</td>
+                                                className="border-b hover:bg-blue-50 transition-all duration-200">
+                                                <td className="py-3 px-4 font-medium">৳{toNum(w.amount).toFixed(2)}</td>
                                                 <td className="py-3 px-4">
                                                     <span className={`px-3 py-1 rounded-full text-xs font-medium
-                                                        ${w.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                            ${w.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
                                                             w.status === 'Approved' ? 'bg-green-100 text-green-800' :
                                                                 'bg-red-100 text-red-800'}`}>
                                                         {w.status}
@@ -212,7 +183,7 @@ const ConnectStorePage = () => {
                                                 <td className="py-3 px-4">{w.paymentMethod}</td>
                                                 <td className="py-3 px-4">
                                                     <button onClick={() => openDetails(w)}
-                                                        className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 text-sm">
+                                                        className="px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition">
                                                         বিস্তারিত
                                                     </button>
                                                 </td>
@@ -226,200 +197,86 @@ const ConnectStorePage = () => {
                 </motion.div>
 
                 {/* Withdraw Form */}
-                <motion.div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
+                <motion.div className="lg:col-span-2 bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
                     <h2 className="text-2xl font-bold text-gray-800 mb-4">উইথড্র রিকোয়েস্ট</h2>
 
-                    <form onSubmit={handleWithdraw}>
-                        <div className="mb-4">
+                    <form onSubmit={handleWithdraw} className="space-y-4">
+                        <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">পরিমাণ</label>
                             <input
                                 type="number"
                                 min="1000"
                                 value={amount}
                                 onChange={e => setAmount(e.target.value)}
-                                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="৳ পরিমাণ লিখুন"
                                 required
                             />
                         </div>
 
                         {amount && toNum(amount) >= 1000 && (
-                            <motion.div className="grid grid-cols-2 gap-4 mb-4"
-                                initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">চার্জ (1%)</label>
-                                    <div className="p-3 bg-red-100 text-red-800 font-semibold rounded-lg">
-                                        ৳{((toNum(amount) * 0.01) * 100 / 100).toFixed(2)}
-                                    </div>
+                            <motion.div className="grid grid-cols-2 gap-4">
+                                <div className="bg-red-50 rounded-xl p-3 text-center font-semibold text-red-700">
+                                    চার্জ (১%) <br /> ৳{(toNum(amount) * 0.01).toFixed(2)}
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">প্রাপ্ত পরিমাণ</label>
-                                    <div className="p-3 bg-green-100 text-green-800 font-semibold rounded-lg">
-                                        ৳{(toNum(amount) - (toNum(amount) * 0.01)).toFixed(2)}
-                                    </div>
+                                <div className="bg-green-50 rounded-xl p-3 text-center font-semibold text-green-700">
+                                    প্রাপ্ত হবে <br /> ৳{(toNum(amount) - toNum(amount) * 0.01).toFixed(2)}
                                 </div>
                             </motion.div>
                         )}
 
-                        <div className="mb-4">
+                        <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">পেমেন্ট মেথড</label>
-                            <select name="paymentMethod" className="w-full p-3 border rounded-lg" required>
+                            <select name="paymentMethod" className="w-full p-3 border rounded-xl" required>
                                 <option value="" disabled selected>নির্বাচন করুন</option>
                                 <option value="Bkash">Bkash</option>
                                 <option value="Nagad">Nagad</option>
                             </select>
                         </div>
 
-                        <div className="mb-4">
+                        <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">পেমেন্ট নম্বর</label>
-                            <input name="paymentNumber" type="text" className="w-full p-3 border rounded-lg" required />
+                            <input name="paymentNumber" type="text" className="w-full p-3 border rounded-xl" required />
                         </div>
 
                         <motion.button
                             type="submit"
                             disabled={withdrawLoading}
-                            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-blue-400"
-                            whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+                            className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 disabled:bg-indigo-400"
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}>
                             {withdrawLoading ? 'প্রসেসিং...' : 'রিকোয়েস্ট পাঠান'}
                         </motion.button>
                     </form>
                 </motion.div>
             </div>
 
-            {/* Details Modal */}
-            {/* Enhanced Details Modal */}
+            {/* Modal */}
             <AnimatePresence>
                 {selectedWithdrawal && (
-                    <motion.div
-                        className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={closeDetails}
-                    >
+                    <motion.div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50"
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        onClick={closeDetails}>
                         <motion.div
-                            className="bg-white bg-opacity-95 backdrop-blur-lg rounded-3xl shadow-2xl p-6 max-w-md w-full border border-gray-200"
-                            initial={{ scale: 0.85, y: 50, opacity: 0 }}
-                            animate={{ scale: 1, y: 0, opacity: 1 }}
-                            exit={{ scale: 0.85, y: 50, opacity: 0 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            {/* Header with Status */}
-                            <div className="flex items-center justify-between mb-5">
-                                <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                                    <span className="text-blue-600"></span> উইথড্র বিস্তারিত
-                                </h3>
-                                <span
-                                    className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1
-              ${selectedWithdrawal.status === 'Approved'
-                                            ? 'bg-green-100 text-green-700'
-                                            : selectedWithdrawal.status === 'Rejected'
-                                                ? 'bg-red-100 text-red-700'
-                                                : 'bg-yellow-100 text-yellow-700'
-                                        }`}
-                                >
-                                    {selectedWithdrawal.status === 'Approved' && 'Approved'}
-                                    {selectedWithdrawal.status === 'Rejected' && 'Rejected'}
-                                    {selectedWithdrawal.status === 'Pending' && 'Pending'}
-                                </span>
+                            className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-gray-100"
+                            initial={{ scale: 0.85, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.85, opacity: 0 }}
+                            onClick={e => e.stopPropagation()}>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-4">উইথড্র বিস্তারিত</h3>
+                            <div className="space-y-3 text-gray-700 text-sm">
+                                <p><b>ইমেইল:</b> {selectedWithdrawal.email}</p>
+                                <p><b>পরিমাণ:</b> ৳{selectedWithdrawal.amount}</p>
+                                <p><b>চার্জ:</b> ৳{selectedWithdrawal.charge}</p>
+                                <p><b>স্ট্যাটাস:</b> {selectedWithdrawal.status}</p>
+                                <p><b>পেমেন্ট:</b> {selectedWithdrawal.paymentMethod} ({selectedWithdrawal.paymentNumber})</p>
+                                <p><b>তারিখ:</b> {selectedWithdrawal.request_date}</p>
                             </div>
-
-                            {/* Content Grid */}
-                            <div className="space-y-4 text-sm">
-                                {/* Email */}
-                                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
-                                    <span className="font-medium text-gray-700">ইমেইল</span>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-gray-900 font-mono">{selectedWithdrawal.email}</span>
-                                        <button
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(selectedWithdrawal.email);
-                                                toast.success('ইমেইল কপি করা হয়েছে!');
-                                            }}
-                                            className="text-blue-600 hover:text-blue-800 transition"
-                                            title="কপি করুন"
-                                        >
-                                            Copy
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Amount */}
-                                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
-                                    <span className="font-medium text-gray-700">পরিমাণ</span>
-                                    <span className="text-xl font-bold text-blue-700">
-                                        ৳{toNum(selectedWithdrawal.amount).toFixed(2)}
-                                    </span>
-                                </div>
-
-                                {/* Charge */}
-                                <div className="flex justify-between items-center p-3 bg-red-50 rounded-xl">
-                                    <span className="font-medium text-gray-700">চার্জ (১%)</span>
-                                    <span className="font-bold text-red-700">
-                                        -৳{toNum(selectedWithdrawal.charge).toFixed(2)}
-                                    </span>
-                                </div>
-
-                                {/* Net Amount */}
-                                <div className="flex justify-between items-center p-3 bg-green-50 rounded-xl">
-                                    <span className="font-medium text-gray-700">প্রাপ্ত হবে</span>
-                                    <span className="text-lg font-bold text-green-700">
-                                        ৳{(toNum(selectedWithdrawal.amount) - toNum(selectedWithdrawal.charge)).toFixed(2)}
-                                    </span>
-                                </div>
-
-                                {/* Payment Method */}
-                                <div className="flex justify-between items-center p-3 bg-purple-50 rounded-xl">
-                                    <span className="font-medium text-gray-700">পেমেন্ট মেথড</span>
-                                    <span className="font-semibold text-purple-700 flex items-center gap-1">
-                                        {selectedWithdrawal.paymentMethod === 'Bkash' && 'Bkash'}
-                                        {selectedWithdrawal.paymentMethod === 'Nagad' && 'Nagad'}
-                                    </span>
-                                </div>
-
-                                {/* Payment Number */}
-                                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
-                                    <span className="font-medium text-gray-700">নম্বর</span>
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-mono text-gray-900">{selectedWithdrawal.paymentNumber}</span>
-                                        <button
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(selectedWithdrawal.paymentNumber);
-                                                toast.success('নম্বর কপি করা হয়েছে!');
-                                            }}
-                                            className="text-blue-600 hover:text-blue-800 transition"
-                                            title="কপি করুন"
-                                        >
-                                            Copy
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Dates */}
-                                <div className="grid grid-cols-2 gap-3 text-xs">
-                                    <div className="p-3 bg-gray-50 rounded-xl text-center">
-                                        <p className="text-gray-600">রিকোয়েস্ট</p>
-                                        <p className="font-semibold text-gray-800">{selectedWithdrawal.request_date}</p>
-                                    </div>
-                                    <div className="p-3 bg-gray-50 rounded-xl text-center">
-                                        <p className="text-gray-600">অনুমোদন</p>
-                                        <p className="font-semibold text-gray-800">
-                                            {selectedWithdrawal.approval_date || <span className="text-gray-400">—</span>}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Close Button */}
-                            <div className="mt-6 flex justify-end">
-                                <motion.button
-                                    onClick={closeDetails}
-                                    className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                >
-                                    Close বন্ধ করুন
-                                </motion.button>
+                            <div className="mt-6 text-right">
+                                <button onClick={closeDetails}
+                                    className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl hover:shadow-lg">
+                                    বন্ধ করুন
+                                </button>
                             </div>
                         </motion.div>
                     </motion.div>
