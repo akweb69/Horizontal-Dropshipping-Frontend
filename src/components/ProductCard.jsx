@@ -27,7 +27,7 @@ const ProductCard = ({ product }) => {
     const prices = product.sizes.map(s => parseFloat(s.price));
     const min = Math.min(...prices);
     const max = Math.max(...prices);
-    return min === max ? `৳${min}` : `৳${min} - ৳${max}`;
+    return min === max ? `৳${min}` : `৳${min}`;
   };
 
   // Helper: Get total stock
@@ -182,7 +182,7 @@ const ProductCard = ({ product }) => {
         {/* Product Info */}
         <div className="p-4 space-y-3">
           <h3 className="font-semibold text-lg text-gray-900 line-clamp-2 leading-tight">
-            {product.name}
+            {product?.name.slice(0, 20)}{product?.name.length > 20 ? '...' : ''}
           </h3>
 
           {/* Price & Rating */}
@@ -211,16 +211,16 @@ const ProductCard = ({ product }) => {
 
           {/* Action Buttons */}
           {isMember ? (
-            <div className="flex gap-2">
+            <div className=" lg:flex gap-2 space-y-2 lg:space-y-0 w-full">
               <Button
                 variant="outline"
-                className="flex-1 rounded-lg"
+                className="flex-1 rounded-lg  w-full outline-orange-500 hover:bg-orange-50 text-orange-600"
                 onClick={() => handleProductDetails(product._id)}
               >
                 বিস্তারিত
               </Button>
               <Button
-                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white rounded-lg flex items-center justify-center gap-1"
+                className="flex-1 w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg flex items-center justify-center gap-1"
                 onClick={handleOpenSizeModal}
                 disabled={isOutOfStock}
               >

@@ -20,7 +20,7 @@ const AboutUsPage = () => {
       </Helmet>
 
       <div className="bg-white">
-        <section className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-20 text-center">
+        <section className="bg-gradient-to-r from-orange-500 to-yellow-600 text-white py-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

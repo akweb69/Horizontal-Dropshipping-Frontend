@@ -26,6 +26,7 @@ const Select = ({ value, onValueChange, children, placeholder = "Select an optio
         child => child && child.props && child.props.value === value
     );
 
+
     return (
         <div className="relative">
             {/* Trigger Button */}
@@ -95,6 +96,17 @@ const ReferralDashboardPage = () => {
     const [withdrawLoading, setWithdrawLoading] = useState(false);
 
     const minimumWithdraw = 1000;
+    const [runningBonus, setRunningBonus] = useState(0);
+    useEffect(() => {
+        axios.get(`${import.meta.env.VITE_BASE_URL}/referral-bonus`)
+            .then((res) => {
+                setRunningBonus(res.data.bonus);
+                console.log(res.data);
+            })
+            .catch((err) => {
+                console.error('Error fetching referral bonus:', err);
+            });
+    }, [])
 
     // Fetch user data
     useEffect(() => {
@@ -252,7 +264,7 @@ const ReferralDashboardPage = () => {
                 {/* Header */}
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800">রেফারেল প্রোগ্রাম</h1>
-                    <p className="text-muted-foreground">প্রতি রেফারেলে ৫০ টাকা বোনাস! আপনার বন্ধুদের আমন্ত্রণ জানান।</p>
+                    <p className="text-muted-foreground">প্রতি রেফারেলে {runningBonus} টাকা বোনাস! আপনার বন্ধুদের আমন্ত্রণ জানান।</p>
                 </div>
 
                 {/* Stats */}
@@ -267,7 +279,7 @@ const ReferralDashboardPage = () => {
                                 ৳ {referIncome}
                             </div>
                             <p className="text-xs text-muted-foreground">
-                                {referredUsers.length} জন × ৫০ = মোট আয়
+                                {referredUsers.length} জন × {runningBonus} = মোট আয়
                                 {referIncome < minimumWithdraw && (
                                     <span className="block text-red-600">ন্যূনতম উত্তোলন: ৳{minimumWithdraw}</span>
                                 )}
@@ -309,7 +321,7 @@ const ReferralDashboardPage = () => {
                     <CardHeader className="flex flex-row justify-between items-center">
                         <div>
                             <CardTitle>রেফার করা ব্যবহারকারী</CardTitle>
-                            <CardDescription>প্রত্যেকের জন্য ৫০ টাকা বোনাস</CardDescription>
+                            <CardDescription>প্রত্যেকের জন্য {runningBonus} টাকা বোনাস</CardDescription>
                         </div>
                         <Button
                             onClick={handleWithdrawModalOpen}
@@ -335,7 +347,7 @@ const ReferralDashboardPage = () => {
                                         <TableRow key={i}>
                                             <TableCell className="font-medium">{u.email}</TableCell>
                                             <TableCell>{u.planName}</TableCell>
-                                            <TableCell className="text-right text-green-600 font-semibold">৳50</TableCell>
+                                            <TableCell className="text-right text-green-600 font-semibold">৳{runningBonus}</TableCell>
                                         </TableRow>
                                     ))}
                                     <TableRow>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ContactInfo from './ContactInfo';
+import Swal from 'sweetalert2';
 
 const WebsiteData = () => {
     const [logo, setLogo] = useState({});
@@ -101,6 +102,47 @@ const WebsiteData = () => {
         setError(null);
     };
 
+    const [referralBonus, setReferralBonus] = useState(0);
+    const [runningBonus, setRunningBonus] = useState(0);
+    const handleReferralBonus = (e) => {
+        e.preventDefault();
+        axios.post(`${import.meta.env.VITE_BASE_URL}/referral-bonus`, {
+            bonus: parseInt(referralBonus),
+        })
+            .then((res) => {
+                axios.get(`${import.meta.env.VITE_BASE_URL}/referral-bonus`)
+                    .then((res) => {
+                        setRunningBonus(res.data.bonus);
+                        console.log(res.data);
+                    })
+                    .catch((err) => {
+                        console.error('Error fetching referral bonus:', err);
+                    });
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Referral bonus added successfully',
+                });
+            })
+            .catch((err) => {
+                console.error('Error submitting referral bonus:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed to add referral bonus',
+                });
+            });
+    };
+
+    useEffect(() => {
+        axios.get(`${import.meta.env.VITE_BASE_URL}/referral-bonus`)
+            .then((res) => {
+                setRunningBonus(res.data.bonus);
+                console.log(res.data);
+            })
+            .catch((err) => {
+                console.error('Error fetching referral bonus:', err);
+            });
+    }, [])
+
     return (
         <div className='w-full md:grid md:grid-cols-2 gap-6 space-y-6 md:space-y-0'>
             <div className="w-full p-4 sm:p-6 md:p-8 bg-white shadow-lg rounded-lg">
@@ -131,7 +173,7 @@ const WebsiteData = () => {
                         id="logo"
                         accept="image/*"
                         onChange={handleFileSelect}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200"
                         disabled={loading}
                     />
                 </div>
@@ -171,14 +213,14 @@ const WebsiteData = () => {
                 <div className="mt-6 flex flex-col sm:flex-row justify-center sm:justify-start gap-4">
                     <button
                         onClick={handleReset}
-                        className="px-4 py-2 sm:px-6 sm:py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200 disabled:opacity-50"
+                        className="px-4 py-2 sm:px-6 sm:py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition duration-200 disabled:opacity-50"
                         disabled={loading || (preview === runningLogo && !selectedFile)}
                     >
                         Reset Logo
                     </button>
                     <button
                         onClick={selectedFile ? handleUpload : handleUpdate}
-                        className="px-4 py-2 sm:px-6 sm:py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 disabled:opacity-50"
+                        className="px-4 py-2 sm:px-6 sm:py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition duration-200 disabled:opacity-50"
                         disabled={loading}
                     >
                         {loading
@@ -192,6 +234,25 @@ const WebsiteData = () => {
             {/* contact info section */}
             <div className="w-full p-4 sm:p-6 md:p-8 bg-white shadow-lg rounded-lg">
                 <ContactInfo />
+            </div>
+            {/* referral bonus section */}
+            <div className="w-full p-4 sm:p-6 md:p-8 bg-white shadow-lg rounded-lg">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">Referral Bonus</h3>
+                <p className="text-md text-gray-600 mb-2">Current Bonus: {runningBonus}</p>
+                <form
+                    onSubmit={handleReferralBonus}
+                    action="">
+                    <h2 className="text-md font-bold text-gray-800 mb-2">Add Referral Bonus</h2>
+
+                    <input
+                        onChange={(e) => setReferralBonus(e.target.value)}
+                        className='border border-gray-300 rounded-md p-2 w-full' type="number" />
+
+                    <button className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition duration-200">
+                        Add Bonus
+                    </button>
+                </form>
+
             </div>
         </div>
     );

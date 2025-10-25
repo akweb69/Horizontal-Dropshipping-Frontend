@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '@/context/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { DollarSign, Package, ShoppingCart, Clock } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import CircleStatCard from '@/components/CircleStatCard';
 import axios from 'axios';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaMoneyBillWave, FaClock, FaChartLine, FaShoppingCart, FaBoxOpen, FaCheckCircle } from 'react-icons/fa';
+import GlassMasterCard from '../components/ui/GlassMasterCard';
+import MiniGlassCard from '../components/ui/MiniGlassCard';
+import DropshipDashboard from '../components/ui/DropshipDashboard';
 
 const DashboardPage = () => {
     const { user, setLoading, loading } = useAuth();
@@ -15,11 +15,21 @@ const DashboardPage = () => {
     const { plan, validUntil } = subscription;
     const [name, setName] = useState('');
     const [countdown, setCountdown] = useState('');
-    const [sells, setSells] = useState([]);
+    const [allSells, setAllSells] = useState([]);
+    const [selectedFilter, setSelectedFilter] = useState('all');
     const [myPendingBalance, setMyPendingBalance] = useState(0);
     const [totalRevenue, setTotalRevenue] = useState(0);
     const [myRecievedBalance, setMyRecievedBalance] = useState(0);
     const [myLove, setMyLove] = useState(0);
+    const [displayedMyLove, setDisplayedMyLove] = useState(0);
+    const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowWelcomeModal(false);
+        }, 3000);
+        return () => clearTimeout(timer);
+    }, []);
 
     useEffect(() => {
         axios
@@ -33,7 +43,7 @@ const DashboardPage = () => {
             .get(`${import.meta.env.VITE_BASE_URL}/orders`)
             .then((response) => {
                 if (response.data) {
-                    setSells(response.data.filter((item) => item.email === user?.email));
+                    setAllSells(response.data.filter((item) => item.email === user?.email));
                 }
                 setLoading(false);
             })
@@ -41,7 +51,7 @@ const DashboardPage = () => {
                 console.error('Error fetching sell product data:', error);
                 setLoading(false);
             });
-    }, [user?.email]);
+    }, [user?.email, setLoading]);
 
     const timeRemaining = user?.validityDays * 24 * 60 * 60 * 1000;
     const expiryDate = new Date(new Date(validUntil).getTime() + timeRemaining);
@@ -78,35 +88,125 @@ const DashboardPage = () => {
             .catch((error) => console.error('Error updating user plan status:', error));
     };
 
+    const filteredSells = useMemo(() => {
+        const now = new Date();
+        let startDate;
+
+        switch (selectedFilter) {
+            case 'today':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                break;
+            case '7days':
+                startDate = new Date(now);
+                startDate.setDate(now.getDate() - 7);
+                break;
+            case 'month':
+                startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                break;
+            case '3months':
+                startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+                break;
+            case 'all':
+            default:
+                return allSells;
+        }
+
+        return allSells.filter((item) => {
+            const itemDate = new Date(item.order_date);
+            return itemDate >= startDate && itemDate <= now;
+        });
+    }, [allSells, selectedFilter]);
+
     useEffect(() => {
-        const data = sells;
         setMyPendingBalance(
-            data
+            filteredSells
                 .filter((item) => item.status === 'pending')
                 .reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo - item.delivery_charge) || 0), 0)
         );
         setMyRecievedBalance(
-            data
+            filteredSells
                 .filter((item) => item.status === 'Delivered')
                 .reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo - item.delivery_charge) || 0), 0)
         );
         setTotalRevenue(
-            data.reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo - item.grand_total) || 0), 0)
+            filteredSells.reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo - item.grand_total) || 0), 0)
         );
         setMyLove(
-            data
+            filteredSells
                 .filter((item) => item.status === 'Delivered')
                 .reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo - item.grand_total) || 0), 0)
         );
-    }, [sells]);
+    }, [filteredSells]);
+
+    useEffect(() => {
+        let start = 0;
+        const end = myLove;
+        const duration = 2000;
+        const increment = end / (duration / 10);
+        const timer = setInterval(() => {
+            start += increment;
+            if (start >= end) {
+                start = end;
+                clearInterval(timer);
+            }
+            setDisplayedMyLove(Math.floor(start));
+        }, 10);
+        return () => clearInterval(timer);
+    }, [myLove]);
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-screen text-lg font-semibold text-primary">
+            <div className="flex justify-center items-center h-screen text-lg font-semibold text-gray-600">
                 🔄 ডেটা লোড হচ্ছে...
             </div>
         );
     }
+
+    const filters = [
+        { label: 'আজ', value: 'today' },
+        { label: 'গত ৭ দিন', value: '7days' },
+        { label: 'গত মাস', value: 'month' },
+        { label: 'গত ৩ মাস', value: '3months' },
+        { label: 'সব সময়', value: 'all' },
+    ];
+
+    const renderCircleProgress = (percentage, primaryColor, secondaryColor) => {
+        const circumference = 2 * Math.PI * 16;
+        const strokeDasharray = `${(percentage / 100) * circumference} ${circumference}`;
+        return (
+            <div className="relative w-12 h-12">
+                <svg className="w-full h-full" viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="16" strokeWidth="3" stroke={secondaryColor} fill="none" />
+                    <motion.circle
+                        cx="18"
+                        cy="18"
+                        r="16"
+                        strokeWidth="3"
+                        stroke={primaryColor}
+                        fill="none"
+                        strokeDasharray={strokeDasharray}
+                        transform="rotate(-90 18 18)"
+                        initial={{ strokeDashoffset: circumference }}
+                        animate={{ strokeDashoffset: 0 }}
+                        transition={{ duration: 1.5, ease: 'easeOut' }}
+                    />
+                </svg>
+                <motion.div
+                    className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-gray-700"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, delay: 0.5 }}
+                >
+                    {percentage}%
+                </motion.div>
+            </div>
+        );
+    };
+
+    const textVariants = {
+        hidden: { opacity: 0, y: 10 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } }
+    };
 
     return (
         <>
@@ -115,128 +215,127 @@ const DashboardPage = () => {
                 <meta name="description" content="আপনার LetsDropship ড্যাশবোর্ড পরিচালনা করুন।" />
             </Helmet>
 
-            <div className="space-y-8">
-                {/* Header Section */}
-                <motion.div
-                    initial={{ opacity: 0, y: -30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="flex flex-col sm:flex-row justify-between sm:items-center gap-6 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-6 rounded-2xl shadow-lg text-white"
-                >
-                    <div>
-                        <h1 className="text-3xl font-bold mb-1">👋 স্বাগতম, {name}!</h1>
-                        <p className="opacity-90">আপনার ব্যবসার সামগ্রিক চিত্র নিচে দেখুন।</p>
-                    </div>
-                    <Button
-                        asChild
-                        className="bg-white text-indigo-600 hover:bg-indigo-100 transition-all font-semibold shadow-md"
-                    >
-                        <NavLink to="/">নতুন পণ্য দেখুন</NavLink>
-                    </Button>
-                </motion.div>
+            <div className="p-4 md:p-6 min-h-screen bg-gradient-to-br space-y-6">
 
-                {/* Subscription Card */}
-                <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                >
-                    <Card className="border border-indigo-200 shadow-md hover:shadow-lg transition-shadow duration-300">
-                        <CardHeader className="bg-indigo-50 rounded-t-lg">
-                            <CardTitle className="flex items-center gap-2 text-indigo-700 font-semibold text-xl">
-                                <Clock className="w-5 h-5" /> সাবস্ক্রিপশন ওভারভিউ
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6">
-                            <div>
-                                <h3 className="text-2xl font-bold text-indigo-700 mb-1">{plan}</h3>
-                                <p className="text-gray-700">
-                                    বৈধ থাকবে:{" "}
-                                    {expiryDate.toLocaleDateString('bn-BD', {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                    })}
-                                </p>
-                                <p className="text-sm mt-3 text-red-600 font-medium bg-red-50 px-3 py-1 rounded-lg inline-block">
-                                    ⏳ {countdown}
-                                </p>
-                            </div>
-                            <Button
-                                asChild
-                                className="mt-6 sm:mt-0 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2 rounded-lg shadow-md"
-                            >
-                                <NavLink to="/membership">প্ল্যান আপগ্রেড করুন</NavLink>
-                            </Button>
-                        </CardContent>
-                    </Card>
-                </motion.div>
+
+
+                {/* gfhdg */}
+                <DropshipDashboard></DropshipDashboard>
+                {/* gfhdg */}
+                {/* Header Section */}
+                <div className="text-center mb-4">
+                    <motion.h1
+                        variants={textVariants}
+                        initial="hidden"
+                        animate="visible"
+                        className="text-3xl font-bold text-orange-700 drop-shadow-sm"
+                    >
+                        আপনার ইনকাম ড্যাশবোর্ড
+                    </motion.h1>
+                    <motion.p
+                        variants={textVariants}
+                        initial="hidden"
+                        animate="visible"
+                        transition={{ delay: 0.2 }}
+                        className="text-orange-800/80 text-sm mt-1"
+                    >
+                        আপনার ব্যবসার পারফরম্যান্স এক নজরে দেখুন
+                    </motion.p>
+                </div>
+
+                {/* Filter Section */}
+                <div className="flex flex-wrap gap-2 justify-center p-3">
+                    {filters.map((f) => (
+                        <motion.button
+                            key={f.value}
+                            onClick={() => setSelectedFilter(f.value)}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-300 shadow-md ${selectedFilter === f.value
+                                ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-orange-200'
+                                : 'bg-white/70 backdrop-blur-md text-orange-700 hover:bg-orange-100 border border-orange-300/30'
+                                }`}
+                        >
+                            {f.label}
+                        </motion.button>
+                    ))}
+                </div>
+
+                {/* Glass Card */}
+                <GlassMasterCard
+                    cardHolder={user?.name || 'ABU KALAM'}
+                    cardNumber={user?.phone || '**** 3456'}
+                    expiry="11/29"
+                    cvv="123"
+                    balance={displayedMyLove}
+                />
 
                 {/* Stats Section */}
                 <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1 }}
-                    className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+                    variants={textVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="grid gap-4 md:grid-cols-3 lg:grid-cols-5 w-full mx-auto"
                 >
-                    <CircleStatCard
-                        title="💰 মোট রেভিনিউ"
-                        value={`৳${totalRevenue.toLocaleString('bn-BD')}`}
-                        percentage={75}
-                        description={`${sells.length} অর্ডার`}
-                        primaryColor="hsl(142.1 76.2% 41.2%)"
-                        secondaryColor="hsl(142.1 76.2% 41.2% / 0.1)"
-                        icon={<DollarSign className="h-5 w-5 text-muted-foreground" />}
+                    <MiniGlassCard cardHolder={user?.name || 'User'} title="পেন্ডিং সেলস ব্যালেন্স" balance={myPendingBalance} />
+                    <MiniGlassCard cardHolder={user?.name || 'User'} title="মোট রেভিনিউ" balance={totalRevenue} />
+                    <MiniGlassCard
+                        cardHolder={user?.name || 'User'}
+                        title="মোট সেলস"
+                        balance={filteredSells.reduce(
+                            (acc, item) => acc + (parseInt(item.amar_bikri_mullo) - parseInt(item.delivery_charge)),
+                            0
+                        )}
                     />
-                    <CircleStatCard
-                        title="📦 প্রাপ্ত রেভিনিউ"
-                        value={`৳${myLove.toLocaleString('bn-BD')}`}
-                        percentage={55}
-                        description={`${sells.length} অর্ডার`}
-                        primaryColor="hsl(142.1 76.2% 41.2%)"
-                        secondaryColor="hsl(142.1 76.2% 41.2% / 0.1)"
-                        icon={<DollarSign className="h-5 w-5 text-muted-foreground" />}
+                    <MiniGlassCard
+                        cardHolder={user?.name || 'User'}
+                        title="ইম্পোর্ট করা পণ্য"
+                        balance={filteredSells.reduce((acc, item) => acc + parseInt(item.items_total), 0)}
                     />
-                    <CircleStatCard
-                        title="🛒 মোট সেলস"
-                        value={`৳${sells
-                            .reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo) - parseInt(item.delivery_charge)), 0)
-                            .toLocaleString('bn-BD')}`}
-                        percentage={85}
-                        description={`${sells.length} অর্ডার`}
-                        primaryColor="hsl(34.9 91.6% 58.4%)"
-                        secondaryColor="hsl(34.9 91.6% 58.4% / 0.1)"
-                        icon={<ShoppingCart className="h-5 w-5 text-muted-foreground" />}
-                    />
-                    <CircleStatCard
-                        title="📦 ইম্পোর্ট করা পণ্য"
-                        value={`${sells.reduce((acc, item) => acc + parseInt(item.items_total), 0).toLocaleString('bn-BD')}`}
-                        percentage={70}
-                        description={`গত মাস থেকে ${sells.length} পণ্য ইম্পোর্ট হয়েছে।`}
-                        primaryColor="hsl(217.2 91.2% 59.8%)"
-                        secondaryColor="hsl(217.2 91.2% 59.8% / 0.1)"
-                        icon={<Package className="h-5 w-5 text-muted-foreground" />}
-                    />
-                    <CircleStatCard
-                        title="🕒 পেন্ডিং ব্যালেন্স"
-                        value={`৳${myPendingBalance.toLocaleString('bn-BD')}`}
-                        percentage={70}
-                        description={`পেন্ডিং অর্ডার সংখ্যা: ${sells.filter((i) => i.status === 'pending').length}`}
-                        primaryColor="hsl(50 90% 55%)"
-                        secondaryColor="hsl(50 90% 55% / 0.1)"
-                        icon={<Package className="h-5 w-5 text-muted-foreground" />}
-                    />
-                    <CircleStatCard
-                        title="✅ রিসিভ ব্যালেন্স"
-                        value={`৳${myRecievedBalance.toLocaleString('bn-BD')}`}
-                        percentage={80}
-                        description={`রিসিভড অর্ডার সংখ্যা: ${sells.filter((i) => i.status === 'Delivered').length}`}
-                        primaryColor="hsl(210 90% 60%)"
-                        secondaryColor="hsl(210 90% 60% / 0.1)"
-                        icon={<Package className="h-5 w-5 text-muted-foreground" />}
+                    <MiniGlassCard
+                        cardHolder={user?.name || 'User'}
+                        title="মোট সাকসেস সেলস"
+                        balance={myRecievedBalance}
                     />
                 </motion.div>
+
+                {/* Subscription Section */}
+                <motion.div
+                    variants={textVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="backdrop-blur-xl bg-white/70 border border-orange-300/40 rounded-xl shadow-lg p-5 w-full mx-auto relative overflow-hidden"
+                >
+                    <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 via-orange-300/10 to-white/5"></div>
+
+                    <div className="flex items-center gap-2 mb-3 relative z-10">
+                        <FaClock className="text-lg text-orange-500" />
+                        <h2 className="text-base font-semibold text-orange-800">সাবস্ক্রিপশন ওভারভিউ</h2>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10">
+                        <div>
+                            <h3 className="text-xl font-semibold text-orange-700">{plan}</h3>
+                            <p className="text-sm text-orange-600/80">
+                                বৈধ থাকবে: {expiryDate.toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </p>
+                            <p className="text-sm text-red-600 font-medium bg-red-50 px-2 py-1 rounded-md inline-block mt-2">
+                                ⏳ {countdown}
+                            </p>
+                        </div>
+                        <NavLink to="/membership">
+                            <motion.button
+                                whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(255,140,0,0.4)' }}
+                                whileTap={{ scale: 0.95 }}
+                                className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-5 py-2 rounded-lg text-sm font-semibold shadow-md hover:from-orange-600 hover:to-orange-700 transition-all duration-300"
+                            >
+                                প্ল্যান আপগ্রেড করুন
+                            </motion.button>
+                        </NavLink>
+                    </div>
+                </motion.div>
             </div>
+
         </>
     );
 };

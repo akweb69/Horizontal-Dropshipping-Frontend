@@ -1,17 +1,34 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
+  const [websiteData, setWebsiteData] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const base_url = import.meta.env.VITE_BASE_URL;
+
+  // laod data
+  useEffect(() => {
+    axios.get(`${base_url}/website-logo`)
+      .then((response) => {
+        setWebsiteData(response.data.logo);
+        setLoading(false);
+        console.log('Website logo fetched:', response.data.logo);
+      })
+      .catch((error) => {
+        console.error('Error fetching website logo:', error);
+        setLoading(false);
+      });
+  }, [])
+  if (loading) {
+    return null;
+  }
   return (
     <footer className="bg-gray-800 text-white py-12">
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <span className="text-3xl font-extrabold tracking-tight text-white">
-              <span className="text-white">Lets</span>
-              <span className="text-red-500">Drop</span>
-              <span className="text-white">ship</span>
-            </span>
+            <img className='max-h-8' src={websiteData} alt="LetsDropShip" />
             <p className="mt-4 text-gray-300 text-sm">আপনার ড্রপশিপিং ব্যবসার জন্য সেরা প্ল্যাটফর্ম।</p>
           </div>
           <div>

@@ -184,15 +184,15 @@ const ManageRefferWithDraw = () => {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-gradient-to-r from-green-50 to-emerald-50">
+                            <thead className="bg-gradient-to-r from-orange-500 to-orange-600">
                                 <tr>
-                                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-700 uppercase">ID</th>
-                                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-700 uppercase">ইউজার</th>
-                                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-700 uppercase">পদ্ধতি</th>
-                                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-700 uppercase">পরিমাণ</th>
-                                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-700 uppercase">অনুরোধ</th>
-                                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-700 uppercase">স্ট্যাটাস</th>
-                                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-700 uppercase">অ্যাকশন</th>
+                                    <th className="py-4 px-6 text-left text-xs font-bold text-white uppercase">ID</th>
+                                    <th className="py-4 px-6 text-left text-xs font-bold text-white uppercase">ইউজার</th>
+                                    <th className="py-4 px-6 text-left text-xs font-bold text-white uppercase">পদ্ধতি</th>
+                                    <th className="py-4 px-6 text-left text-xs font-bold text-white uppercase">পরিমাণ</th>
+                                    <th className="py-4 px-6 text-left text-xs font-bold text-white uppercase">অনুরোধ</th>
+                                    <th className="py-4 px-6 text-left text-xs font-bold text-white uppercase">স্ট্যাটাস</th>
+                                    <th className="py-4 px-6 text-left text-xs font-bold text-white uppercase">অ্যাকশন</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
@@ -249,7 +249,7 @@ const ManageRefferWithDraw = () => {
                                                     </button>
                                                     <button
                                                         onClick={() => openStatusModal(w)}
-                                                        className="p-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition"
+                                                        className="p-2 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition"
                                                         title="স্ট্যাটাস পরিবর্তন"
                                                     >
                                                         <Edit3 className="w-4 h-4" />
@@ -354,7 +354,7 @@ const ManageRefferWithDraw = () => {
                             <div className="mt-6 flex justify-end gap-3">
                                 <button
                                     onClick={() => openStatusModal(selectedWithdraw)}
-                                    className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition"
+                                    className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition"
                                 >
                                     স্ট্যাটাস পরিবর্তন
                                 </button>

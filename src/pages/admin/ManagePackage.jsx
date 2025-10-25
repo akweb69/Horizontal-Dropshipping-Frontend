@@ -366,7 +366,7 @@ const ManagePackage = () => {
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="bg-gradient-to-r from-primary to-indigo-600 text-white">
+                                <tr className="bg-gradient-to-r from-orange-500 to-orange-500 text-white">
                                     <th className="px-6 py-4 text-left font-semibold">প্ল্যান নাম</th>
                                     <th className="px-6 py-4 text-left font-semibold">পেমেন্ট</th>
                                     <th className="px-6 py-4 text-left font-semibold">ট্রানজেকশন</th>
@@ -401,14 +401,14 @@ const ManagePackage = () => {
                                                 <div className="flex items-center justify-center gap-2">
                                                     <button
                                                         onClick={() => handleDetail(pkg)}
-                                                        className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                                                        className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
                                                     >
                                                         <Eye className="w-4 h-4" />
                                                         বিস্তারিত
                                                     </button>
                                                     <button
                                                         onClick={() => handleStatusChange(pkg)}
-                                                        className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                                                        className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
                                                     >
                                                         <Edit3 className="w-4 h-4" />
                                                         স্ট্যাটাস

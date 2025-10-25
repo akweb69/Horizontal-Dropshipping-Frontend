@@ -416,6 +416,7 @@ const OrderTrackingDashboardPage = () => {
                             </TableCell>
                             <TableCell>
                               <Button
+                                className="text-emerald-600"
                                 variant="link"
                                 size="sm"
                                 onClick={() => handleGenerateInvoice(order)}

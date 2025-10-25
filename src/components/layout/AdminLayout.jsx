@@ -90,7 +90,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
               end={item.path === '/admin'}
               className={({ isActive }) =>
                 `flex items-center px-4 py-2.5 my-1 text-sm font-medium rounded-lg transition-colors ${isActive
-                  ? 'bg-primary text-white'
+                  ? 'bg-orange-500 text-white'
                   : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                 }`
               }

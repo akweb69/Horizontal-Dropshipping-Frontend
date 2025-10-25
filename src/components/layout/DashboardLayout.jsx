@@ -1,5 +1,4 @@
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -11,9 +10,15 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import axios from 'axios';
+import { toast } from 'react-toastify'; // Assuming react-toastify is installed for error notifications
+
+// Centralized axios instance (create a separate api.js file or inline here)
+const api = axios.create({
+  baseURL: import.meta.env.VITE_BASE_URL,
+});
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -21,8 +26,40 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     navigate('/');
   };
 
+  const [classData, setClassData] = useState(user.subscription.plan);
+  const [loading, setLoading] = useState(false);
+  const [matchedPackage, setMatchedPackage] = useState(null);
+  const [websiteLogo, setWebsiteLogo] = useState('');
 
-  const navItems = [
+  useEffect(() => {
+    setLoading(true);
+    setClassData(user.subscription.plan);
+    api.get('/manage-package')
+      .then(res => {
+        const data = res?.data;
+        const pkg = data.find(p => p?.name === user.subscription.plan);
+        setMatchedPackage(pkg);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        toast.error('Failed to load package data');
+        setLoading(false);
+      });
+  }, [user?.email, user.subscription.plan]);
+
+  useEffect(() => {
+    api.get('/website-logo')
+      .then(res => {
+        setWebsiteLogo(res.data.logo);
+      })
+      .catch(err => {
+        console.error(err);
+        toast.error('Failed to load logo');
+      });
+  }, []);
+
+  const initialNavItems = [
     { icon: Home, label: 'হোম পেজে ফিরে যান', path: '/' },
     { icon: LayoutDashboard, label: 'ড্যাশবোর্ড', path: '/dashboard' },
     { icon: Package, label: 'আমার পণ্য', path: '/dashboard/my-products' },
@@ -33,30 +70,32 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     { icon: FileText, label: 'বিলিং ও সাবস্ক্রিপশন', path: '/dashboard/billing' },
     { icon: Settings, label: 'অ্যাকাউন্ট সেটিংস', path: '/dashboard/settings' },
     { icon: LifeBuoy, label: 'সহায়তা কেন্দ্র', path: '/dashboard/support' },
-    { icon: LifeBuoy, label: 'ক্লাসের অনুরোধ', path: '/dashboard/class-requests' },
-
   ];
 
-  const [websiteLogo, setWebsiteLogo] = useState('');
-  useEffect(() => {
-    axios.get(`${import.meta.env.VITE_BASE_URL}/website-logo`)
-      .then(res => {
-        setWebsiteLogo(res.data.logo);
+  const navItems = useMemo(() => {
+    const items = [...initialNavItems];
+    if (matchedPackage?.canDoClass) {
+      items.push({ icon: LifeBuoy, label: 'ক্লাসের অনুরোধ', path: '/dashboard/class-requests' });
+    }
+    return items;
+  }, [matchedPackage]);
 
-      })
-      .catch(err => {
-        console.log(err);
-      })
-  }, [])
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
+
   return (
     <>
       <aside className={`fixed top-0 left-0 z-40 w-64 h-screen bg-white border-r transition-transform md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between h-16 px-6 border-b">
           <NavLink to="/" className="text-2xl font-bold text-primary">
-            {websiteLogo ? <img src={websiteLogo} alt="Logo" className="h-8 w-auto mx-w-[200px]" /> : 'ড্যাশবোর্ড'}
-
+            {websiteLogo ? (
+              <img src={websiteLogo} alt="Logo" className="h-8 w-auto max-w-[200px]" />
+            ) : (
+              'ড্যাশবোর্ড'
+            )}
           </NavLink>
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsOpen(false)}>
+          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsOpen(false)} aria-label="Close sidebar">
             <X className="h-6 w-6" />
           </Button>
         </div>
@@ -68,7 +107,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               end={item.path === '/dashboard'}
               className={({ isActive }) =>
                 `flex items-center px-4 py-2.5 my-1 text-sm font-medium rounded-lg transition-colors ${isActive
-                  ? 'bg-primary/10 text-primary'
+                  ? 'bg-orange-500 text-black'
                   : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                 }`
               }
@@ -86,7 +125,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           </Button>
         </div>
       </aside>
-      {isOpen && <div className="fixed inset-0 bg-black/60 z-30 md:hidden" onClick={() => setIsOpen(false)}></div>}
+      {isOpen && <div className="fixed inset-0 bg-black/60 z-30 md:hidden transition-opacity duration-300" onClick={() => setIsOpen(false)}></div>}
     </>
   );
 };
@@ -97,23 +136,24 @@ const DashboardHeader = ({ setIsOpen }) => {
   const [userName, setUserName] = useState('');
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_BASE_URL}/users/${user?.email}`)
+    api.get(`/users/${user?.email}`)
       .then((response) => {
         setUserName(response?.data?.name || 'User');
-        console.log("dataaaa--->", response.data.name || 'User')
       })
       .catch((error) => {
         console.error(error);
+        toast.error('Failed to load user data');
       });
-  }, [user?.email])
+  }, [user?.email]);
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
+
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 bg-white/80 backdrop-blur-sm border-b md:px-6">
-      <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsOpen(true)}>
+      <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsOpen(true)} aria-label="Open sidebar">
         <Menu className="h-6 w-6" />
       </Button>
       <div className="flex-1"></div>
@@ -122,7 +162,7 @@ const DashboardHeader = ({ setIsOpen }) => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <div className="flex items-center justify-center w-full h-full bg-primary/20 rounded-full text-primary font-bold">
-                {user?.name?.charAt(0).toUpperCase() || <User />}
+                {userName?.charAt(0).toUpperCase() || <User />}
               </div>
             </Button>
           </DropdownMenuTrigger>
@@ -146,7 +186,6 @@ const DashboardHeader = ({ setIsOpen }) => {
     </header>
   );
 };
-
 
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

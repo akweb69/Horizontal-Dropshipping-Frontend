@@ -19,6 +19,7 @@ const ManagePackageData = () => {
         validityDays: '',
         benefits: [''],
         recommended: false,
+        canDoClass: false,
     });
     const [editPackageId, setEditPackageId] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -61,6 +62,11 @@ const ManagePackageData = () => {
     // Handle recommended checkbox
     const handleRecommendedChange = (checked) => {
         setCurrentPackage((prev) => ({ ...prev, recommended: checked }));
+    };
+
+    // Handle canDoClass checkbox
+    const handleCanDoClassChange = (checked) => {
+        setCurrentPackage((prev) => ({ ...prev, canDoClass: checked }));
     };
 
     // Add or remove benefit fields
@@ -166,6 +172,7 @@ const ManagePackageData = () => {
             validityDays: pkg.validityDays?.toString() || '',
             benefits: pkg.benefits || [''],
             recommended: pkg.recommended || false,
+            canDoClass: pkg.canDoClass || false,
         });
         setIsModalOpen(true);
     };
@@ -207,6 +214,7 @@ const ManagePackageData = () => {
             validityDays: '',
             benefits: [''],
             recommended: false,
+            canDoClass: false,
         });
         setIsModalOpen(true);
     };
@@ -221,6 +229,7 @@ const ManagePackageData = () => {
             validityDays: '',
             benefits: [''],
             recommended: false,
+            canDoClass: false,
         });
     };
 
@@ -303,6 +312,12 @@ const ManagePackageData = () => {
                                             </li>
                                         ))}
                                     </ul>
+                                    {pkg.canDoClass && (
+                                        <p className="text-sm text-gray-700 mt-2 flex items-center gap-2">
+                                            <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                            ক্লাস করতে পারবে
+                                        </p>
+                                    )}
                                     <div className="flex justify-between">
                                         <Button
                                             variant="outline"
@@ -448,6 +463,20 @@ const ManagePackageData = () => {
                                 />
                                 <Label htmlFor="recommended" className="text-sm font-semibold text-gray-700">
                                     সবচেয়ে জনপ্রিয় হিসেবে চিহ্নিত করুন
+                                </Label>
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="canDoClass"
+                                    checked={currentPackage.canDoClass}
+                                    onChange={(e) => handleCanDoClassChange(e.target.checked)}
+                                />
+                                <Label htmlFor="canDoClass" className="text-sm font-semibold text-gray-700">
+                                    ক্লাস করতে পারবে
                                 </Label>
                             </div>
                         </div>

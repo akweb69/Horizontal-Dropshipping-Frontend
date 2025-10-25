@@ -18,12 +18,12 @@ const MembershipPlan = ({ plan, onBuyNow }) => (
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         whileHover={{ scale: 1.02 }}
-        className={`bg-white rounded-xl shadow-lg p-8 border-2 ${plan.recommended ? 'border-indigo-500 ring-2 ring-indigo-200' : 'border-gray-200'} flex flex-col justify-between hover:shadow-xl transition-shadow duration-300`}
+        className={`bg-white rounded-xl shadow-lg p-8 border-2 ${plan.recommended ? 'border-orange-500 ring-2 ring-orange-200' : 'border-gray-200'} flex flex-col justify-between hover:shadow-xl transition-shadow duration-300`}
     >
         <div>
             {plan.recommended && (
                 <div className="text-center mb-4">
-                    <span className="bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-full">সবচেয়ে জনপ্রিয়</span>
+                    <span className="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">সবচেয়ে জনপ্রিয়</span>
                 </div>
             )}
             <h2 className="text-2xl font-bold text-gray-800 text-center">{plan.name}</h2>
@@ -39,7 +39,7 @@ const MembershipPlan = ({ plan, onBuyNow }) => (
                 ))}
             </ul>
         </div>
-        <Button onClick={() => onBuyNow(plan)} size="lg" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
+        <Button onClick={() => onBuyNow(plan)} size="lg" className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors">
             এখনি কিনুন
         </Button>
     </motion.div>
@@ -93,7 +93,7 @@ const MembershipPage = () => {
         if (!selectedPlan) return;
         const foundUser = allUsers.find(u => u.myReferralCode === referralCode);
         if (foundUser && discount === 0) {
-            const newDiscount = 60;
+            const newDiscount = 50;
             setDiscount(newDiscount);
             setIsDiscountApplied(true);
             set_invite_user_email(foundUser.email);
@@ -325,7 +325,7 @@ const MembershipPage = () => {
                             {[1, 2, 3].map((step) => (
                                 <React.Fragment key={step}>
                                     <motion.div
-                                        className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold ${currentStep === step ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-600'}`}
+                                        className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold ${currentStep === step ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-600'}`}
                                         animate={{ scale: currentStep === step ? 1.1 : 1 }}
                                     >
                                         {step}
@@ -333,7 +333,7 @@ const MembershipPage = () => {
                                     {step < 3 && (
                                         <div className="w-16 h-1 bg-gray-200 mx-1">
                                             <motion.div
-                                                className="h-full bg-indigo-500"
+                                                className="h-full bg-orange-500"
                                                 initial={{ width: 0 }}
                                                 animate={{ width: currentStep > step ? '100%' : '0%' }}
                                             />
@@ -457,7 +457,7 @@ const MembershipPage = () => {
                                                 <button
                                                     key={m}
                                                     onClick={() => setPaymentMethod(m)}
-                                                    className={`p-3 rounded border-2 ${paymentMethod === m ? 'bg-blue-600 text-white' : 'bg-white'} `}
+                                                    className={`p-3 rounded border-2 ${paymentMethod === m ? 'bg-orange-600 text-white' : 'bg-white'} `}
                                                 >
                                                     {m}
                                                 </button>
@@ -486,7 +486,7 @@ const MembershipPage = () => {
                                 {currentStep === 1 ? 'বাতিল' : 'পিছনে'}
                             </Button>
                             {currentStep < 3 ? (
-                                <Button onClick={currentStep === 1 ? handleStoreInfoSubmit : () => setCurrentStep(3)} className="flex-1 bg-indigo-600 text-white">
+                                <Button onClick={currentStep === 1 ? handleStoreInfoSubmit : () => setCurrentStep(3)} className="flex-1 bg-orange-600 text-white">
                                     পরবর্তী
                                 </Button>
                             ) : (

@@ -187,7 +187,7 @@ const ManageWithdraw = () => {
                                         <td className="py-4 px-6 flex gap-2">
                                             <motion.button onClick={() => openDetailsModal(w)}
                                                 whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                                                className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 text-sm">
                                                 Details
                                             </motion.button>
                                             {w.status === 'Pending' && (

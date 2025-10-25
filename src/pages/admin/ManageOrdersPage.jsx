@@ -69,7 +69,7 @@ const ManageOrdersPage = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const base_url = import.meta.env.VITE_BASE_URL || "http://localhost:5000";
+  const base_url = import.meta.env.VITE_BASE_URL;
 
   useEffect(() => {
     fetchOrders();

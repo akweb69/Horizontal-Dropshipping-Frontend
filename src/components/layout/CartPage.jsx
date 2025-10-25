@@ -112,7 +112,7 @@ const CartPage = () => {
         setTnxId('');
         setAmarBikriMullo('');
         setDeliveryName(user?.displayName || '');
-        setDeliveryPhone(user?.phone || '');
+        setDeliveryPhone('');
         setDeliveryAddress('');
         setDeliveryLocation('inside');
         setStep(1);
@@ -294,14 +294,14 @@ const CartPage = () => {
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between w-full lg:w-auto gap-4 lg:gap-6">
+                            <div className="flex items-center justify-between w-full lg:w-auto gap-2 sm:gap-4 lg:gap-6">
                                 <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-                                    <Button variant="ghost" size="sm" onClick={() => handleDecrement(item._id)} disabled={qty <= 1}>
-                                        <Minus className="h-4 w-4" />
+                                    <Button variant="ghost" size="xs" onClick={() => handleDecrement(item._id)} disabled={qty <= 1}>
+                                        <Minus className="h-4 w-4 px-1" />
                                     </Button>
-                                    <span className="px-4 py-2 text-center min-w-[50px] bg-gray-50 text-sm font-medium">{qty}</span>
-                                    <Button variant="ghost" size="sm" onClick={() => handleIncrement(item._id)} disabled={qty >= maxStock}>
-                                        <Plus className="h-4 w-4" />
+                                    <span className="md:px-4 p-1 py-1 text-center max-w-[50px] bg-orange-500 text-sm font-medium">{qty}</span>
+                                    <Button variant="ghost" size="xs" onClick={() => handleIncrement(item._id)} disabled={qty >= maxStock}>
+                                        <Plus className="h-4 w-4 px-1" />
                                     </Button>
                                 </div>
 
@@ -326,9 +326,9 @@ const CartPage = () => {
                 <DialogContent className="sm:max-w-4xl md:max-w-6xl w-full max-h-[95vh] overflow-y-auto bg-white p-0">
                     <div className="sticky top-0 bg-white border-b z-10 px-6 py-4 flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${step === 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>1</div>
-                            <div className="w-20 h-1 bg-gray-200"><div className={`h-full transition-all ${step === 2 ? 'bg-blue-600 w-full' : 'bg-gray-200'}`}></div></div>
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${step === 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>2</div>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${step === 1 ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-600'}`}>1</div>
+                            <div className="w-20 h-1 bg-gray-200"><div className={`h-full transition-all ${step === 2 ? 'bg-orange-600 w-full' : 'bg-gray-200'}`}></div></div>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${step === 2 ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-600'}`}>2</div>
                         </div>
                         <p className="text-sm font-medium text-gray-600">Step {step === 1 ? '০১: অর্ডার বিস্তারিত' : '০২: পেমেন্ট'}</p>
                     </div>
@@ -425,7 +425,7 @@ const CartPage = () => {
                                         <button
                                             key={method}
                                             onClick={() => setPaymentMethod(method)}
-                                            className={`p-4 rounded-xl border-2 transition-all flex items-center justify-center space-x-3 ${paymentMethod === method ? 'border-blue-600 bg-blue-50 shadow-md' : 'border-gray-200 hover:border-gray-300'}`}
+                                            className={`p-4 rounded-xl border-2 transition-all flex items-center justify-center space-x-3 ${paymentMethod === method ? 'border-orange-500 bg-gray-50 shadow-md' : 'border-gray-200 hover:border-gray-300'}`}
                                         >
                                             {method === 'bKash' && <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs">bK</div>}
                                             {method === 'Nagad' && <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xs">NG</div>}
@@ -515,7 +515,7 @@ const CartPage = () => {
                                     if (!validateAndProceed()) return;
                                     setStep(2);
                                 }}
-                                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                                className="flex-1 bg-orange-600 hover:bg-orange-700"
                             >
                                 পরবর্তী ধাপ
                             </Button>

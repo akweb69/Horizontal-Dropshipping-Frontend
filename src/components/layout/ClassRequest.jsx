@@ -14,19 +14,20 @@ import {
     MessageCircle
 } from 'lucide-react';
 import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
 
 const ClassRequest = () => {
     const base_url = import.meta.env.VITE_BASE_URL;
     const [loading, setLoading] = useState(false);
+    const { user } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
         const formData = {
-            name: e.target.name.value.trim(),
-            phone: e.target.phone.value.trim(),
-            email: e.target.email.value.trim(),
+            name: user?.name,
+            email: user?.email,
             whatsapp: e.target.whatsapp.value.trim(),
             facebook: e.target.facebook.value.trim() || null,
             classTopic: e.target.classTopic.value,
@@ -35,7 +36,7 @@ const ClassRequest = () => {
         };
 
         // Validation
-        if (!formData.name || !formData.phone || !formData.email || !formData.whatsapp || !formData.classTopic) {
+        if (!formData.name || !formData.email || !formData.whatsapp || !formData.classTopic) {
             toast({
                 title: 'সব প্রয়োজনীয় তথ্য পূরণ করুন',
                 description: 'নাম, ফোন, ইমেইল, হোয়াটসঅ্যাপ এবং ক্লাসের বিষয় আবশ্যক।',
@@ -110,30 +111,16 @@ const ClassRequest = () => {
                                         type="text"
                                         id="name"
                                         name="name"
-                                        required
+                                        value={user?.name}
+
+                                        readOnly
                                         placeholder="আপনার পুরো নাম"
-                                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
                                     />
                                 </div>
                             </div>
 
-                            {/* Phone */}
-                            <div>
-                                <label htmlFor="phone" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                                    ফোন নম্বর <span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative">
-                                    <Phone className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
-                                    <input
-                                        type="tel"
-                                        id="phone"
-                                        name="phone"
-                                        required
-                                        placeholder="01xxxxxxxxx"
-                                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                                    />
-                                </div>
-                            </div>
+
 
                             {/* Email */}
                             <div>
@@ -146,9 +133,10 @@ const ClassRequest = () => {
                                         type="email"
                                         id="email"
                                         name="email"
-                                        required
+                                        readOnly
+                                        value={user?.email}
                                         placeholder="example@domain.com"
-                                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
                                     />
                                 </div>
                             </div>
@@ -166,7 +154,7 @@ const ClassRequest = () => {
                                         name="whatsapp"
                                         required
                                         placeholder="হোয়াটসঅ্যাপে যোগাযোগের নম্বর"
-                                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
+                                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
                                     />
                                 </div>
                             </div>
@@ -183,7 +171,7 @@ const ClassRequest = () => {
                                         id="facebook"
                                         name="facebook"
                                         placeholder="https://facebook.com/yourprofile"
-                                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
                                     />
                                 </div>
                             </div>
@@ -197,7 +185,7 @@ const ClassRequest = () => {
                                     id="classTopic"
                                     name="classTopic"
                                     required
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
                                 >
                                     <option value="">একটি বিষয় নির্বাচন করুন</option>
                                     <option value="dropshipping">ড্রপশিপিং শুরু করুন</option>
@@ -222,7 +210,7 @@ const ClassRequest = () => {
                                         name="message"
                                         rows="4"
                                         placeholder="আপনার ক্লাস সম্পর্কে বিস্তারিত বলুন..."
-                                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition"
+                                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none transition"
                                     />
                                 </div>
                             </div>
@@ -231,7 +219,7 @@ const ClassRequest = () => {
                             <Button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-3.5 text-base font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
+                                className="w-full py-3.5 text-base font-semibold bg-gradient-to-r from-orange-600 to-orange-600 hover:from-orange-700 hover:to-orange-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
                             >
                                 {loading ? (
                                     <>

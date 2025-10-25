@@ -96,6 +96,7 @@ export const AuthProvider = ({ children }) => {
     setCartData,
     cartData,
     showHomePage,
+    setLoading
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

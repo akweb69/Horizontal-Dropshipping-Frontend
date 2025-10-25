@@ -51,8 +51,7 @@ const ManageClassRequest = () => {
         if (search) {
             result = result.filter(r =>
                 r.name?.toLowerCase().includes(search.toLowerCase()) ||
-                r.email?.toLowerCase().Includes(search.toLowerCase()) ||
-                r.phone?.includes(search) ||
+                r.email?.toLowerCase().includes(search.toLowerCase()) ||
                 r.whatsapp?.includes(search)
             );
         }
@@ -146,7 +145,7 @@ const ManageClassRequest = () => {
                                     <th className="py-4 px-6 text-left text-xs font-bold text-gray-700 uppercase">নাম</th>
                                     <th className="py-4 px-6 text-left text-xs font-bold text-gray-700 uppercase">বিষয়</th>
                                     <th className="py-4 px-6 text-left text-xs font-bold text-gray-700 uppercase">তারিখ</th>
-                                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-700 uppercase">যোগাযোগ</th>
+                                    {/* <th className="py-4 px-6 text-left text-xs font-bold text-gray-700 uppercase">যোগাযোগ</th> */}
                                     <th className="py-4 px-6 text-left text-xs font-bold text-gray-700 uppercase">অ্যাকশন</th>
                                 </tr>
                             </thead>
@@ -180,7 +179,7 @@ const ManageClassRequest = () => {
                                                 <Calendar className="w-4 h-4" />
                                                 {new Date(r.submittedAt).toLocaleDateString('bn-BD')}
                                             </td>
-                                            <td className="py-4 px-6 text-sm text-gray-600">
+                                            {/* <td className="py-4 px-6 text-sm text-gray-600">
                                                 <div className="flex items-center gap-2 flex-wrap">
                                                     <a href={`tel:${r.phone}`} className="text-green-600 hover:underline flex items-center gap-1">
                                                         <Phone className="w-4 h-4" /> {r.phone}
@@ -190,7 +189,7 @@ const ManageClassRequest = () => {
                                                         <MessageCircle className="w-4 h-4" /> {r.whatsapp}
                                                     </a>
                                                 </div>
-                                            </td>
+                                            </td> */}
                                             <td className="py-4 px-6">
                                                 <button
                                                     onClick={() => openModal(r)}
@@ -260,19 +259,7 @@ const ManageClassRequest = () => {
                                     </span>
                                 </div>
 
-                                {/* Phone */}
-                                <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
-                                    <div className="flex items-center gap-3">
-                                        <Phone className="w-5 h-5 text-green-600" />
-                                        <span className="font-medium text-gray-700">ফোন</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <a href={`tel:${selectedReq.phone}`} className="font-mono text-green-700">{selectedReq.phone}</a>
-                                        <button onClick={() => copyText(selectedReq.phone, 'ফোন')} className="text-green-600 hover:text-green-800">
-                                            <Copy className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                </div>
+
 
                                 {/* WhatsApp */}
                                 <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-xl">

@@ -23,7 +23,7 @@ const ContactInfo = () => {
 
     const fetchContactInfo = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/contact-info');
+            const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/contact-info`);
             setContactInfo(response.data);
         } catch (err) {
             setError('Failed to fetch contact information');
@@ -42,7 +42,7 @@ const ContactInfo = () => {
         setSuccess('');
 
         try {
-            await axios.post('http://localhost:5000/contact-info', formData);
+            await axios.post(`${import.meta.env.VITE_BASE_URL}/contact-info`, formData);
             setSuccess('Contact information saved successfully!');
             setFormData({ phone: '', email: '', supportTime: '', location: '' }); // Reset form
             fetchContactInfo(); // Refresh displayed data
@@ -119,7 +119,7 @@ const ContactInfo = () => {
                 </div>
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition"
+                    className="w-full bg-orange-600 text-white p-2 rounded-md hover:bg-orange-700 transition"
                 >
                     Submit
                 </button>

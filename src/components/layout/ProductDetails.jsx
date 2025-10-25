@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Loader, Copy, Download, Heart, ShoppingCart, ZoomIn, Star } from "lucide-react";
+import { Loader, Copy, Download, Heart, ShoppingCart, ZoomIn, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -12,6 +12,7 @@ const ProductDetails = () => {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState({});
     const [selectedSize, setSelectedSize] = useState(null); // { size, price, stock }
+    const [currentImageIndex, setCurrentImageIndex] = useState(0); // For slider navigation
     const { user, setLoveData, setCartData } = useAuth();
 
     useEffect(() => {
@@ -38,17 +39,17 @@ const ProductDetails = () => {
         fetchProduct();
     }, [id]);
 
-    const handleDownload = async () => {
+    const handleDownload = async (imageUrl, imageName) => {
         try {
-            const response = await fetch(data.thumbnail);
+            const response = await fetch(imageUrl);
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `${data.name}-thumbnail.jpg`;
+            link.download = imageName || `${data.name}-image.jpg`;
             link.click();
             window.URL.revokeObjectURL(url);
-            toast.success("Thumbnail downloaded!");
+            toast.success("Image downloaded!");
         } catch (error) {
             toast.error("Download failed");
         }
@@ -151,7 +152,7 @@ Description: ${data.description}
         const prices = data.sizes.map(s => parseFloat(s.price));
         const min = Math.min(...prices);
         const max = Math.max(...prices);
-        return min === max ? `৳${min}` : `৳${min} - ৳${max}`;
+        return min === min ? `৳${min}` : `৳${min}`;
     };
 
     // Helper: Get total stock
@@ -163,6 +164,15 @@ Description: ${data.description}
     // Helper: Check stock status
     const isOutOfStock = getTotalStock() === 0;
     const isLowStock = getTotalStock() > 0 && getTotalStock() < 10;
+
+    // Slider navigation
+    const images = [data.thumbnail, ...(data.sliderImages || [])].filter(Boolean); // Combine thumbnail and slider images
+    const prevImage = () => {
+        setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    };
+    const nextImage = () => {
+        setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    };
 
     if (loading) {
         return (
@@ -202,33 +212,78 @@ Description: ${data.description}
                 transition={{ duration: 0.5 }}
                 className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start"
             >
-
-                {/* Image Section */}
+                {/* Image Section with Slider */}
                 <motion.div
                     whileHover={{ scale: 1.02 }}
                     className="relative group overflow-hidden rounded-2xl shadow-xl"
                 >
-                    <img
-                        src={data.thumbnail}
-                        alt={data.name}
-                        className="w-full h-96 md:h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        onError={(e) => (e.target.src = "https://via.placeholder.com/600")}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    {/* Main Image Display */}
+                    <div className="relative w-full h-96 md:h-[500px]">
+                        <img
+                            src={images[currentImageIndex] || "https://via.placeholder.com/600"}
+                            alt={`${data.name} ${currentImageIndex + 1}`}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            onError={(e) => (e.target.src = "https://via.placeholder.com/600")}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                    <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={handleDownload}
-                        className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-orange-600 p-3 rounded-full shadow-lg hover:bg-white transition-all"
-                        title="Download Image"
-                    >
-                        <Download size={22} />
-                    </motion.button>
+                        {/* Navigation Buttons */}
+                        {images.length > 1 && (
+                            <>
+                                <motion.button
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={prevImage}
+                                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-sm text-orange-600 p-2 rounded-full shadow-lg hover:bg-white transition-all"
+                                    title="Previous Image"
+                                >
+                                    <ChevronLeft size={22} />
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={nextImage}
+                                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-sm text-orange-600 p-2 rounded-full shadow-lg hover:bg-white transition-all"
+                                    title="Next Image"
+                                >
+                                    <ChevronRight size={22} />
+                                </motion.button>
+                            </>
+                        )}
 
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-                        <ZoomIn size={16} /> Hover to zoom
+                        {/* Download Button */}
+                        <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleDownload(images[currentImageIndex], `${data.name}-image-${currentImageIndex + 1}.jpg`)}
+                            className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-orange-600 p-3 rounded-full shadow-lg hover:bg-white transition-all"
+                            title="Download Image"
+                        >
+                            <Download size={22} />
+                        </motion.button>
+
+                        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                            <ZoomIn size={16} /> Hover to zoom
+                        </div>
                     </div>
+
+                    {/* Thumbnail Preview */}
+                    {images.length > 1 && (
+                        <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                            {images.map((img, index) => (
+                                <motion.img
+                                    key={index}
+                                    src={img}
+                                    alt={`Thumbnail ${index + 1}`}
+                                    className={`h-16 w-16 object-cover rounded-lg cursor-pointer border-2 ${currentImageIndex === index ? "border-orange-600" : "border-gray-200"}`}
+                                    onClick={() => setCurrentImageIndex(index)}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onError={(e) => (e.target.src = "https://via.placeholder.com/100")}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </motion.div>
 
                 {/* Details Section */}
@@ -291,7 +346,7 @@ Description: ${data.description}
                             className="space-y-3"
                         >
                             <p className="font-semibold text-gray-700">Select Size:</p>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <div className="flex items-center gap-3">
                                 {data.sizes.map((s, i) => {
                                     const inStock = parseInt(s.stock, 10) > 0;
                                     return (
@@ -301,8 +356,8 @@ Description: ${data.description}
                                             whileTap={inStock ? { scale: 0.95 } : {}}
                                             onClick={() => inStock && setSelectedSize(s)}
                                             disabled={!inStock}
-                                            className={`p-3 rounded-xl border-2 font-medium transition-all relative ${selectedSize?.size === s.size
-                                                ? "border-orange-600 bg-orange-50 text-orange-700 shadow-md"
+                                            className={`p-2 rounded-xl border-2 font-medium transition-all relative ${selectedSize?.size === s.size
+                                                ? "border-orange-600 bg-orange-500  shadow-md text-white"
                                                 : inStock
                                                     ? "border-gray-300 bg-white hover:border-orange-400 hover:bg-orange-50"
                                                     : "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
@@ -310,9 +365,9 @@ Description: ${data.description}
                                         >
                                             <div className="text-sm font-bold">{s.size}</div>
                                             <div className="text-xs mt-1">৳{s.price}</div>
-                                            <div className="text-xs text-gray-500">
+                                            {/* <div className="text-xs text-gray-100">
                                                 Stock: {s.stock}
-                                            </div>
+                                            </div> */}
                                             {!inStock && (
                                                 <div className="absolute inset-0 bg-white/70 rounded-xl flex items-center justify-center">
                                                     <span className="text-xs font-medium text-red-600">Sold Out</span>

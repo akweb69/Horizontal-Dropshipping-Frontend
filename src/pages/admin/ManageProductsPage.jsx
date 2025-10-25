@@ -24,9 +24,11 @@ const ManageProductsPage = () => {
     thumbnail: '',
     sectionName: '',
     description: '',
-    sizes: []
+    sizes: [],
+    sliderImages: [] // New field for slider images
   });
   const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedSliderFiles, setSelectedSliderFiles] = useState([]); // For multiple slider images
   const [categories, setCategories] = useState([]);
   const [btnLoading, setBtnLoading] = useState(false);
 
@@ -99,6 +101,18 @@ const ManageProductsPage = () => {
     setSelectedFile(e.target.files[0]);
   };
 
+  const handleSliderFilesChange = (e) => {
+    setSelectedSliderFiles(Array.from(e.target.files));
+  };
+
+  const removeSliderImage = (index) => {
+    setFormData(prev => {
+      const newSliderImages = [...prev.sliderImages];
+      newSliderImages.splice(index, 1);
+      return { ...prev, sliderImages: newSliderImages };
+    });
+  };
+
   const uploadImage = async (file) => {
     const uploadFormData = new FormData();
     uploadFormData.append('image', file);
@@ -127,9 +141,11 @@ const ManageProductsPage = () => {
       thumbnail: '',
       sectionName: '',
       description: '',
-      sizes: []
+      sizes: [],
+      sliderImages: []
     });
     setSelectedFile(null);
+    setSelectedSliderFiles([]);
     setIsDialogOpen(true);
   };
 
@@ -145,9 +161,11 @@ const ManageProductsPage = () => {
         size: s.size,
         price: s.price.toString(),
         stock: s.stock.toString()
-      })) : []
+      })) : [],
+      sliderImages: product.sliderImages || []
     });
     setSelectedFile(null);
+    setSelectedSliderFiles([]);
     setIsDialogOpen(true);
   };
 
@@ -172,9 +190,22 @@ const ManageProductsPage = () => {
       }
     }
 
+    let sliderImageUrls = [...formData.sliderImages];
+    if (selectedSliderFiles.length > 0) {
+      const uploadPromises = selectedSliderFiles.map(file => uploadImage(file));
+      const uploadedUrls = await Promise.all(uploadPromises);
+      if (uploadedUrls.every(url => url !== null)) {
+        sliderImageUrls = [...sliderImageUrls, ...uploadedUrls];
+      } else {
+        setBtnLoading(false);
+        return;
+      }
+    }
+
     const productData = {
       ...formData,
       thumbnail: thumbnailUrl,
+      sliderImages: sliderImageUrls,
       sizes: formData.sizes.map(s => ({
         size: s.size,
         price: parseFloat(s.price),
@@ -247,6 +278,18 @@ const ManageProductsPage = () => {
     return sizes.map(s => s.size).join(', ');
   };
 
+  const getSliderImagesPreview = (sliderImages) => {
+    if (!sliderImages || sliderImages.length === 0) return 'নেই';
+    return (
+      <div className="flex gap-2">
+        {sliderImages.slice(0, 3).map((url, index) => (
+          <img key={index} src={url} alt={`Slider ${index + 1}`} className="h-10 w-10 object-cover rounded" />
+        ))}
+        {sliderImages.length > 3 && <span className="text-sm">+{sliderImages.length - 3}</span>}
+      </div>
+    );
+  };
+
   return (
     <>
       <Helmet>
@@ -283,6 +326,7 @@ const ManageProductsPage = () => {
                 <TableHead>স্টক</TableHead>
                 <TableHead>বিবরণ</TableHead>
                 <TableHead>উপলব্ধ সাইজ</TableHead>
+                <TableHead>স্লাইডার ছবি</TableHead>
                 <TableHead className="text-right">অ্যাকশন</TableHead>
               </TableRow>
             </TableHeader>
@@ -303,6 +347,7 @@ const ManageProductsPage = () => {
                   <TableCell>{getTotalStock(product.sizes)}</TableCell>
                   <TableCell>{product?.description?.slice(0, 50) + " ..." || 'নেই'}</TableCell>
                   <TableCell>{getAvailableSizes(product.sizes)}</TableCell>
+                  <TableCell>{getSliderImagesPreview(product.sliderImages)}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}><Edit className="h-4 w-4" /></Button>
                     <AlertDialog>
@@ -507,6 +552,51 @@ const ManageProductsPage = () => {
                   />
                   <p className="text-xs text-muted-foreground mt-1">
                     সর্বোচ্চ 2MB, JPG/PNG
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Slider Images */}
+            <div>
+              <Label className="text-sm font-medium">স্লাইডার ছবি</Label>
+              <div className="mt-2">
+                <div className="flex flex-wrap gap-4 mb-4">
+                  {formData.sliderImages.length > 0 ? (
+                    formData.sliderImages.map((url, index) => (
+                      <div key={index} className="relative">
+                        <img
+                          src={url}
+                          alt={`Slider ${index + 1}`}
+                          className="h-24 w-24 object-cover rounded-lg border"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                          onClick={() => removeSliderImage(index)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="h-24 w-24 border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground">
+                      <span className="text-xs text-center">কোনো ছবি নেই</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleSliderFilesChange}
+                    className="cursor-pointer"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    একাধিক ছবি নির্বাচন করুন, সর্বোচ্চ 2MB প্রতিটি, JPG/PNG
                   </p>
                 </div>
               </div>

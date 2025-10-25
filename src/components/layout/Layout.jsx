@@ -5,7 +5,6 @@ import Footer from '@/components/layout/Footer';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import { useAuth } from '../../context/AuthContext';
 import AboutUsPage from '../../pages/AboutUsPage';
-import ContactPage from '../../pages/ContactPage';
 // import FloatingActionButtons from '@/components/FloatingActionButtons';
 
 const Layout = () => {
@@ -38,9 +37,7 @@ const Layout = () => {
       {
         !user && !user?.email ? <AboutUsPage></AboutUsPage> : null
       }
-      {
-        !user && !user?.email ? <ContactPage></ContactPage> : null
-      }
+
       <Footer />
       <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
       {/* <FloatingActionButtons /> */}

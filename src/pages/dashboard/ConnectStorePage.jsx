@@ -148,7 +148,7 @@ const ConnectStorePage = () => {
             {/* Main Content */}
             <div className="grid lg:grid-cols-5 gap-8">
                 {/* History Table */}
-                <motion.div className="lg:col-span-3 bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
+                <motion.div className="lg:col-span-3 bg-white rounded-3xl shadow-lg p-6 border border-gray-100 overflow-x-auto">
                     <h2 className="text-2xl font-bold text-gray-800 mb-4">উইথড্র ইতিহাস</h2>
 
                     {withdrawData.length === 0 ? (
@@ -183,7 +183,7 @@ const ConnectStorePage = () => {
                                                 <td className="py-3 px-4">{w.paymentMethod}</td>
                                                 <td className="py-3 px-4">
                                                     <button onClick={() => openDetails(w)}
-                                                        className="px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition">
+                                                        className="px-4 py-1.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition">
                                                         বিস্তারিত
                                                     </button>
                                                 </td>
@@ -242,7 +242,7 @@ const ConnectStorePage = () => {
                         <motion.button
                             type="submit"
                             disabled={withdrawLoading}
-                            className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 disabled:bg-indigo-400"
+                            className="w-full bg-gradient-to-r from-orange-600 to-yellow-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 disabled:bg-orange-400"
                             whileHover={{ scale: 1.03 }}
                             whileTap={{ scale: 0.97 }}>
                             {withdrawLoading ? 'প্রসেসিং...' : 'রিকোয়েস্ট পাঠান'}
