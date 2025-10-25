@@ -91,6 +91,10 @@ html {
   pointer-events: none;
 }
 
+.hihihi {
+  box-shadow: inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #f9f9f9;
+}
+
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
