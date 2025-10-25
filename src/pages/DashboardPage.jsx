@@ -268,7 +268,7 @@ const DashboardPage = () => {
             .reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo - item.grand_total) || 0), 0);
 
         // Animate balances
-        const animateBalance = (start, end, setter, duration = 2000) => {
+        const animateBalance = (start, end, setter, duration = 1500) => {
             let current = start;
             const increment = end / (duration / 10);
             const timer = setInterval(() => {
@@ -528,8 +528,41 @@ const DashboardPage = () => {
                         modules={[Autoplay, Pagination]}
                         className="mySwiper pb-10"
                     >
+                        <SwiperSlide className="p-4">
+                            <div className="premium-card">
+                                <div className="relative z-10 bg-transparent   rounded-2xl p-6 overflow-hidden">
+                                    {/* তোমার কার্ডের content */}
+                                    <p className="inline-block bg-gradient-to-r from-orange-400 to-amber-500 text-white text-sm font-semibold px-4 py-1 rounded-md shadow-md shadow-orange-200/60">
+                                        LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                    </p>
+
+                                    <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
+                                        ****** {user?.phone.slice(5, 11)}
+                                    </div>
+
+                                    <div className="flex justify-between items-center mt-6">
+                                        <div>
+                                            <p className="text-gray-500 text-sm">CARD HOLDER</p>
+                                            <p className="text-gray-800 font-semibold text-lg">{user?.name}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500 text-sm">EXPIRES</p>
+                                            <p className="text-gray-800 font-semibold text-lg">
+                                                {expiryDate.toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between items-center mt-8">
+                                        <p className="text-gray-600 font-medium text-xl">বর্তমান ব্যালান্স</p>
+                                        <p className="text-orange-400 text-4xl font-extrabold">৳ {displayedLifetimeBalance}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </SwiperSlide>
+
                         {/* card 0 bortoman balance */}
-                        <SwiperSlide className='p-4'>
+                        {/* <SwiperSlide className='p-4'>
                             <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec] border-none outline-none transition-all duration-500  shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff]">
                                 <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-6 overflow-hidden">
                                     <div className="absolute inset-0 rounded-2xl overflow-hidden">
@@ -582,9 +615,9 @@ const DashboardPage = () => {
                                 </div>
                             </div>
 
-                        </SwiperSlide>
+                        </SwiperSlide> */}
                         {/* Card 1: Today's Balance */}
-                        <SwiperSlide className='p-4'>
+                        {/* <SwiperSlide className='p-4'>
                             <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec]  border-none outline-none shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff]">
                                 <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-6 overflow-hidden">
                                     <div className="absolute inset-0 rounded-2xl overflow-hidden">
@@ -632,10 +665,39 @@ const DashboardPage = () => {
                                     </div>
                                 </div>
                             </div>
+                        </SwiperSlide> */}
+                        <SwiperSlide className="p-4">
+                            <div className="premium-card">
+                                <div className="relative z-10 bg-transparent rounded-2xl p-6 overflow-hidden">
+                                    <p className="inline-block bg-gradient-to-r from-orange-400 to-amber-500 text-white text-sm font-semibold px-4 py-1 rounded-md shadow-md shadow-orange-200/60">
+                                        LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                    </p>
+                                    <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
+                                        ****** {user?.phone.slice(5, 11)}
+                                    </div>
+                                    <div className="flex justify-between items-center mt-6">
+                                        <div>
+                                            <p className="text-gray-500 text-sm">CARD HOLDER</p>
+                                            <p className="text-gray-800 font-semibold text-lg">{user?.name}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500 text-sm">EXPIRES</p>
+                                            <p className="text-gray-800 font-semibold text-lg">
+                                                {expiryDate.toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between items-center mt-8">
+                                        <p className="text-gray-600 font-medium text-xl">আজকের ইনকাম</p>
+                                        <p className="text-orange-400 text-4xl font-extrabold">৳ {displayedTodayBalance}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </SwiperSlide>
 
+
                         {/* Card 2: Last 3 Days Balance */}
-                        <SwiperSlide className='p-4'>
+                        {/* <SwiperSlide className='p-4'>
                             <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec] shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff] border-none outline-none">
                                 <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-6 overflow-hidden">
                                     <div className="absolute inset-0 rounded-2xl overflow-hidden">
@@ -683,10 +745,39 @@ const DashboardPage = () => {
                                     </div>
                                 </div>
                             </div>
+                        </SwiperSlide> */}
+                        <SwiperSlide className="p-4">
+                            <div className="premium-card">
+                                <div className="relative z-10 bg-transparent rounded-2xl p-6 overflow-hidden">
+                                    <p className="inline-block bg-gradient-to-r from-orange-400 to-amber-500 text-white text-sm font-semibold px-4 py-1 rounded-md shadow-md shadow-orange-200/60">
+                                        LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                    </p>
+                                    <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
+                                        ****** {user?.phone.slice(5, 11)}
+                                    </div>
+                                    <div className="flex justify-between items-center mt-6">
+                                        <div>
+                                            <p className="text-gray-500 text-sm">CARD HOLDER</p>
+                                            <p className="text-gray-800 font-semibold text-lg">{user?.name}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500 text-sm">EXPIRES</p>
+                                            <p className="text-gray-800 font-semibold text-lg">
+                                                {expiryDate.toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between items-center mt-8">
+                                        <p className="text-gray-600 font-medium text-xl">গত ৩ দিনের ইনকাম</p>
+                                        <p className="text-orange-400 text-4xl font-extrabold">৳ {displayed3DaysBalance}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </SwiperSlide>
 
+
                         {/* Card 3: Last 7 Days Balance */}
-                        <SwiperSlide className='p-4'>
+                        {/* <SwiperSlide className='p-4'>
                             <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec] shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff] border-none outline-none">
                                 <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-6 overflow-hidden">
                                     <div className="absolute inset-0 rounded-2xl overflow-hidden">
@@ -734,10 +825,38 @@ const DashboardPage = () => {
                                     </div>
                                 </div>
                             </div>
+                        </SwiperSlide> */}
+                        <SwiperSlide className="p-4">
+                            <div className="premium-card">
+                                <div className="relative z-10 bg-transparent rounded-2xl p-6 overflow-hidden">
+                                    <p className="inline-block bg-gradient-to-r from-orange-400 to-amber-500 text-white text-sm font-semibold px-4 py-1 rounded-md shadow-md shadow-orange-200/60">
+                                        LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                    </p>
+                                    <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
+                                        ****** {user?.phone.slice(5, 11)}
+                                    </div>
+                                    <div className="flex justify-between items-center mt-6">
+                                        <div>
+                                            <p className="text-gray-500 text-sm">CARD HOLDER</p>
+                                            <p className="text-gray-800 font-semibold text-lg">{user?.name}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500 text-sm">EXPIRES</p>
+                                            <p className="text-gray-800 font-semibold text-lg">
+                                                {expiryDate.toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between items-center mt-8">
+                                        <p className="text-gray-600 font-medium text-xl">গত ৭ দিনের ইনকাম</p>
+                                        <p className="text-orange-400 text-4xl font-extrabold">৳ {displayed7DaysBalance}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </SwiperSlide>
 
                         {/* Card 4: Last 15 Days Balance */}
-                        <SwiperSlide className='p-4'>
+                        {/* <SwiperSlide className='p-4'>
                             <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec] shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff] border-none outline-none">
                                 <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-6 overflow-hidden">
                                     <div className="absolute inset-0 rounded-2xl overflow-hidden">
@@ -785,10 +904,38 @@ const DashboardPage = () => {
                                     </div>
                                 </div>
                             </div>
+                        </SwiperSlide> */}
+                        <SwiperSlide className="p-4">
+                            <div className="premium-card">
+                                <div className="relative z-10 bg-transparent rounded-2xl p-6 overflow-hidden">
+                                    <p className="inline-block bg-gradient-to-r from-orange-400 to-amber-500 text-white text-sm font-semibold px-4 py-1 rounded-md shadow-md shadow-orange-200/60">
+                                        LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                    </p>
+                                    <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
+                                        ****** {user?.phone.slice(5, 11)}
+                                    </div>
+                                    <div className="flex justify-between items-center mt-6">
+                                        <div>
+                                            <p className="text-gray-500 text-sm">CARD HOLDER</p>
+                                            <p className="text-gray-800 font-semibold text-lg">{user?.name}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500 text-sm">EXPIRES</p>
+                                            <p className="text-gray-800 font-semibold text-lg">
+                                                {expiryDate.toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between items-center mt-8">
+                                        <p className="text-gray-600 font-medium text-xl">গত ১৫ দিনের ইনকাম</p>
+                                        <p className="text-orange-400 text-4xl font-extrabold">৳ {displayed15DaysBalance}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </SwiperSlide>
 
                         {/* Card 5: Last Month Balance */}
-                        <SwiperSlide className='p-4'>
+                        {/* <SwiperSlide className='p-4'>
                             <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec] shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff] border-none outline-none">
                                 <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-6 overflow-hidden">
                                     <div className="absolute inset-0 rounded-2xl overflow-hidden">
@@ -836,10 +983,38 @@ const DashboardPage = () => {
                                     </div>
                                 </div>
                             </div>
+                        </SwiperSlide> */}
+                        <SwiperSlide className="p-4">
+                            <div className="premium-card">
+                                <div className="relative z-10 bg-transparent rounded-2xl p-6 overflow-hidden">
+                                    <p className="inline-block bg-gradient-to-r from-orange-400 to-amber-500 text-white text-sm font-semibold px-4 py-1 rounded-md shadow-md shadow-orange-200/60">
+                                        LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                    </p>
+                                    <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
+                                        ****** {user?.phone.slice(5, 11)}
+                                    </div>
+                                    <div className="flex justify-between items-center mt-6">
+                                        <div>
+                                            <p className="text-gray-500 text-sm">CARD HOLDER</p>
+                                            <p className="text-gray-800 font-semibold text-lg">{user?.name}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500 text-sm">EXPIRES</p>
+                                            <p className="text-gray-800 font-semibold text-lg">
+                                                {expiryDate.toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between items-center mt-8">
+                                        <p className="text-gray-600 font-medium text-xl">গত মাসের ইনকাম</p>
+                                        <p className="text-orange-400 text-4xl font-extrabold">৳ {displayedMonthBalance}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </SwiperSlide>
 
                         {/* Card 6: Lifetime Balance */}
-                        <SwiperSlide className='p-4'>
+                        {/* <SwiperSlide className='p-4'>
                             <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec] shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff] border-none outline-none">
                                 <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-6 overflow-hidden">
                                     <div className="absolute inset-0 rounded-2xl overflow-hidden">
@@ -884,6 +1059,34 @@ const DashboardPage = () => {
                                             <p className="text-gray-600 font-medium text-xl">লাইফটাইম ইনকাম</p>
                                             <p className="text-orange-400 text-4xl font-extrabold">৳ {displayedLifetimeBalance}</p>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </SwiperSlide> */}
+                        <SwiperSlide className="p-4">
+                            <div className="premium-card">
+                                <div className="relative z-10 bg-transparent rounded-2xl p-6 overflow-hidden">
+                                    <p className="inline-block bg-gradient-to-r from-orange-400 to-amber-500 text-white text-sm font-semibold px-4 py-1 rounded-md shadow-md shadow-orange-200/60">
+                                        LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                    </p>
+                                    <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
+                                        ****** {user?.phone.slice(5, 11)}
+                                    </div>
+                                    <div className="flex justify-between items-center mt-6">
+                                        <div>
+                                            <p className="text-gray-500 text-sm">CARD HOLDER</p>
+                                            <p className="text-gray-800 font-semibold text-lg">{user?.name}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500 text-sm">EXPIRES</p>
+                                            <p className="text-gray-800 font-semibold text-lg">
+                                                {expiryDate.toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between items-center mt-8">
+                                        <p className="text-gray-600 font-medium text-xl">লাইফটাইম ইনকাম</p>
+                                        <p className="text-orange-400 text-4xl font-extrabold">৳ {displayedLifetimeBalance}</p>
                                     </div>
                                 </div>
                             </div>

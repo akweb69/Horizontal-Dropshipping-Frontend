@@ -26,6 +26,12 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 174 100% 29%;
     --radius: 0.75rem;
+    --light-color: #f0f2f5;
+    --card-color: #e0e5ec;
+    --shadow-light: #ffffff;
+    --shadow-dark: #a3b1c6;
+    --highlight-color: #ff9900;
+    --main-text-color: #3a3a3a;
   }
 }
 
@@ -37,6 +43,54 @@ html {
   margin: 0 auto;
   overflow-x: hidden;
 }
+
+.premium-card {
+  position: relative;
+  border-radius: 1rem; /* Tailwind rounded-2xl */
+  background-color: var(--card-color);
+  padding: 1.5rem; /* Tailwind p-6 */
+  box-shadow: 5px 5px 10px var(--shadow-dark),
+    -5px -5px 10px var(--shadow-light);
+  transition: all 0.5s ease;
+}
+
+.premium-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 12px var(--shadow-dark),
+    -6px -6px 12px var(--shadow-light);
+}
+
+/* Nokshi Gradient Overlay */
+.premium-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  opacity: 0.15;
+  border-radius: 1rem;
+  background-image: radial-gradient(
+      circle at 10% 80%,
+      var(--shadow-dark) 5%,
+      transparent 15%
+    ),
+    radial-gradient(circle at 90% 20%, var(--shadow-light) 5%, transparent 15%),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 10px,
+      rgba(163, 177, 198, 0.5) 10px,
+      rgba(163, 177, 198, 0.5) 11px
+    );
+  background-size: 100px 100px;
+  background-repeat: repeat;
+  transform: scale(1.5) rotate(15deg);
+  filter: blur(0.5px);
+  pointer-events: none;
+}
+
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
