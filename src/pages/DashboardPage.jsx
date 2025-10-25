@@ -529,35 +529,38 @@ const DashboardPage = () => {
                         className="mySwiper pb-10"
                     >
                         {/* card 0 bortoman balance */}
-                        <SwiperSlide>
-                            <div className="w-full mx-auto p-[2px] rounded-2xl bg-[#dbe7f6] shadow-lg border-none outline-none">
+                        <SwiperSlide className='p-4'>
+                            <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec] border-none outline-none transition-all duration-500  shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff]">
                                 <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-6 overflow-hidden">
                                     <div className="absolute inset-0 rounded-2xl overflow-hidden">
                                         <div
                                             className="absolute inset-0 opacity-30"
                                             style={{
                                                 backgroundImage: `repeating-linear-gradient(
-                                                    -45deg,
-                                                    #f2f2f2 0px,
-                                                    #dbe6f9 6px,
-                                                    transparent 10px,
-                                                    transparent 10px,
-                                                    #f2f2f2 10px,
-                                                    #f2f2f2 13px,
-                                                    transparent 8px,
-                                                    transparent 14px
-                                                )`,
-                                                backgroundSize: '20px 20px'
+            -45deg,
+            #f2f2f2 0px,
+            #dbe6f9 6px,
+            transparent 10px,
+            transparent 10px,
+            #f2f2f2 10px,
+            #f2f2f2 13px,
+            transparent 8px,
+            transparent 14px
+          )`,
+                                                backgroundSize: '20px 20px',
                                             }}
                                         ></div>
                                     </div>
+
                                     <div className="relative z-10">
-                                        <p className="inline-block bg-orange-400 text-white text-sm font-semibold px-4 py-1 rounded-md">
+                                        <p className="inline-block bg-orange-400 text-white text-sm font-semibold px-4 py-1 rounded-md shadow-md">
                                             LetsDropShip · <span>{user?.subscription?.plan}</span>
                                         </p>
+
                                         <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
                                             ****** {user?.phone.slice(5, 11)}
                                         </div>
+
                                         <div className="flex justify-between items-center mt-6">
                                             <div>
                                                 <p className="text-gray-500 text-sm">CARD HOLDER</p>
@@ -570,18 +573,19 @@ const DashboardPage = () => {
                                                 </p>
                                             </div>
                                         </div>
+
                                         <div className="flex justify-between items-center mt-8">
-                                            <p className="text-gray-600 font-medium text-xl">বর্তমান
-                                                ব্যালান্স</p>
+                                            <p className="text-gray-600 font-medium text-xl">বর্তমান ব্যালান্স</p>
                                             <p className="text-orange-400 text-4xl font-extrabold">৳ {displayedLifetimeBalance}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
                         </SwiperSlide>
                         {/* Card 1: Today's Balance */}
-                        <SwiperSlide>
-                            <div className="w-full mx-auto p-[2px] rounded-2xl bg-[#dbe7f6] shadow-lg border-none outline-none">
+                        <SwiperSlide className='p-4'>
+                            <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec]  border-none outline-none shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff]">
                                 <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-6 overflow-hidden">
                                     <div className="absolute inset-0 rounded-2xl overflow-hidden">
                                         <div
@@ -631,8 +635,8 @@ const DashboardPage = () => {
                         </SwiperSlide>
 
                         {/* Card 2: Last 3 Days Balance */}
-                        <SwiperSlide>
-                            <div className="w-full mx-auto p-[2px] rounded-2xl bg-[#dbe7f6] shadow-lg border-none outline-none">
+                        <SwiperSlide className='p-4'>
+                            <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec] shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff] border-none outline-none">
                                 <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-6 overflow-hidden">
                                     <div className="absolute inset-0 rounded-2xl overflow-hidden">
                                         <div
@@ -682,8 +686,8 @@ const DashboardPage = () => {
                         </SwiperSlide>
 
                         {/* Card 3: Last 7 Days Balance */}
-                        <SwiperSlide>
-                            <div className="w-full mx-auto p-[2px] rounded-2xl bg-[#dbe7f6] shadow-lg border-none outline-none">
+                        <SwiperSlide className='p-4'>
+                            <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec] shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff] border-none outline-none">
                                 <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-6 overflow-hidden">
                                     <div className="absolute inset-0 rounded-2xl overflow-hidden">
                                         <div
@@ -733,8 +737,8 @@ const DashboardPage = () => {
                         </SwiperSlide>
 
                         {/* Card 4: Last 15 Days Balance */}
-                        <SwiperSlide>
-                            <div className="w-full mx-auto p-[2px] rounded-2xl bg-[#dbe7f6] shadow-lg border-none outline-none">
+                        <SwiperSlide className='p-4'>
+                            <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec] shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff] border-none outline-none">
                                 <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-6 overflow-hidden">
                                     <div className="absolute inset-0 rounded-2xl overflow-hidden">
                                         <div
@@ -784,8 +788,8 @@ const DashboardPage = () => {
                         </SwiperSlide>
 
                         {/* Card 5: Last Month Balance */}
-                        <SwiperSlide>
-                            <div className="w-full mx-auto p-[2px] rounded-2xl bg-[#dbe7f6] shadow-lg border-none outline-none">
+                        <SwiperSlide className='p-4'>
+                            <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec] shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff] border-none outline-none">
                                 <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-6 overflow-hidden">
                                     <div className="absolute inset-0 rounded-2xl overflow-hidden">
                                         <div
@@ -835,8 +839,8 @@ const DashboardPage = () => {
                         </SwiperSlide>
 
                         {/* Card 6: Lifetime Balance */}
-                        <SwiperSlide>
-                            <div className="w-full mx-auto p-[2px] rounded-2xl bg-[#dbe7f6] shadow-lg border-none outline-none">
+                        <SwiperSlide className='p-4'>
+                            <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec] shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff] border-none outline-none">
                                 <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-6 overflow-hidden">
                                     <div className="absolute inset-0 rounded-2xl overflow-hidden">
                                         <div
