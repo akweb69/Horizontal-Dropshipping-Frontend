@@ -95,7 +95,8 @@ const ReferralDashboardPage = () => {
     });
     const [withdrawLoading, setWithdrawLoading] = useState(false);
 
-    const minimumWithdraw = 1000;
+
+    const [minimumWithdraw, setMinimumWithdraw] = useState(1000)
     const [runningBonus, setRunningBonus] = useState(0);
     useEffect(() => {
         axios.get(`${import.meta.env.VITE_BASE_URL}/referral-bonus`)
@@ -106,6 +107,12 @@ const ReferralDashboardPage = () => {
             .catch((err) => {
                 console.error('Error fetching referral bonus:', err);
             });
+
+        axios.get(`${import.meta.env.VITE_BASE_URL}/minimum_withdraw_amount`)
+            .then(res => {
+                const data = res.data;
+                setMinimumWithdraw(data.amount)
+            })
     }, [])
 
     // Fetch user data

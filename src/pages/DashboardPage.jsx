@@ -502,6 +502,22 @@ const DashboardPage = () => {
             setRat(true);
         }
     }, []);
+    // minus balance after withdraw
+    const [minusAmount, setMinusAmount] = useState(0)
+    useEffect(() => {
+        axios.get(`${import.meta.env.VITE_BASE_URL}/withdraw`)
+            .then(res => {
+                const data = res.data;
+                const filterData = data.filter(item => item?.email === user?.email)
+                const acceptData = filterData.filter(item => item?.status === "Approved")
+                const minus = acceptData.reduce((acc, item) => acc + item?.amount, 0)
+                setMinusAmount(minus)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }, [user?.email])
+
 
 
 
@@ -571,7 +587,7 @@ const DashboardPage = () => {
 
                                         <div className="flex justify-between items-center mt-3 md:mt-8">
                                             <p className="text-gray-600 font-medium text-base md:text-xl">বর্তমান ব্যালেন্স</p>
-                                            <p className="text-orange-400 text-lg md:text-4xl font-extrabold">৳ {displayedLifetimeBalance}</p>
+                                            <p className="text-orange-400 text-lg md:text-4xl font-extrabold">৳ {displayedLifetimeBalance - minusAmount}</p>
                                         </div>
                                     </div>
                                 </div>

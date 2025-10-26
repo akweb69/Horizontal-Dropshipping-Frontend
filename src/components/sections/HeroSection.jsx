@@ -115,7 +115,7 @@ const HeroSection = () => {
             </motion.div>
           </AnimatePresence>
 
-          <button
+          {/* <button
             type="button"
             onClick={prevSlide}
             className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-opacity z-10"
@@ -130,7 +130,7 @@ const HeroSection = () => {
             aria-label="Next Slide"
           >
             <ChevronRight size={24} />
-          </button>
+          </button> */}
 
           <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
             {slides.map((_, slideIndex) => (
