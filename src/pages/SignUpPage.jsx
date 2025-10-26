@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,24 @@ const SignUpPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.search.split('?redirect=')[1] || '/';
+  const base_url = import.meta.env.VITE_BASE_URL;
+
+  const [uploadedBanner, setUploadedBanner] = useState(null);
+
+  // Fetch latest banner
+  useEffect(() => {
+    const fetchBanner = async () => {
+      try {
+        const res = await axios.get(`${base_url}/sign_up_banner`);
+        setUploadedBanner(res?.data?.image);
+
+      } catch (err) {
+        console.error("Failed to fetch banner:", err);
+      }
+    };
+    fetchBanner();
+  }, []);
+
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -100,8 +118,8 @@ const SignUpPage = () => {
         {/* Image Section */}
         <div className="lg:w-1/2 w-full h-64 lg:h-screen">
           <img
-            className="w-full h-full object-cover"
-            src="https://i.ibb.co.com/Y7Jp5QFH/stock-photo-smiling-stylish-asian-woman-shopping-bags-yellow-background.webp"
+            className="w-full h-full "
+            src={`${uploadedBanner} || "https://i.ibb.co.com/Y7Jp5QFH/stock-photo-smiling-stylish-asian-woman-shopping-bags-yellow-background.webp`}
             alt="Sign Up Banner"
           />
         </div>

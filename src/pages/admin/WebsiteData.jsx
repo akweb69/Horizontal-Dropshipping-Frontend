@@ -4,6 +4,7 @@ import ContactInfo from "./ContactInfo";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
 import { UploadCloud, RefreshCcw, CheckCircle, Loader2, Gift, Percent, DollarSign } from "lucide-react";
+import UploadSignUpBanner from "../../components/layout/UploadSignUpBanner";
 
 const WebsiteData = () => {
     const [logo, setLogo] = useState({});
@@ -317,6 +318,8 @@ const WebsiteData = () => {
                     </motion.button>
                 </form>
             </motion.div>
+            {/* UploadSignUpBanner */}
+            <UploadSignUpBanner></UploadSignUpBanner>
             {/* Logo Management */}
             <motion.div
                 initial={{ opacity: 0, y: 30 }}

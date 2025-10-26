@@ -17,6 +17,7 @@ const ConnectStorePage = () => {
     const [withdrawLoading, setWithdrawLoading] = useState(false);
     const [amount, setAmount] = useState('');
     const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
+    const [minimumWithDrawAmount, setMinimumWithDrawAmount] = useState(100)
     const { user } = useAuth();
 
     const toNum = (v) => (isNaN(v) ? 0 : Number(v));
@@ -66,8 +67,8 @@ const ConnectStorePage = () => {
         const paymentMethod = e.target.paymentMethod.value;
         const paymentNumber = e.target.paymentNumber.value;
 
-        if (withdrawAmt < 1000) {
-            Swal.fire({ icon: 'error', title: 'ভুল!', text: 'সর্বনিম্ন ৳1000', confirmButtonColor: '#2563eb' });
+        if (withdrawAmt < minimumWithDrawAmount) {
+            Swal.fire({ icon: 'error', title: 'ভুল!', text: `সর্বনিম্ন ৳ ${minimumWithDrawAmount}`, confirmButtonColor: '#2563eb' });
             setWithdrawLoading(false);
             return;
         }
@@ -103,6 +104,19 @@ const ConnectStorePage = () => {
 
     const openDetails = (w) => setSelectedWithdrawal(w);
     const closeDetails = () => setSelectedWithdrawal(null);
+
+
+    // load minimum withdraw amount-->
+    useEffect(() => {
+        axios.get(`${import.meta.env.VITE_BASE_URL}/minimum_withdraw_amount`)
+            .then(res => {
+                const data = res.data;
+                setMinimumWithDrawAmount(data.amount)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }, [])
 
     if (loading) {
         return (
@@ -205,7 +219,7 @@ const ConnectStorePage = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-1">পরিমাণ</label>
                             <input
                                 type="number"
-                                min="1000"
+                                min={minimumWithDrawAmount}
                                 value={amount}
                                 onChange={e => setAmount(e.target.value)}
                                 className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -214,7 +228,7 @@ const ConnectStorePage = () => {
                             />
                         </div>
 
-                        {amount && toNum(amount) >= 1000 && (
+                        {amount && toNum(amount) >= minimumWithDrawAmount && (
                             <motion.div className="grid grid-cols-2 gap-4">
                                 <div className="bg-red-50 rounded-xl p-3 text-center font-semibold text-red-700">
                                     চার্জ (১%) <br /> ৳{(toNum(amount) * 0.01).toFixed(2)}
