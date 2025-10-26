@@ -396,6 +396,21 @@ const ManageOrdersPage = () => {
                 <div><strong>পেমেন্ট:</strong> {selectedOrder.payment_method}</div>
                 <div><strong>পেমেন্ট নাম্বার:</strong> {selectedOrder.payment_number}</div>
                 <div><strong>পেমেন্ট ট্রানজেক্টর:</strong> {selectedOrder.tnx_id}</div>
+
+                {/* delivery details */}
+                {
+                  selectedOrder.is_delivery_pay ? <div className="p-4 rounded-lg bg-green-100 col-span-2 flex flex-col justify-center items-center gap-2">
+                    <p className="">ক্যাশ অন ডেলিভেরি:  {selectedOrder.delivery_charge < 100 ? "ঢাকার ভিতরে" : "ঢাকার বাহিরে"}</p>
+                    <p className="">ডেলিভেরি চার্জ : {selectedOrder.delivery_charge}  </p>
+                    <p className="">ডেলিভেরি চার্জ : পেইড  </p>
+
+                  </div>
+                    :
+                    <div className="col-span-2">
+                      <p className="p-2 px-4 rounded-full bg-orange-100 flex flex-col justify-center items-center gap-2  w-full">  {selectedOrder.delivery_charge < 100 ? "ঢাকার ভিতরে" : "ঢাকার বাহিরে"}</p>
+
+                    </div>
+                }
               </div>
 
               <div className="p-4 bg-blue-50 rounded-lg space-y-2">

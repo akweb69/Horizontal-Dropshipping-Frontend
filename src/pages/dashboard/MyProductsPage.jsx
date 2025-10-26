@@ -40,6 +40,8 @@ const MyProductsPage = () => {
                         amount: order.amount,
                         order_date: order.order_date,
                         email: order.email,
+                        mySellPrice: order.amar_bikri_mullo,
+                        deliveryCharge: order.delivery_charge,
                         type: 'multiple'
                     });
                 });
@@ -59,7 +61,9 @@ const MyProductsPage = () => {
                     amount: order.amount,
                     order_date: order.order_date,
                     email: order.email,
-                    type: 'single'
+                    type: 'single',
+                    mySellPrice: order.amar_bikri_mullo,
+                    deliveryCharge: order.delivery_charge
                 });
             }
         });
@@ -162,6 +166,8 @@ const MyProductsPage = () => {
                                             <TableHead>ক্রয় মূল্য</TableHead>
                                             <TableHead>পরিমাণ</TableHead>
                                             <TableHead>সাবটোটাল</TableHead>
+                                            <TableHead>বিক্রয় মূল্য</TableHead>
+                                            <TableHead>লাভ</TableHead>
                                             <TableHead>স্ট্যাটাস</TableHead>
                                             <TableHead>অর্ডার তারিখ</TableHead>
                                             <TableHead>পেমেন্ট</TableHead>
@@ -176,6 +182,10 @@ const MyProductsPage = () => {
                                                     <TableCell className="font-semibold">৳{product.price}</TableCell>
                                                     <TableCell>{product.quantity}</TableCell>
                                                     <TableCell className="font-semibold">৳{product.subtotal || product.total}</TableCell>
+                                                    {/* bikroy mullo  */}
+                                                    <TableCell className="font-medium">{product.mySellPrice - product.deliveryCharge}</TableCell>
+
+                                                    <TableCell className="font-medium">{product.mySellPrice - (product.subtotal + product.deliveryCharge)}</TableCell>
                                                     <TableCell>
                                                         <Badge variant={getStatusVariant(product.status)}>
                                                             {product.status}

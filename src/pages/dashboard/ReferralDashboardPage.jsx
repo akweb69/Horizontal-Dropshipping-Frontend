@@ -267,8 +267,60 @@ const ReferralDashboardPage = () => {
                     <p className="text-muted-foreground">প্রতি রেফারেলে {runningBonus} টাকা বোনাস! আপনার বন্ধুদের আমন্ত্রণ জানান।</p>
                 </div>
 
+
+                <div className="max-w-[500px] mx-auto">
+                    <div className=''>
+                        <div className="w-full hover:translate-y-[-2px] hover:shadow-[6px_6px_12px_#a3b1c6,_-6px_-6px_12px_#ffffff] mx-auto p-[2px] rounded-2xl bg-[##e0e5ec]  border-none outline-none shadow-[5px_5px_10px_#a3b1c6,_-5px_-5px_10px_#ffffff]">
+                            <div className="relative bg-white/70 backdrop-blur-md rounded-2xl p-4 md:p-6 overflow-hidden">
+                                <div className="absolute inset-0 rounded-2xl overflow-hidden">
+                                    <div
+                                        className="absolute inset-0 opacity-30"
+                                        style={{
+                                            backgroundImage: `repeating-linear-gradient(
+                                                    -45deg,
+                                                    #f2f2f2 0px,
+                                                    #dbe6f9 6px,
+                                                    transparent 10px,
+                                                    transparent 10px,
+                                                    #f2f2f2 10px,
+                                                    #f2f2f2 13px,
+                                                    transparent 8px,
+                                                    transparent 14px
+                                                )`,
+                                            backgroundSize: '20px 20px'
+                                        }}
+                                    ></div>
+                                </div>
+                                <div className="relative z-10">
+                                    <p className="inline-block bg-orange-400 text-white text-sm font-semibold px-4 py-1 rounded-md">
+                                        LetsDropShip · <span>{authUser?.subscription?.plan}</span>
+                                    </p>
+                                    <div className="md:mt-6 mt-2 text-gray-600 tracking-widest text-lg font-semibold">
+                                        ****** {authUser?.phone.slice(5, 11)}
+                                    </div>
+                                    <div className="flex justify-between items-center md:mt-6 mt-2">
+                                        <div>
+                                            <p className="text-gray-500 text-sm">CARD HOLDER</p>
+                                            <p className="text-gray-800 font-semibold text-lg">{authUser?.name}</p>
+                                        </div>
+                                        {/* <div>
+                                            <p className="text-gray-500 text-sm">EXPIRES</p>
+                                            <p className="text-gray-800 font-semibold text-lg">
+
+                                            </p>
+                                        </div> */}
+                                    </div>
+                                    <div className="flex justify-between items-center md:mt-6 mt-2">
+                                        <p className="text-gray-600 font-medium text-xl"> ইনকাম</p>
+                                        <p className="text-orange-400 text-5xl md:text-6xl  font-extrabold">৳  {referIncome.toLocaleString("bn-BD")} </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {/* Stats */}
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2 ">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-sm font-medium">মোট রেফারেল আয়</CardTitle>

@@ -68,6 +68,8 @@ const DashboardPage = () => {
     const [displayed15DaysBalance, setDisplayed15DaysBalance] = useState(0);
     const [displayedMonthBalance, setDisplayedMonthBalance] = useState(0);
     const [displayedLifetimeBalance, setDisplayedLifetimeBalance] = useState(0);
+    const [rejectedBalance, setRejectedBalance] = useState(0)
+    const [rejectedProductPrice, setRejectedProductPrice] = useState(0)
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -242,13 +244,19 @@ const DashboardPage = () => {
                 .reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo - item.delivery_charge) || 0), 0)
         );
         setTotalRevenue(
-            filteredSells.reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo - item.grand_total) || 0), 0)
+            filteredSells.reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo - item.grand_total) || 0), 0) - rejectedProductPrice
         );
         setMyLove(
             filteredSells
                 .filter((item) => item.status === 'Delivered')
                 .reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo - item.grand_total) || 0), 0)
         );
+
+        setRejectedBalance(filteredSells.filter((item) => item.status === "Returned").reduce(((acc, item) => acc + (item?.amar_bikri_mullo - item.delivery_charge)), 0))
+
+        setRejectedProductPrice(filteredSells.filter((item) => item.status === "Returned").reduce(((acc, item) => acc + item?.items_total), 0))
+
+
 
         // Calculate balances for each time period
         const todayBalance = todaysData
@@ -474,6 +482,7 @@ const DashboardPage = () => {
     const [sokal, setSokal] = useState(false);
     const [dupur, setDupur] = useState(false);
     const [bikal, setBikal] = useState(false);
+    const [sondha, setShondha] = useState(false);
     const [rat, setRat] = useState(false);
 
     useEffect(() => {
@@ -485,7 +494,9 @@ const DashboardPage = () => {
             setSokal(true);
         } else if (hour >= 12 && hour < 15) {
             setDupur(true);
-        } else if (hour >= 15 && hour < 17) {
+        } else if (hour >= 15 && hour < 18) {
+            setBikal(true);
+        } else if (hour >= 18 && hour < 19) {
             setBikal(true);
         } else {
             setRat(true);
@@ -501,13 +512,14 @@ const DashboardPage = () => {
                 <meta name="description" content="আপনার LetsDropship ড্যাশবোর্ড পরিচালনা করুন।" />
             </Helmet>
 
-            <div className="p-4 md:p-6 min-h-screen bg-gradient-to-br space-y-6">
+            <div className="p-0 md:p-6 min-h-screen bg-gradient-to-br space-y-6 bangla">
                 {/* grettings */}
                 <div className="">
                     <div className="md:text-3xl text-2xl font-bold  text-orange-500">
                         {sokal && <p> শুভ সকাল! 🌅 </p>}
                         {dupur && <p> শুভ দুপুর! ☀️</p>}
                         {bikal && <p>শুভ বিকাল! 🌇 </p>}
+                        {sondha && <p>শুভ সন্ধ্যা! 🌇 </p>}
                         {rat && <p> শুভ রাত্রি! 🌙</p>}
                     </div>
                     <div className="">
@@ -517,7 +529,7 @@ const DashboardPage = () => {
 
 
                 {/* Swiper */}
-                <div className="max-w-[500px] mx-auto">
+                <div className="max-w-[550px] w-full mx-auto ">
                     <Swiper
                         spaceBetween={30}
                         centeredSlides={true}
@@ -558,7 +570,7 @@ const DashboardPage = () => {
                                         </div>
 
                                         <div className="flex justify-between items-center mt-3 md:mt-8">
-                                            <p className="text-gray-600 font-medium text-base md:text-xl">বর্তমান ব্যালান্স</p>
+                                            <p className="text-gray-600 font-medium text-base md:text-xl">বর্তমান ব্যালেন্স</p>
                                             <p className="text-orange-400 text-lg md:text-4xl font-extrabold">৳ {displayedLifetimeBalance}</p>
                                         </div>
                                     </div>
@@ -1183,7 +1195,7 @@ const DashboardPage = () => {
                                     <div className="font-bold ">৳ {filteredSells.reduce(
                                         (acc, item) => acc + (parseInt(item.amar_bikri_mullo) - parseInt(item.delivery_charge)),
                                         0
-                                    )}</div>
+                                    ) - rejectedBalance}</div>
                                     <div className="text-xs text-green-500 font-semibold">+53.87%</div>
                                 </div>
                             </div>
@@ -1201,8 +1213,26 @@ const DashboardPage = () => {
                                     <div className="text-xs text-gray-500">বিস্তারিত তথ্য</div>
                                 </div>
                                 <div className="">
-                                    <div className="font-bold ">৳ {filteredSells.reduce((acc, item) => acc + parseInt(item.items_total), 0)}</div>
+                                    <div className="font-bold ">৳ {filteredSells.reduce((acc, item) => acc + parseInt(item.items_total), 0) - rejectedProductPrice} </div>
                                     <div className="text-xs text-green-500 font-semibold">+33.47%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div className="flex justify-between items-center gap-4 w-full hover:bg-gray-100 p-4 border-b">
+                        <div className="flex w-full items-center gap-3">
+                            <div className="text-white p-2 bg-red-500 rounded-full"> <CircleDollarSign></CircleDollarSign> </div>
+                            <div className="flex justify-between gap-4 items-center w-full">
+                                <div className="">
+                                    <div className="font-semibold">
+                                        মোট রিজেক্ট অর্ডার
+                                    </div>
+                                    <div className="text-xs text-gray-500">বিস্তারিত তথ্য</div>
+                                </div>
+                                <div className="">
+                                    <div className="font-bold ">৳ {rejectedBalance}</div>
+                                    <div className="text-xs text-green-500 font-semibold">+63.04%</div>
                                 </div>
                             </div>
                         </div>

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Loader } from 'lucide-react';
 import React from 'react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const SeeUser = () => {
     const [data, setData] = React.useState({});
@@ -29,7 +30,7 @@ const SeeUser = () => {
         axios.get(`${import.meta.env.VITE_BASE_URL}/orders`)
             .then(res => {
                 const orders = res.data.filter(order => order.email === email);
-                const sortedOrders = orders.sort((a, b) => new Date(b.order_date) - new Date(a.order_date)).slice(0, 10); // latest 10
+                const sortedOrders = orders.sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
                 setOrdersData(sortedOrders);
                 setTotalOrders(orders.length);
                 setTotalRevenue(orders.reduce((acc, order) => acc + order.amar_bikri_mullo, 0));
@@ -125,24 +126,62 @@ const SeeUser = () => {
                         </div>
                     </div>
 
-                    {/* Latest Orders & Withdraws */}
-                    <div className="grid md:grid-cols-2 gap-4 mt-6">
-                        {/* Latest Orders */}
-                        <div className="bg-white border rounded-lg p-4 shadow-sm">
-                            <h2 className="text-xl font-bold mb-4">লেটেস্ট অর্ডারসমূহ</h2>
-                            {ordersData.length > 0 ? (
-                                <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                                    {ordersData.map(order => (
-                                        <div key={order._id?.$oid} className="border p-2 rounded-lg flex justify-between items-center">
-                                            <p>অর্ডার : {order?.items[0]?.name}</p>
-                                            <p>মোট: {order.grand_total}</p>
-                                            <p>স্ট্যাটাস: {order.status}</p>
-                                        </div>
-                                    ))}
+                    <div className="w-full p-4 bg-gray-50 overflow-x-auto shadow-sm">
+                        <h1 className="text-xl md:text-2xl font-semibold py-4">
+                            পণ্যের তালিকা
+                        </h1>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>পণ্যের নাম</TableHead>
+                                    <TableHead>ক্রয় মূল্য</TableHead>
+                                    <TableHead>পরিমাণ</TableHead>
+                                    <TableHead>সাবটোটাল</TableHead>
+                                    <TableHead>বিক্রয় মূল্য</TableHead>
+                                    <TableHead>লাভ</TableHead>
+                                    <TableHead>স্ট্যাটাস</TableHead>
+                                    <TableHead>অর্ডার তারিখ</TableHead>
+                                    <TableHead>পেমেন্ট</TableHead>
+                                    <TableHead>পেমেন্ট নাম্বার</TableHead>
+                                    <TableHead>পেমেন্ট ট্রাঞ্জেকশান</TableHead>
 
-                                </div>
-                            ) : <p>কোনো অর্ডার নেই।</p>}
-                        </div>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {ordersData.length > 0 ? (
+                                    ordersData?.map((product, idx) => (
+                                        <TableRow key={idx}>
+                                            <TableCell className="font-medium">{product?.items[0]?.name}</TableCell>
+                                            <TableCell className="font-medium">{product?.items_total}</TableCell>
+                                            <TableCell className="font-medium">{product?.items[0].quantity}</TableCell>
+                                            <TableCell className="font-medium">{product?.items_total * product?.items[0].quantity}</TableCell>
+                                            <TableCell className="font-medium">{product?.amar_bikri_mullo - product?.delivery_charge}</TableCell>
+                                            <TableCell className="font-medium">{product?.amar_bikri_mullo - (product?.delivery_charge + product.items_total)}
+
+                                            </TableCell>
+                                            <TableCell className="font-medium">{product?.status}</TableCell>
+                                            <TableCell className="font-medium">{product?.order_date}</TableCell>
+                                            <TableCell className="font-medium">{product?.payment_method}</TableCell>
+                                            <TableCell className="font-medium">{product?.payment_number}</TableCell>
+                                            <TableCell className="font-medium">{product?.tnx_id}</TableCell>
+
+
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={8} className="text-center py-8">
+                                            কোনো ইম্পোর্ট করা পণ্য পাওয়া যায়নি।
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+
+                    {/* Latest Orders & Withdraws */}
+                    <div className="grid md:grid-cols-1 gap-4 mt-6">
+
 
                         {/* Latest Withdraws */}
                         <div className="bg-white border rounded-lg p-4 shadow-sm">

@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const CartPage = () => {
     const { loading, cartData, setCartData, user, fetchCart } = useAuth();
@@ -215,13 +216,24 @@ const CartPage = () => {
                 body: JSON.stringify(orderData),
             });
 
-            if (res.ok) {
-                toast({
-                    title: "অর্ডার সফল!",
-                    description: isCOD
-                        ? `COD অর্ডার প্লেস হয়েছে। ডেলিভারির সময় ৳${dueAmount} পেমেন্ট করুন।`
+            if (res) {
+
+                Swal.fire({
+                    title: isCOD
+                        ? `COD অর্ডার প্লেস হয়েছে। ডেলিভারির সময় টাকা পেমেন্ট করুন।`
                         : "অর্ডার প্লেস হয়েছে।",
+                    icon: "success",
+                    draggable: true,
+                    showConfirmButton: false,
+                    timer: 1500
                 });
+
+                // toast({
+                //     title: "অর্ডার সফল!",
+                //     description: isCOD
+                //         ? `COD অর্ডার প্লেস হয়েছে। ডেলিভারির সময় টাকা পেমেন্ট করুন।`
+                //         : "অর্ডার প্লেস হয়েছে।",
+                // });
                 await handleDelete(selectedItem._id);
                 setIsModalOpen(false);
                 if (fetchCart) await fetchCart();
@@ -453,9 +465,9 @@ const CartPage = () => {
                                                     <p className="text-sm font-medium">অগ্রিম ডেলিভারি চার্জ সেন্ড মানি করুন:</p>
                                                     <p className="text-xs">Bkash: {paymentInfo.bkashNumber}</p>
                                                     <p className="text-xs">Nagad: {paymentInfo.nagadNumber}</p>
-                                                    <p className="text-xs text-green-700 mt-1">
+                                                    {/* <p className="text-xs text-green-700 mt-1">
                                                         বাকি ৳{(parseFloat(calculateGrandTotal()) - getDeliveryCharge()).toFixed(2)} ডেলিভারির সময় ক্যাশে দিন।
-                                                    </p>
+                                                    </p> */}
                                                 </div>
                                             )}
                                         </div>

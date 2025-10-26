@@ -118,7 +118,13 @@ const ProductCard = ({ product }) => {
 
   // Navigate to product details
   const handleProductDetails = (productId) => {
-    navigate(`/product/${productId}`);
+    if (user?.isMember === false) {
+      navigate(`/membership`);
+      return
+    }
+    else {
+      navigate(`/product/${productId}`);
+    }
   };
 
   const hasSizes = product.sizes && product.sizes.length > 0;

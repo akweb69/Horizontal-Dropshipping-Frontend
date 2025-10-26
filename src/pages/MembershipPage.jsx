@@ -72,10 +72,12 @@ const MembershipPage = () => {
     const [showCongrats, setShowCongrats] = useState(false);
     const [isDiscountApplied, setIsDiscountApplied] = useState(false);
     const [invite_user_email, set_invite_user_email] = useState('');
+    const [discountAmount, setDiscountAmount] = useState(0)
 
     useEffect(() => {
         fetchPaymentNumbers();
         fetchAllUser();
+        fetchDiscount()
     }, []);
 
     const fetchAllUser = async () => {
@@ -88,12 +90,22 @@ const MembershipPage = () => {
             console.error('User fetch error:', error);
         }
     };
+    const fetchDiscount = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/addrefferdiscount`);
+            if (response) {
+                setDiscountAmount(response?.data?.amount);
+            }
+        } catch (error) {
+            console.error('User fetch error:', error);
+        }
+    };
 
     const handleCheckReferralCode = () => {
         if (!selectedPlan) return;
         const foundUser = allUsers.find(u => u.myReferralCode === referralCode);
         if (foundUser && discount === 0) {
-            const newDiscount = 50;
+            const newDiscount = discountAmount;
             setDiscount(newDiscount);
             setIsDiscountApplied(true);
             set_invite_user_email(foundUser.email);
