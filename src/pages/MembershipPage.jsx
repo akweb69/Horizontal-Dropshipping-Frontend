@@ -513,7 +513,7 @@ const MembershipPage = () => {
 
             {/* Congrats Modal */}
             <Dialog open={showCongrats} onOpenChange={setShowCongrats}>
-                <DialogContent className="text-center">
+                <DialogContent className="text-center max-h-[300px] overflow-auto">
                     <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }}>
                         <h2 className="text-2xl font-bold text-green-600">অভিনন্দন!</h2>
                         <p className="mt-2">ডিসকাউন্ট: ৳{discount}</p>

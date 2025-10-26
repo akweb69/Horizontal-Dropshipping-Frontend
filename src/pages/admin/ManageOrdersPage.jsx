@@ -378,7 +378,7 @@ const ManageOrdersPage = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 30 }}
             transition={{ duration: 0.3 }}
-            className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden"
+            className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-500 px-5 py-2 flex justify-between items-center text-white">
@@ -407,7 +407,7 @@ const ManageOrdersPage = () => {
                 <div><strong>ট্রানজেকশন আইডি:</strong> {selectedOrder.tnx_id}</div>
 
                 {selectedOrder.is_delivery_pay ? (
-                  <div className="col-span-2 mt-3 bg-emerald-50 p-4 rounded-lg border border-emerald-100 text-center">
+                  <div className="col-span-2 mt-3 bg-emerald-50 p-4 rounded-lg border border-emerald-100 ">
                     <p className="font-medium text-emerald-700">
                       ✅ ক্যাশ অন ডেলিভেরি ({selectedOrder.delivery_charge < 100 ? "ঢাকার ভিতরে" : "ঢাকার বাহিরে"})
                     </p>

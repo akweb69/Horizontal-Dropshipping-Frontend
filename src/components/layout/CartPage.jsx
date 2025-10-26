@@ -515,13 +515,12 @@ const CartPage = () => {
                                         <div className="col-span-3">
                                             <p className="">ডেলিভারি চার্জ পেমেন্ট মেথড</p>
                                             <select
-                                                defaultValue={"Bkash"}
                                                 className='w-full p-3 rounded-lg border'
                                                 required
                                                 onChange={(e) => setCodMethod(e.target.value)}
                                                 name="" id="">
 
-                                                <option value="" disabled  >Selct Payment Option</option>
+                                                <option value="">Selct Payment Option</option>
                                                 <option value="Bkash">Bkash</option>
                                                 <option value="Nagad">Nagad</option>
                                             </select>

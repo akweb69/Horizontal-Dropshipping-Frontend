@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, Heart, Gift, LogIn, ShoppingBasket } from 'lucide-react';
 import { useSearch } from '@/context/SearchContext';
@@ -8,6 +8,7 @@ const MobileBottomNav = ({ activeTab, setActiveTab }) => {
   const navigate = useNavigate();
   const { openSearch } = useSearch();
   const { user, loading } = useAuth();
+  const [bg, setBg] = useState(0)
 
   const handleNavigation = (path, tab) => {
     setActiveTab(tab);
@@ -29,18 +30,22 @@ const MobileBottomNav = ({ activeTab, setActiveTab }) => {
       <div className="flex justify-around">
         <button
           onClick={() => handleNavigation('/', 'home')}
-          className={`flex flex-col items-center py-1 px-2 ${activeTab === 'home' ? 'text-teal-600' : 'text-gray-600'}`}
+          className={`flex flex-col items-center py-1 px-2 `}
         >
-          <Home className="w-5 h-5" />
+          <Home
+            onClick={() => setBg(0)}
+            className={`${bg === 0 ? "text-orange-400" : ""} h-5 w-5`} />
           <span className="text-xs mt-1">হোম</span>
         </button>
         {
           user && user?.email ? <div className="">
             <button
               onClick={() => handleNavigation('/cart', 'cart')}
-              className={`flex flex-col items-center py-1 px-2 ${activeTab === 'wishlist' ? 'text-teal-600' : 'text-gray-600'}`}
+              className={`flex flex-col items-center py-1 px-2 `}
             >
-              <ShoppingBasket className="w-5 h-5" />
+              <ShoppingBasket
+                onClick={() => setBg(1)}
+                className={`${bg === 1 ? "text-orange-400" : ""} h-5 w-5`} />
               <span className="text-xs mt-1">কার্ট</span>
             </button>
           </div>
@@ -58,9 +63,11 @@ const MobileBottomNav = ({ activeTab, setActiveTab }) => {
           user && user?.email ? <div className="">
             <button
               onClick={() => handleNavigation('/membership', 'referral')}
-              className={`flex flex-col items-center py-1 px-2 ${activeTab === 'referral' ? 'text-teal-600' : 'text-gray-600'}`}
+              className={`flex flex-col items-center py-1 px-2 `}
             >
-              <Gift className="w-5 h-5" />
+              <Gift
+                onClick={() => setBg(2)}
+                className={`${bg === 2 ? "text-orange-400" : ""} h-5 w-5`} />
               <span className="text-xs mt-1">মেম্বারশিপ</span>
             </button>
           </div> : null
@@ -69,9 +76,11 @@ const MobileBottomNav = ({ activeTab, setActiveTab }) => {
           user && user?.email ? <div className="">
             <button
               onClick={() => handleNavigation('/', '/')}
-              className={`flex flex-col items-center py-1 px-2 ${activeTab === 'referral' ? 'text-teal-600' : 'text-gray-600'}`}
+              className={`flex flex-col items-center py-1 px-2 `}
             >
-              <Gift className="w-5 h-5" />
+              <Gift
+                onClick={() => setBg(3)}
+                className={`${bg === 3 ? "text-orange-400" : ""} h-5 w-5`} s />
               <span className="text-xs mt-1">পণ্য কিনুন</span>
             </button>
           </div> : null
@@ -80,9 +89,11 @@ const MobileBottomNav = ({ activeTab, setActiveTab }) => {
           !user || !user?.email ? <div className="">
             <button
               onClick={() => handleNavigation('/signup', 'signup')}
-              className={`flex flex-col items-center py-1 px-2 ${activeTab === 'login' ? 'text-teal-600' : 'text-gray-600'}`}
+              className={`flex flex-col items-center py-1 px-2 `}
             >
-              <LogIn className="w-5 h-5" />
+              <LogIn
+                onClick={() => setBg(4)}
+                className={`${bg === 4 ? "text-orange-400" : ""} h-5 w-5`} />
               <span className="text-xs mt-1">সাইন আপ</span>
             </button>
           </div> : null
@@ -91,9 +102,11 @@ const MobileBottomNav = ({ activeTab, setActiveTab }) => {
           !user || !user?.email ? <div className="">
             <button
               onClick={() => handleNavigation('/login', 'login')}
-              className={`flex flex-col items-center py-1 px-2 ${activeTab === 'login' ? 'text-teal-600' : 'text-gray-600'}`}
+              className={`flex flex-col items-center py-1 px-2 `}
             >
-              <LogIn className="w-5 h-5" />
+              <LogIn
+                onClick={() => setBg(5)}
+                className={`${bg === 5 ? "text-orange-400" : ""} h-5 w-5`} />
               <span className="text-xs mt-1">লগইন</span>
             </button>
           </div> : null

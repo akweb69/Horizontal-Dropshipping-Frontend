@@ -70,6 +70,7 @@ const DashboardPage = () => {
     const [displayedLifetimeBalance, setDisplayedLifetimeBalance] = useState(0);
     const [rejectedBalance, setRejectedBalance] = useState(0)
     const [rejectedProductPrice, setRejectedProductPrice] = useState(0)
+    const [revenueReject, setRevenueReject] = useState(0)
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -244,7 +245,7 @@ const DashboardPage = () => {
                 .reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo - item.delivery_charge) || 0), 0)
         );
         setTotalRevenue(
-            filteredSells.reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo - item.grand_total) || 0), 0) - rejectedProductPrice
+            filteredSells.reduce((acc, item) => acc + (parseInt(item.amar_bikri_mullo - item.grand_total) || 0), 0)
         );
         setMyLove(
             filteredSells
@@ -253,6 +254,7 @@ const DashboardPage = () => {
         );
 
         setRejectedBalance(filteredSells.filter((item) => item.status === "Returned").reduce(((acc, item) => acc + (item?.amar_bikri_mullo - item.delivery_charge)), 0))
+        setRevenueReject(filteredSells.filter((item) => item.status === "Returned").reduce(((acc, item) => acc + (item?.amar_bikri_mullo - (item.delivery_charge + item.items_total))), 0))
 
         setRejectedProductPrice(filteredSells.filter((item) => item.status === "Returned").reduce(((acc, item) => acc + item?.items_total), 0))
 
@@ -1188,7 +1190,7 @@ const DashboardPage = () => {
                                     <div className="text-xs text-gray-500">বিস্তারিত তথ্য</div>
                                 </div>
                                 <div className="">
-                                    <div className="font-bold ">৳ {totalRevenue}</div>
+                                    <div className="font-bold ">৳ {totalRevenue - revenueReject}</div>
                                     <div className="text-xs text-red-500 font-semibold">- 10.31%</div>
                                 </div>
                             </div>

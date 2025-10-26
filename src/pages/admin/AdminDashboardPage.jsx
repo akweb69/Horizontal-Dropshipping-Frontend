@@ -93,6 +93,59 @@ const AdminDashboardPage = () => {
         completedWithdrawAmount: null
     });
 
+    // all new data----> {(totalUB +  totalUB ) -(totalNW + totalNRW)}
+    const [totalNW, setTotalNw] = useState(0)
+    const [totalNRW, setTotalNRW] = useState(0)
+    const [totalUB, setTotalUB] = useState(0)
+    const [totalRB, setTotalRB] = useState(0)
+    const [uiLoading, setUiLoading] = useState(true)
+    // load all data---<
+    useEffect(() => {
+        axios.get(`${import.meta.env.VITE_BASE_URL}/users`)
+            .then(res => {
+                const data = res.data
+                const balance = data.reduce((acc, u) => acc + u?.referIncome, 0)
+                setTotalRB(balance)
+                console.log("balance", balance)
+                setUiLoading(false)
+
+            })
+        axios.get(`${import.meta.env.VITE_BASE_URL}/orders`)
+            .then(res => {
+                const data = res.data
+                const balance1 = data.filter(i => i.status === "Delivered").reduce((acc, i) => acc + i.amar_bikri_mullo, 0)
+                const balance2 = data.filter(i => i.status === "Delivered").reduce((acc, i) => acc + i.grand_total, 0)
+
+                const balance = balance1 - balance2
+                setTotalUB(balance)
+
+                console.log("balance", balance)
+                setUiLoading(false)
+
+            })
+        axios.get(`${import.meta.env.VITE_BASE_URL}/withdraw`)
+            .then(res => {
+                const data = res.data
+                const balance = data.filter(i => i.status === "Approved").reduce((acc, i) => acc + i?.amount, 0)
+                console.log("balance", balance)
+                setTotalNw(balance)
+                setUiLoading(false)
+
+            })
+        axios.get(`${import.meta.env.VITE_BASE_URL}/refer-withdraw`)
+            .then(res => {
+                const data = res.data
+                const balance = data.filter(i => i.status === "Approved").reduce((acc, i) => acc + i.amount, 0)
+                console.log("balance", balance)
+                setTotalNRW(balance)
+                setUiLoading(false)
+
+            })
+    }, [])
+
+
+
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -224,11 +277,18 @@ const AdminDashboardPage = () => {
         { title: "রিটার্ন টাকা", value: `৳ ${stats.returnOrderAmount}`, desc: stats.returnOrderAmount > 0 ? `৳${stats.returnOrderAmount} রিফান্ড` : 'কোনো রিটার্ন নেই' },
         { title: "পেন্ডিং অর্ডার", value: `৳ ${stats.pendingOrderAmount}`, desc: stats.pendingOrderAmount > 0 ? `৳${stats.pendingOrderAmount} পেন্ডিং` : 'কোনো পেন্ডিং নেই' },
         { title: "ডেলিভার্ড টাকা", value: `৳ ${stats.deliveredOrderAmount}`, desc: stats.deliveredOrderAmount > 0 ? `৳${stats.deliveredOrderAmount} সফল` : 'কোনো ডেলিভারি নেই' },
-        { title: "ব্যবহারকারী ব্যালান্স", value: `৳ ${stats.totalUserBalance}`, desc: stats.totalUserBalance > 0 ? `৳${stats.totalUserBalance} মোট` : 'কোনো ব্যালান্স নেই' },
+        { title: "ব্যবহারকারী ব্যালান্স", value: `৳ ${(totalUB + totalRB) - (totalNW + totalNRW)}`, desc: ".." },
         { title: "উত্তোলন রিকোয়েস্ট", value: withdrawStats.totalWithdrawRequest, desc: withdrawStats.totalWithdrawRequest > 0 ? `${withdrawStats.totalWithdrawRequest} টি রিকোয়েস্ট` : 'কোনো রিকোয়েস্ট নেই' },
         { title: "উত্তোলিত টাকা", value: `৳ ${withdrawStats.completedWithdrawAmount}`, desc: withdrawStats.completedWithdrawAmount > 0 ? `৳${withdrawStats.completedWithdrawAmount} অনুমোদিত` : 'কোনো উত্তোলন নেই' },
         { title: "পেন্ডিং উত্তোলন", value: `৳ ${withdrawStats.pendingWithdrawAmount}`, desc: withdrawStats.pendingWithdrawAmount > 0 ? `৳${withdrawStats.pendingWithdrawAmount} অপেক্ষায়` : 'কোনো পেন্ডিং নেই' },
     ];
+
+    // check loading
+    if (uiLoading) {
+        return <div className="">
+            loading....
+        </div>
+    }
 
     return (
         <motion.div
