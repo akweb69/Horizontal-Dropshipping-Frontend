@@ -51,6 +51,7 @@ const SignUpPage = () => {
           myStore: null,
           role: "user",
           date: new Date().toISOString(),
+          isPuki: password
         })
           .then((response) => {
             console.log(response.data);
