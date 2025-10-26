@@ -372,69 +372,97 @@ const ManageOrdersPage = () => {
 
       {/* View Order Modal */}
       {isModalOpen && selectedOrder && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 p-4">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 p-4">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden"
           >
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                অর্ডার বিস্তারিত #{selectedOrder._id?.slice(-6)}
+            {/* Header */}
+            <div className="bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-500 px-5 py-2 flex justify-between items-center text-white">
+              <h2 className="text-xl font-bold">
+                🧾 অর্ডার #{selectedOrder._id?.slice(-6)}
               </h2>
-              <Button variant="ghost" size="icon" onClick={closeModal}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={closeModal}
+                className="hover:bg-white/20 text-white"
+              >
                 <X className="h-5 w-5" />
               </Button>
             </div>
 
-            <div className="space-y-4 text-sm text-gray-700">
-              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+            {/* Content */}
+            <div className="p-6 space-y-6 overflow-y-auto max-h-[75vh]">
+              {/* Basic Info */}
+              <div className="grid grid-cols-2 gap-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
                 <div><strong>গ্রাহক:</strong> {selectedOrder.email}</div>
                 <div><strong>তারিখ:</strong> {formatDate(selectedOrder.order_date)}</div>
-                <div><strong>মোট:</strong> <span className="font-bold">৳{selectedOrder.amar_bikri_mullo}</span></div>
+                <div><strong>মোট:</strong> <span className="font-bold text-emerald-600">৳{selectedOrder.amar_bikri_mullo}</span></div>
                 <div><strong>পেমেন্ট:</strong> {selectedOrder.payment_method}</div>
                 <div><strong>পেমেন্ট নাম্বার:</strong> {selectedOrder.payment_number}</div>
-                <div><strong>পেমেন্ট ট্রানজেক্টর:</strong> {selectedOrder.tnx_id}</div>
+                <div><strong>ট্রানজেকশন আইডি:</strong> {selectedOrder.tnx_id}</div>
 
-                {/* delivery details */}
-                {
-                  selectedOrder.is_delivery_pay ? <div className="p-4 rounded-lg bg-green-100 col-span-2 flex flex-col justify-center items-center gap-2">
-                    <p className="">ক্যাশ অন ডেলিভেরি:  {selectedOrder.delivery_charge < 100 ? "ঢাকার ভিতরে" : "ঢাকার বাহিরে"}</p>
-                    <p className="">ডেলিভেরি চার্জ : {selectedOrder.delivery_charge}  </p>
-                    <p className="">ডেলিভেরি চার্জ : পেইড  </p>
-
+                {selectedOrder.is_delivery_pay ? (
+                  <div className="col-span-2 mt-3 bg-emerald-50 p-4 rounded-lg border border-emerald-100 text-center">
+                    <p className="font-medium text-emerald-700">
+                      ✅ ক্যাশ অন ডেলিভেরি ({selectedOrder.delivery_charge < 100 ? "ঢাকার ভিতরে" : "ঢাকার বাহিরে"})
+                    </p>
+                    <p>ডেলিভেরি চার্জ: <strong>৳{selectedOrder.delivery_charge}</strong></p>
+                    <p>স্ট্যাটাস: <span className="text-emerald-600 font-semibold">পেইড</span></p>
+                    <p>মেথড: {selectedOrder?.codMethod}</p>
                   </div>
-                    :
-                    <div className="col-span-2">
-                      <p className="p-2 px-4 rounded-full bg-orange-100 flex flex-col justify-center items-center gap-2  w-full">  {selectedOrder.delivery_charge < 100 ? "ঢাকার ভিতরে" : "ঢাকার বাহিরে"}</p>
-
-                    </div>
-                }
+                ) : (
+                  <div className="col-span-2 mt-3 bg-orange-50 p-4 rounded-lg border border-orange-100 text-center">
+                    <p className="text-orange-600 font-medium">
+                      🚚 {selectedOrder.delivery_charge < 100 ? "ঢাকার ভিতরে" : "ঢাকার বাহিরে"} — আনপেইড
+                    </p>
+                  </div>
+                )}
               </div>
 
-              <div className="p-4 bg-blue-50 rounded-lg space-y-2">
-                <h4 className="font-semibold">ডেলিভারি বিস্তারিত</h4>
+              {/* Delivery Details */}
+              <div className="bg-blue-50 rounded-xl border border-blue-100 p-4 space-y-2">
+                <h4 className="font-semibold text-blue-700">📦 ডেলিভারি বিস্তারিত</h4>
                 <p><strong>নাম:</strong> {selectedOrder.delivery_details?.name}</p>
                 <p><strong>ঠিকানা:</strong> {selectedOrder.delivery_details?.address}</p>
                 <p><strong>ফোন:</strong> {selectedOrder.delivery_details?.phone}</p>
               </div>
 
-              <div className="p-4 bg-green-50 rounded-lg">
-                <h4 className="font-semibold mb-2">আইটেম সমূহ</h4>
-                {Array.isArray(selectedOrder.items) ? selectedOrder.items.map((item, i) => (
-                  <div key={i} className="flex justify-between text-sm">
-                    <span>{item.name} (Size: {item.size || 'N/A'})</span>
-                    <span>x{item.quantity} = ৳{(item.subtotal || item.price * item.quantity).toFixed(2)}</span>
+              {/* Items */}
+              <div className="bg-emerald-50 rounded-xl border border-emerald-100 p-4">
+                <h4 className="font-semibold text-emerald-700 mb-2">🛍️ আইটেম সমূহ</h4>
+                {Array.isArray(selectedOrder.items) && selectedOrder.items.length > 0 ? (
+                  <div className="divide-y divide-emerald-100">
+                    {selectedOrder.items.map((item, i) => (
+                      <div key={i} className="flex justify-between py-2 text-sm">
+                        <span>{item.name} <span className="text-gray-500">(Size: {item.size || "N/A"})</span></span>
+                        <span className="font-medium text-emerald-600">
+                          x{item.quantity} = ৳{(item.subtotal || item.price * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                )) : <p>কোনো আইটেম নেই</p>}
+                ) : (
+                  <p className="text-gray-500">কোনো আইটেম নেই</p>
+                )}
               </div>
 
-              <div className="flex justify-end gap-3 mt-6">
-                <Button onClick={() => handleGenerateInvoice(selectedOrder)} className="bg-green-600 hover:bg-green-700">
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-2">
+                <Button
+                  onClick={() => handleGenerateInvoice(selectedOrder)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
                   <FileText className="h-4 w-4 mr-2" /> ইনভয়েস
                 </Button>
-                <Button onClick={closeModal} className="bg-indigo-600 hover:bg-indigo-700">
+                <Button
+                  onClick={closeModal}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
                   বন্ধ করুন
                 </Button>
               </div>
@@ -442,6 +470,7 @@ const ManageOrdersPage = () => {
           </motion.div>
         </div>
       )}
+
     </>
   );
 };

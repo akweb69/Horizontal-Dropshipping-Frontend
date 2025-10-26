@@ -27,10 +27,12 @@ const CartPage = () => {
     const [deliveryPhone, setDeliveryPhone] = useState('');
     const [deliveryLocation, setDeliveryLocation] = useState('inside');
     const [step, setStep] = useState(1);
+    const [codMethod, setCodMethod] = useState("")
 
     useEffect(() => {
         fetchPaymentInfo();
     }, []);
+
 
     const fetchPaymentInfo = async () => {
         setIsPaymentInfoLoading(true);
@@ -206,6 +208,7 @@ const CartPage = () => {
             email: email,
             amar_bikri_mullo: bikriMullo,
             store_info: user?.storeInfo,
+            codMethod
         };
 
         setIsSubmitting(true);
@@ -427,6 +430,7 @@ const CartPage = () => {
                         </div>
                     )}
 
+
                     {/* Step 2 */}
                     {step === 2 && (
                         <div className="p-6 space-y-6">
@@ -463,11 +467,11 @@ const CartPage = () => {
                                             {paymentMethod === 'Cash on Delivery' && (
                                                 <div className="space-y-1">
                                                     <p className="text-sm font-medium">অগ্রিম ডেলিভারি চার্জ সেন্ড মানি করুন:</p>
-                                                    <p className="text-xs">Bkash: {paymentInfo.bkashNumber}</p>
-                                                    <p className="text-xs">Nagad: {paymentInfo.nagadNumber}</p>
-                                                    {/* <p className="text-xs text-green-700 mt-1">
-                                                        বাকি ৳{(parseFloat(calculateGrandTotal()) - getDeliveryCharge()).toFixed(2)} ডেলিভারির সময় ক্যাশে দিন।
-                                                    </p> */}
+                                                    <p className="text-xs md:text-lg font-semibold">Bkash: {paymentInfo.bkashNumber}</p>
+                                                    <p className="text-xs md:text-lg font-semibold">Nagad: {paymentInfo.nagadNumber}</p>
+                                                    <p className="text-xs text-red-700 mt-3">
+                                                        বাকি ৳{(parseFloat(amarBikriMullo) - getDeliveryCharge()).toFixed(2)} ডেলিভারির সময় ক্যাশে দিন।
+                                                    </p>
                                                 </div>
                                             )}
                                         </div>
@@ -493,21 +497,44 @@ const CartPage = () => {
                                     </div>
                                 )}
                                 {paymentMethod === 'Cash on Delivery' && (
-                                    <div className="mt-4 p-2 bg-green-50 border border-green-200 rounded-xl flex flex-col md:flex-row md:items-center md:justify-between">
-                                        <p className="p-2 px-4 text-lg border border-green-500 rounded-lg">Send Money: {getDeliveryCharge()} TK</p>
-                                        <p className="p-2 px-4 text-sm border border-green-500 rounded-lg text-center">ডেলিভারি চার্জ অগ্রিম সেন্ড করুন</p>
+                                    <div className="">
+                                        <div className="mt-4 p-2 bg-green-50 border border-green-200 rounded-xl flex flex-col md:flex-row md:items-center md:justify-between">
+                                            <p className="p-2 px-4 text-lg border border-green-500 rounded-lg">Send Money: {getDeliveryCharge()} TK</p>
+                                            <p className="p-2 px-4 text-sm border border-green-500 rounded-lg text-center">ডেলিভারি চার্জ অগ্রিম সেন্ড করুন</p>
+                                        </div>
+
                                     </div>
+
+
                                 )}
 
                                 {/* Payment Inputs */}
                                 <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {
+                                        paymentMethod === 'Cash on Delivery' &&
+                                        <div className="col-span-3">
+                                            <p className="">ডেলিভারি চার্জ পেমেন্ট মেথড</p>
+                                            <select
+                                                defaultValue={"Bkash"}
+                                                className='w-full p-3 rounded-lg border'
+                                                required
+                                                onChange={(e) => setCodMethod(e.target.value)}
+                                                name="" id="">
+
+                                                <option value="" disabled  >Selct Payment Option</option>
+                                                <option value="Bkash">Bkash</option>
+                                                <option value="Nagad">Nagad</option>
+                                            </select>
+                                        </div>
+                                    }
+
                                     <div>
                                         <Label>পেমেন্ট মোবাইল নাম্বার</Label>
-                                        <Input type="tel" value={paymentNumber} onChange={e => setPaymentNumber(e.target.value)} placeholder="০১XXXXXXXXX" className="mt-1" />
+                                        <Input type="tel" value={paymentNumber} onChange={e => setPaymentNumber(e.target.value)} placeholder="০১XXXXXXXXX" className="mt-1 w-full" />
                                     </div>
                                     <div>
                                         <Label>ট্রানজেকশন আইডি (TxID)</Label>
-                                        <Input value={tnxId} onChange={e => setTnxId(e.target.value)} placeholder="১৬ অঙ্কের TxID" className="mt-1" />
+                                        <Input value={tnxId} onChange={e => setTnxId(e.target.value)} placeholder="১৬ অঙ্কের TxID" className="mt-1 w-full" />
                                     </div>
                                 </div>
                             </div>
