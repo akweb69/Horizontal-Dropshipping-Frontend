@@ -28,6 +28,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { icon: PackageIcon, label: 'প্যাকেজ ম্যানেজ করুন', path: '/admin/packagesdata' },
     { icon: DollarSignIcon, label: 'ওয়াইথড্র ম্যানেজ করুন', path: '/admin/withdraw' },
     { icon: DollarSignIcon, label: 'রেফারেল ওয়াইথড্র ম্যানেজ করুন', path: '/admin/reffer_withdraw' },
+    { icon: DollarSignIcon, label: 'লাভ ওয়াইথড্র  করুন', path: '/admin/profit_withdraw' },
     { icon: LucideDollarSign, label: 'বিলিং ম্যানেজ করুন', path: '/admin/billing' },
     { icon: User, label: 'ওয়েবসাইট ডাটা ম্যানেজ করুন', path: '/admin/webdata' },
     { icon: PackageIcon, label: 'প্রমোডাটা ম্যানেজ করুন', path: '/admin/promodata' },

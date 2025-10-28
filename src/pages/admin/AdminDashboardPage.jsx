@@ -99,6 +99,12 @@ const AdminDashboardPage = () => {
     const [totalUB, setTotalUB] = useState(0)
     const [totalRB, setTotalRB] = useState(0)
     const [uiLoading, setUiLoading] = useState(true)
+    // profit
+    const [rejectedProfit, setRejectedProfit] = useState(0)
+    const [pendingProfit, setPendingProfit] = useState(0)
+    const [completedProfit, setCompletedProfit] = useState(0)
+    const [totalAdminWithdraw, setTotalAdminWithdraw] = useState(0)
+    // const [netProfit, setNetProfit] = useState(0)
     // load all data---<
     useEffect(() => {
         axios.get(`${import.meta.env.VITE_BASE_URL}/users`)
@@ -116,12 +122,36 @@ const AdminDashboardPage = () => {
                 const balance1 = data.filter(i => i.status === "Delivered").reduce((acc, i) => acc + i.amar_bikri_mullo, 0)
                 const balance2 = data.filter(i => i.status === "Delivered").reduce((acc, i) => acc + i.grand_total, 0)
 
+                // calculate profit
+                const profit1 = data.filter(i => i.status === "Delivered").reduce((acc, i) => acc + i.profit, 0)
+
+                const profit2 = data.filter(i => i.status === "pending").reduce((acc, i) => acc + i.profit, 0)
+
+                const profit3 = data.filter(i => i.status === "Returned").reduce((acc, i) => acc + i.profit, 0)
+                // set profit
+                setCompletedProfit(profit1)
+                setPendingProfit(profit2)
+                setRejectedProfit(profit3)
+                setNetProfit(profit1)
+
+
+
+
+
+
                 const balance = balance1 - balance2
                 setTotalUB(balance)
 
                 console.log("balance", balance)
                 setUiLoading(false)
 
+            })
+        // load admin withdraw data--->
+        axios.get(`${import.meta.env.VITE_BASE_URL}/withdraw_admin`)
+            .then(res => {
+                const data = res.data
+                const balanceAdminWithdraw = data.reduce((acc, i) => acc + i?.amount, 0)
+                setTotalAdminWithdraw(balanceAdminWithdraw)
             })
         axios.get(`${import.meta.env.VITE_BASE_URL}/withdraw`)
             .then(res => {
@@ -281,12 +311,14 @@ const AdminDashboardPage = () => {
         { title: "উত্তোলন রিকোয়েস্ট", value: withdrawStats.totalWithdrawRequest, desc: withdrawStats.totalWithdrawRequest > 0 ? `${withdrawStats.totalWithdrawRequest} টি রিকোয়েস্ট` : 'কোনো রিকোয়েস্ট নেই' },
         { title: "উত্তোলিত টাকা", value: `৳ ${withdrawStats.completedWithdrawAmount}`, desc: withdrawStats.completedWithdrawAmount > 0 ? `৳${withdrawStats.completedWithdrawAmount} অনুমোদিত` : 'কোনো উত্তোলন নেই' },
         { title: "পেন্ডিং উত্তোলন", value: `৳ ${withdrawStats.pendingWithdrawAmount}`, desc: withdrawStats.pendingWithdrawAmount > 0 ? `৳${withdrawStats.pendingWithdrawAmount} অপেক্ষায়` : 'কোনো পেন্ডিং নেই' },
+        { title: "মোট অ্যাডমিন লাভ", value: `৳ ${completedProfit - totalAdminWithdraw}` },
+        { title: "মোট লাভ উত্তোলন ", value: `৳ ${totalAdminWithdraw}` },
     ];
 
     // check loading
     if (uiLoading) {
         return <div className="">
-            loading....
+            <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
         </div>
     }
 
