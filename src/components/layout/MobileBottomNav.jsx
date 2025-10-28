@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, Heart, Gift, LogIn, ShoppingBasket } from 'lucide-react';
 import { useSearch } from '@/context/SearchContext';
@@ -9,11 +9,18 @@ const MobileBottomNav = ({ activeTab, setActiveTab }) => {
   const { openSearch } = useSearch();
   const { user, loading } = useAuth();
   const [bg, setBg] = useState(0)
+  const [show, setShow] = useState(false)
 
   const handleNavigation = (path, tab) => {
     setActiveTab(tab);
     navigate(path);
   }
+
+  useEffect(() => {
+    if (user && user?.email) {
+      setShow(true)
+    }
+  }, [user && user?.email])
 
   // The search button is now hidden on mobile, so this function is not directly used by a visible button.
   // It's kept for completeness in case the search functionality is re-introduced differently.
@@ -26,7 +33,7 @@ const MobileBottomNav = ({ activeTab, setActiveTab }) => {
   }
 
   return (
-    <nav className="mobile-bottom-nav md:hidden">
+    <nav className={`${show ? "block" : "hidden"} mobile-bottom-nav`}>
       <div className="flex justify-around">
         <button
           onClick={() => handleNavigation('/', 'home')}

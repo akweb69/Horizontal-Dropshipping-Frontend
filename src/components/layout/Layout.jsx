@@ -4,11 +4,12 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import { useAuth } from '../../context/AuthContext';
-import AboutUsPage from '../../pages/AboutUsPage';
+import Keno from '../../pages/Keno';
 // import FloatingActionButtons from '@/components/FloatingActionButtons';
 
 const Layout = () => {
   const location = useLocation();
+  const { user } = useAuth();
   const getActiveTab = (pathname) => {
     if (pathname === '/') return 'home';
     if (pathname.startsWith('/about')) return 'about';
@@ -23,7 +24,7 @@ const Layout = () => {
     setActiveTab(getActiveTab(location.pathname));
   }, [location.pathname]);
 
-  const { user } = useAuth();
+
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -35,11 +36,13 @@ const Layout = () => {
         <Outlet />
       </main>
       {/* {
-        !user && !user?.email ? <AboutUsPage></AboutUsPage> : null
+        !user && !user?.email ? <Keno></Keno> : null
       } */}
 
       <Footer />
-      <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      {
+        user && user?.email && <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      }
       {/* <FloatingActionButtons /> */}
     </div>
   );

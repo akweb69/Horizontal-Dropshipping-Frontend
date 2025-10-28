@@ -114,7 +114,7 @@ const Header = () => {
               <Link to="/" onClick={scrollToTop} className="text-3xl font-extrabold tracking-tight">
 
                 <img
-                  className='max-h-16'
+                  className='max-h-16 max-w-[120px] md:max-w-auto '
                   src={runningLogo} alt="" />
               </Link>
             </div>
@@ -149,7 +149,7 @@ const Header = () => {
           <div className="flex items-center justify-between">
             <Link to="/" onClick={scrollToTop} className="text-3xl font-extrabold tracking-tight">
               <img
-                className='max-h-16'
+                className='max-h-16 max-w-[130px] md:max-w-auto '
                 src={runningLogo} alt="" />
             </Link>
             <div className="flex items-center space-x-3">

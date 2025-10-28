@@ -6,6 +6,7 @@ const Footer = () => {
   const [websiteData, setWebsiteData] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const base_url = import.meta.env.VITE_BASE_URL;
+  const date = new Date().getFullYear().toLocaleString('bn-BD');
 
   // laod data
   useEffect(() => {
@@ -24,7 +25,7 @@ const Footer = () => {
     return null;
   }
   return (
-    <footer className="bg-gray-800 text-white py-12">
+    <footer className="bg-gray-800 text-white py-12 bangla">
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
@@ -57,7 +58,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300 text-sm">
-          <p>&copy; ২০২৪ লেটসড্রপশিপ। সর্বস্বত্ব সংরক্ষিত।</p>
+          <p>&copy; {date} লেটসড্রপশিপ। সর্বস্বত্ব সংরক্ষিত।</p>
         </div>
       </div>
     </footer>

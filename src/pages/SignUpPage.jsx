@@ -7,6 +7,7 @@ import { User, Mail, Lock, UserPlus, Phone } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import { FaBars } from 'react-icons/fa';
 const SignUpPage = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -18,6 +19,7 @@ const SignUpPage = () => {
   const location = useLocation();
   const from = location.search.split('?redirect=')[1] || '/';
   const base_url = import.meta.env.VITE_BASE_URL;
+  const [openNav, setOpenNav] = useState(false)
 
   const [uploadedBanner, setUploadedBanner] = useState(null);
   const [openForm, setOpenForm] = useState(false)
@@ -125,33 +127,40 @@ const SignUpPage = () => {
 
       {/* navigation bar */}
       <div className="bg-white border">
-        <div className=" w-full flex justify-between gap-4 p-4 ">
+        <div className=" w-full flex justify-between gap-2 md:p-4 py-3 px-1 ">
           {/* left side */}
           <div className="">
-            <img className='max-w-[120px] md:w-full max-h-10 ' src={logo} alt="" />
+            <img className='max-w-[100px] md:max-w-[200px] md:w-full max-h-10 ' src={logo} alt="" />
           </div>
           {/* right side */}
-          <div className="flex items-center gap-3">
-            <Link className='hover:bg-orange-500 px-2 rounded-lg p-1 hover:text-white' to={"/"}>হোম</Link>
-            <Link className='hover:bg-orange-500 px-2 rounded-lg p-1 hover:text-white' to={"/kivabe"}>কিভাবে কাজ করে</Link>
-            <Link className='hover:bg-orange-500 px-2 rounded-lg p-1 hover:text-white' to={"/amader-sompare"}>আমাদের সম্পর্কে</Link>
-            <div className='hover:bg-orange-600 px-2 text-white hover:text-black rounded-lg p-1 cursor-pointer bg-orange-500' onClick={() => setOpenForm(true)} >শাইন আপ</div>
+          <div className=" items-center md:gap-2 flex">
+            <Link className='hover:bg-orange-500  px-2 rounded-lg p-1 hover:text-white text-xs md:text-base' to={"/"}>হোম</Link>
+            <Link className='hover:bg-orange-500 text-xs md:text-base px-2 rounded-lg p-1 hover:text-white' to={"/kivabe"}>কাজ সম্পর্কে</Link>
+            <Link className='hover:bg-orange-500 text-xs md:text-base px-2 rounded-lg p-1 hover:text-white' to={"/amader-sompare"}>আমাদের সম্পর্কে</Link>
+            <div className='hover:bg-orange-600 text-xs md:text-base px-2 text-white hover:text-black rounded-md md:rounded-lg p-1 cursor-pointer bg-orange-500' onClick={() => setOpenForm(true)} >সাইন আপ</div>
           </div>
+          {/* icon */}
+          {/* <div className="md:hidden flex items-center gap-4">
+
+            <div className='hover:bg-orange-600 px-2 text-white hover:text-black rounded-lg p-1 cursor-pointer bg-orange-500' onClick={() => setOpenForm(true)} >সাইন আপ</div>
+            <FaBars onClick={() => setOpen(true)} className='text-2xl cursor-pointer text-orange-500' />
+          </div> */}
+
         </div>
       </div>
       {/* hero section */}
-      <div className="w-full h-[93vh] relative ">
-        <img className='w-full h-full opacity-85 ' src={uploadedBanner} alt="" />
+      <div className="w-full h-[95vh] md:h-[94vh] relative -mb-32 sm:-mb-12 md:-mb-0 ">
+        <img className='w-full h-full opacity-90 object-cover ' src={uploadedBanner} alt="" />
 
-        <div className="bg-black bg-opacity-30 w-full h-full absolute top-0 left-0"></div>
+        <div className="bg-black bg-opacity-20 w-full h-full absolute top-0 left-0 backdrop-blur-[2px]"></div>
 
         <div className="absolute  top-0 left-0 w-full h-full z-50 flex flex-col justify-center items-center">
           <motion.h1
             initial={{ opacity: 0, y: 150, delay: 1 }} animate={{ opacity: 1, y: 0 }}
-            className="text-3xl bangla text-center font-extrabold text-white md:text-5xl lg:text-6xl py-4 flex flex-col justify-center items-center gap-5"> UnicDropex - ড্রপশিপিং করে আয় করুন <span className=""> বিনা পুঁজিতেই!</span></motion.h1>
+            className="text-3xl bangla text-center font-extrabold text-white md:text-5xl lg:text-6xl py-4 flex flex-col justify-center items-center gap-5"> UnicDropex - ড্রপশিপিং করে আয় করুন  <span className=""> বিনা পুঁজিতেই!</span></motion.h1>
 
-          <h2 className="text-xl md:text-2xl lg:text-3xl text-center font-semibold text-gray-200">
-            আমরাই আনছি স্মার্ট অনলাইন আয়ের সহজতম পথ।
+          <h2 className="text-xl md:text-2xl lg:text-3xl text-center font-semibold text-gray-200 bangla">
+            আমরাই এনেছি একটি স্মার্ট অনলাইন আয়ের সহজতম পথ।
           </h2>
           <Link to={"/login"} className='p-2 px-4 bg-orange-500 text-lg md:text-xl rounded-lg text-white hover:text-black mt-6 hover:bg-orange-600'>আজই শুরু করুন</Link>
         </div>
@@ -166,7 +175,12 @@ const SignUpPage = () => {
 
       {
         openForm &&
-        <div className="w-full absolute inset-0 backdrop-blur-sm h-full flex justify-center items-center p-4 z-50 ">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.70 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+
+          className="w-full absolute inset-0 backdrop-blur-sm h-full flex justify-center items-center p-4 z-50 ">
           <div className="lg:w-1/2 w-full flex items-center justify-center p-4 sm:p-6 md:p-8">
 
             <div className="w-full max-w-md bg-black/40 backdrop-blur-lg p-6 sm:p-8 rounded-2xl shadow-lg">
@@ -267,7 +281,7 @@ const SignUpPage = () => {
             </div>
 
           </div>
-        </div>
+        </motion.div>
       }
     </>
   );

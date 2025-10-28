@@ -55,6 +55,7 @@ import ManageRefferWithDraw from './pages/admin/ManageRefferWithDraw';
 import LavUttolon from './pages/admin/LavUttolon';
 import Amader from './pages/Amader';
 import Kivabe from './pages/Kivabe';
+import Keno from './pages/Keno';
 
 function App() {
   return (
@@ -81,6 +82,7 @@ function App() {
           <Route path="product/:id" element={<ProductDetails />} />
           <Route path="amader-sompare" element={<Amader />} />
           <Route path="kivabe" element={<Kivabe />} />
+          <Route path="keno" element={<Keno />} />
         </Route>
 
         <Route

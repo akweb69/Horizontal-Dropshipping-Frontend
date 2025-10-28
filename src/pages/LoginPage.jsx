@@ -7,6 +7,7 @@ import { Mail, Lock, LogIn, Loader } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
+import Keno from "./Keno";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -25,6 +26,7 @@ const LoginPage = () => {
         setLoading(true);
         const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/sign_up_banner`);
         setLogo(res?.data?.image);
+        setLoading(false)
       } catch (err) {
         console.error("Failed to fetch logo:", err);
       } finally {
@@ -66,11 +68,7 @@ const LoginPage = () => {
 
   // 🔹 Loading Screen
   if (loading) {
-    return (
-      <div className="w-full h-screen flex justify-center items-center bg-slate-100">
-        <Loader className="h-10 w-10 animate-spin text-orange-500" />
-      </div>
-    );
+    return <div className="min-h-screen"></div>
   }
 
   return (
@@ -94,8 +92,8 @@ const LoginPage = () => {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="relative z-10 bg-white/30 backdrop-blur-xl p-8 sm:p-10 rounded-2xl shadow-2xl max-w-md w-full border border-orange-100"
+          transition={{ duration: 0.3 }}
+          className="relative z-10 bg-white/30 backdrop-blur-xl p-8 sm:p-10 rounded-2xl shadow-2xl max-w-md w-11/12 mx-auto border border-orange-100"
         >
           <div className="text-center mb-8">
             {/* {logo && (
@@ -170,11 +168,15 @@ const LoginPage = () => {
               to={`/signup?redirect=${from}`}
               className="font-semibold text-orange-600 hover:underline"
             >
-              সাইন আপ করুন
+              হোম এ ফিরে যান
             </Link>
           </p>
         </motion.div>
       </div>
+
+
+      <Keno></Keno>
+
     </>
   );
 };
