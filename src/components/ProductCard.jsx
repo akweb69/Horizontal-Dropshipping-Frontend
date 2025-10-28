@@ -102,6 +102,7 @@ const ProductCard = ({ product }) => {
         email: user.email,
         size: selectedSize.size,
         price: selectedSize.price,
+        profit: selectedSize.profit
       });
 
       if (res.data) {

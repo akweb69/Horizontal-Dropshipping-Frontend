@@ -27,12 +27,25 @@ const CartPage = () => {
     const [deliveryPhone, setDeliveryPhone] = useState('');
     const [deliveryLocation, setDeliveryLocation] = useState('inside');
     const [step, setStep] = useState(1);
-    const [codMethod, setCodMethod] = useState("")
+    const [codMethod, setCodMethod] = useState("");
+
+    // নিরাপদে profit বের করার ফাংশন
+    const getProfitPerItem = (item) => {
+        if (item.profit !== undefined && item.profit !== null) {
+            return parseFloat(item.profit) || 0;
+        }
+        if (item.sizes && Array.isArray(item.sizes)) {
+            const matched = item.sizes.find(
+                s => s.size?.trim() === item.size?.trim()
+            );
+            return matched?.profit ? parseFloat(matched.profit) : 0;
+        }
+        return 0;
+    };
 
     useEffect(() => {
         fetchPaymentInfo();
     }, []);
-
 
     const fetchPaymentInfo = async () => {
         setIsPaymentInfoLoading(true);
@@ -182,6 +195,10 @@ const CartPage = () => {
             location: deliveryLocation === 'inside' ? 'Dhaka City' : 'Outside Dhaka'
         };
 
+        // নিরাপদে profit বের করা
+        const profitPerItem = getProfitPerItem(selectedItem);
+        const totalProfit = profitPerItem * qty;
+
         const orderData = {
             items: [{
                 productId: selectedItem.productId,
@@ -192,7 +209,9 @@ const CartPage = () => {
                 quantity: qty,
                 subtotal: itemTotal,
                 thumbnail: selectedItem.thumbnail,
+                profit: profitPerItem
             }],
+            profit: totalProfit,
             items_total: itemTotal,
             delivery_charge: deliveryCharge,
             grand_total: grandTotal,
@@ -219,8 +238,7 @@ const CartPage = () => {
                 body: JSON.stringify(orderData),
             });
 
-            if (res) {
-
+            if (res.ok) {
                 Swal.fire({
                     title: isCOD
                         ? `COD অর্ডার প্লেস হয়েছে। ডেলিভারির সময় টাকা পেমেন্ট করুন।`
@@ -231,12 +249,6 @@ const CartPage = () => {
                     timer: 1500
                 });
 
-                // toast({
-                //     title: "অর্ডার সফল!",
-                //     description: isCOD
-                //         ? `COD অর্ডার প্লেস হয়েছে। ডেলিভারির সময় টাকা পেমেন্ট করুন।`
-                //         : "অর্ডার প্লেস হয়েছে।",
-                // });
                 await handleDelete(selectedItem._id);
                 setIsModalOpen(false);
                 if (fetchCart) await fetchCart();
@@ -283,6 +295,8 @@ const CartPage = () => {
                     const qty = quantities[item._id] || 1;
                     const subtotal = qty * parseFloat(item.price || 0);
                     const maxStock = item.sizeStock || 999;
+                    const profitPerItem = getProfitPerItem(item);
+                    const totalProfit = profitPerItem * qty;
 
                     return (
                         <div
@@ -302,6 +316,7 @@ const CartPage = () => {
                                             {item.size}
                                         </span>
                                         <span className="text-green-600 font-bold">৳{parseFloat(item.price).toFixed(2)}</span>
+
                                     </div>
                                     {maxStock < 10 && (
                                         <p className="text-xs text-red-600 mt-1">মাত্র {maxStock} টি আছে!</p>
@@ -321,6 +336,7 @@ const CartPage = () => {
                                 </div>
 
                                 <p className="text-lg font-bold text-gray-800 whitespace-nowrap">৳{subtotal.toFixed(2)}</p>
+
 
                                 <div className="flex items-center gap-2">
                                     <Button onClick={() => handleBuyNow(item._id)} size="sm" className="bg-orange-600 hover:bg-orange-700">
@@ -363,6 +379,9 @@ const CartPage = () => {
                                                 <div>
                                                     <p className="font-medium">{selectedItem.name}</p>
                                                     <p className="text-xs text-gray-500">{selectedItem.size} × ৳{selectedItem.price} × {quantities[selectedItem._id] || 1}</p>
+                                                    {/* {getProfitPerItem(selectedItem) > 0 && (
+                                                        <p className="text-xs text-green-600">লাভ: ৳{getProfitPerItem(selectedItem)}</p>
+                                                    )} */}
                                                 </div>
                                             </div>
                                             <p className="font-semibold">৳{calculateItemTotal(selectedItem)}</p>
@@ -378,18 +397,18 @@ const CartPage = () => {
                                         <div className="border-t pt-2 font-bold flex justify-between text-blue-700">
                                             <span>গ্র্যান্ড টোটাল</span><span>৳{calculateGrandTotal()}</span>
                                         </div>
-                                    </div>
-                                    {amarBikriMullo && (
-                                        <div className="mt-3 p-3 bg-white/70 rounded-lg">
-                                            <div className="flex justify-between text-sm"><span>গ্র্যান্ড টোটাল</span><span>৳{calculateGrandTotal()}</span></div>
-                                            <div className="flex justify-between text-sm"><span>আপনার মূল্য</span><span>৳{amarBikriMullo}</span></div>
-                                            <div className="w-full h-[0.5px] bg-green-500"></div>
-                                            <div className="flex justify-between font-bold text-green-600 mt-1">
-                                                <span>আপনার লাভ</span>
-                                                <span>৳{(parseFloat(amarBikriMullo) - parseFloat(calculateGrandTotal())).toFixed(2)}</span>
+                                        {amarBikriMullo && (
+                                            <div className="mt-3 p-3 bg-white/70 rounded-lg">
+                                                <div className="flex justify-between text-sm"><span>গ্র্যান্ড টোটাল</span><span>৳{calculateGrandTotal()}</span></div>
+                                                <div className="flex justify-between text-sm"><span>আপনার মূল্য</span><span>৳{amarBikriMullo}</span></div>
+                                                <div className="w-full h-[0.5px] bg-green-500"></div>
+                                                <div className="flex justify-between font-bold text-green-600 mt-1">
+                                                    <span>আপনার লাভ</span>
+                                                    <span>৳{(parseFloat(amarBikriMullo) - parseFloat(calculateGrandTotal())).toFixed(2)}</span>
+                                                </div>
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -429,7 +448,6 @@ const CartPage = () => {
                             </div>
                         </div>
                     )}
-
 
                     {/* Step 2 */}
                     {step === 2 && (
@@ -502,10 +520,7 @@ const CartPage = () => {
                                             <p className="p-2 px-4 text-lg border border-green-500 rounded-lg">Send Money: {getDeliveryCharge()} TK</p>
                                             <p className="p-2 px-4 text-sm border border-green-500 rounded-lg text-center">ডেলিভারি চার্জ অগ্রিম সেন্ড করুন</p>
                                         </div>
-
                                     </div>
-
-
                                 )}
 
                                 {/* Payment Inputs */}
@@ -519,8 +534,7 @@ const CartPage = () => {
                                                 required
                                                 onChange={(e) => setCodMethod(e.target.value)}
                                                 name="" id="">
-
-                                                <option value="">Selct Payment Option</option>
+                                                <option value="">Select Payment Option</option>
                                                 <option value="Bkash">Bkash</option>
                                                 <option value="Nagad">Nagad</option>
                                             </select>

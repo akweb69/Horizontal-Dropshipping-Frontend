@@ -25,10 +25,10 @@ const ManageProductsPage = () => {
     sectionName: '',
     description: '',
     sizes: [],
-    sliderImages: [] // New field for slider images
+    sliderImages: []
   });
   const [selectedFile, setSelectedFile] = useState(null);
-  const [selectedSliderFiles, setSelectedSliderFiles] = useState([]); // For multiple slider images
+  const [selectedSliderFiles, setSelectedSliderFiles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [btnLoading, setBtnLoading] = useState(false);
 
@@ -85,7 +85,7 @@ const ManageProductsPage = () => {
   const addSize = () => {
     setFormData(prev => ({
       ...prev,
-      sizes: [...prev.sizes, { size: '', price: '', stock: '' }]
+      sizes: [...prev.sizes, { size: '', price: '', stock: '', profit: '' }]
     }));
   };
 
@@ -160,7 +160,8 @@ const ManageProductsPage = () => {
       sizes: product.sizes ? product.sizes.map(s => ({
         size: s.size,
         price: s.price.toString(),
-        stock: s.stock.toString()
+        stock: s.stock.toString(),
+        profit: s.profit?.toString() || ''  // Load profit if exists
       })) : [],
       sliderImages: product.sliderImages || []
     });
@@ -209,7 +210,8 @@ const ManageProductsPage = () => {
       sizes: formData.sizes.map(s => ({
         size: s.size,
         price: parseFloat(s.price),
-        stock: parseInt(s.stock, 10)
+        stock: parseInt(s.stock, 10),
+        profit: s.profit ? parseFloat(s.profit) : 0  // Parse profit
       }))
     };
 
@@ -273,6 +275,15 @@ const ManageProductsPage = () => {
     return sizes.reduce((sum, s) => sum + s.stock, 0);
   };
 
+  const getTotalProfit = (sizes) => {
+    if (!sizes || sizes.length === 0) return 0;
+    // return sizes.reduce((sum, s) => sum + (s.profit || 0), 0);
+
+    if (sizes.length === 1) return sizes[0].profit;
+    const max = sizes.length - 1;
+    return `${sizes[0].profit} ... ${sizes[max].profit}`;
+  };
+
   const getAvailableSizes = (sizes) => {
     if (!sizes || sizes.length === 0) return 'নেই';
     return sizes.map(s => s.size).join(', ');
@@ -283,7 +294,7 @@ const ManageProductsPage = () => {
     return (
       <div className="flex gap-2">
         {sliderImages.slice(0, 3).map((url, index) => (
-          <img key={index} src={url} alt={`Slider ${index + 1}`} className="h-10 w-10 object-cover rounded" />
+          <img key={index} src={url} alt={`Slider ${index + 1} `} className="h-10 w-10 object-cover rounded" />
         ))}
         {sliderImages.length > 3 && <span className="text-sm">+{sliderImages.length - 3}</span>}
       </div>
@@ -321,6 +332,7 @@ const ManageProductsPage = () => {
                 <TableHead>থাম্বনেইল</TableHead>
                 <TableHead>নাম</TableHead>
                 <TableHead>মূল্য</TableHead>
+                <TableHead>লাভ</TableHead>
                 <TableHead>ক্যাটাগরি</TableHead>
                 <TableHead>সেকশন</TableHead>
                 <TableHead>স্টক</TableHead>
@@ -342,6 +354,7 @@ const ManageProductsPage = () => {
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{getPriceRange(product.sizes)}</TableCell>
+                  <TableCell className="font-semibold text-green-600">৳{getTotalProfit(product.sizes)}</TableCell>
                   <TableCell>{product.category}</TableCell>
                   <TableCell>{product.sectionName}</TableCell>
                   <TableCell>{getTotalStock(product.sizes)}</TableCell>
@@ -374,7 +387,7 @@ const ManageProductsPage = () => {
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">
               {currentProduct ? 'পণ্য সম্পাদনা করুন' : 'নতুন পণ্য যোগ করুন'}
@@ -448,10 +461,10 @@ const ManageProductsPage = () => {
               </div>
             </div>
 
-            {/* Size, Price, Stock - Dynamic */}
+            {/* Size, Price, Stock, Profit - Dynamic */}
             <Card className="p-4 border">
               <div className="flex justify-between items-center mb-3">
-                <Label className="text-sm font-semibold">সাইজ, মূল্য ও স্টক <span className="text-red-500">*</span></Label>
+                <Label className="text-sm font-semibold">সাইজ, মূল্য, স্টক ও লাভ <span className="text-red-500">*</span></Label>
                 <Button type="button" size="sm" onClick={addSize} className="flex items-center gap-1">
                   <PlusCircle className="h-4 w-4" /> সাইজ যোগ করুন
                 </Button>
@@ -464,21 +477,21 @@ const ManageProductsPage = () => {
                   </p>
                 ) : (
                   formData.sizes.map((s, index) => (
-                    <div key={index} className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end border-b pb-3 last:border-0">
+                    <div key={index} className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end border-b pb-3 last:border-0">
                       <div>
-                        <Label htmlFor={`size-${index}`} className="text-xs">সাইজ</Label>
+                        <Label htmlFor={`size - ${index} `} className="text-xs">সাইজ</Label>
                         <Input
-                          id={`size-${index}`}
-                          placeholder="S, M, L, XL"
+                          id={`size - ${index} `}
+                          placeholder="S, M, L"
                           value={s.size}
                           onChange={(e) => handleSizeChange(index, 'size', e.target.value)}
                           className="h-9"
                         />
                       </div>
                       <div>
-                        <Label htmlFor={`price-${index}`} className="text-xs">মূল্য (৳)</Label>
+                        <Label htmlFor={`price - ${index} `} className="text-xs">মূল্য (৳)</Label>
                         <Input
-                          id={`price-${index}`}
+                          id={`price - ${index} `}
                           type="number"
                           placeholder="299"
                           value={s.price}
@@ -486,15 +499,26 @@ const ManageProductsPage = () => {
                           className="h-9"
                         />
                       </div>
+                      <div>
+                        <Label htmlFor={`stock - ${index} `} className="text-xs">স্টক</Label>
+                        <Input
+                          id={`stock - ${index} `}
+                          type="number"
+                          placeholder="50"
+                          value={s.stock}
+                          onChange={(e) => handleSizeChange(index, 'stock', e.target.value)}
+                          className="h-9"
+                        />
+                      </div>
                       <div className="flex gap-2">
                         <div className="flex-1">
-                          <Label htmlFor={`stock-${index}`} className="text-xs">স্টক</Label>
+                          <Label htmlFor={`profit - ${index} `} className="text-xs">লাভ (৳)</Label>
                           <Input
-                            id={`stock-${index}`}
+                            id={`profit - ${index} `}
                             type="number"
                             placeholder="50"
-                            value={s.stock}
-                            onChange={(e) => handleSizeChange(index, 'stock', e.target.value)}
+                            value={s.profit}
+                            onChange={(e) => handleSizeChange(index, 'profit', e.target.value)}
                             className="h-9"
                           />
                         </div>
@@ -567,7 +591,7 @@ const ManageProductsPage = () => {
                       <div key={index} className="relative">
                         <img
                           src={url}
-                          alt={`Slider ${index + 1}`}
+                          alt={`Slider ${index + 1} `}
                           className="h-24 w-24 object-cover rounded-lg border"
                         />
                         <Button
