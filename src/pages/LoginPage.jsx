@@ -79,6 +79,7 @@ const LoginPage = () => {
       </Helmet>
 
       <div className="relative w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 via-white to-slate-100 overflow-hidden">
+
         {/* Background blur image */}
         {logo && (
           <img

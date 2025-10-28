@@ -140,8 +140,8 @@ const SignUpPage = () => {
         </div>
       </div>
       {/* hero section */}
-      <div className="w-full h-[93vh] relative">
-        <img className='w-full h-full opacity-85 blur-sm ' src={uploadedBanner} alt="" />
+      <div className="w-full h-[93vh] relative ">
+        <img className='w-full h-full opacity-85 ' src={uploadedBanner} alt="" />
 
         <div className="bg-black bg-opacity-30 w-full h-full absolute top-0 left-0"></div>
 
@@ -156,127 +156,119 @@ const SignUpPage = () => {
           <Link to={"/login"} className='p-2 px-4 bg-orange-500 text-lg md:text-xl rounded-lg text-white hover:text-black mt-6 hover:bg-orange-600'>আজই শুরু করুন</Link>
         </div>
 
-
-
       </div>
 
+      {/* <div className="flex flex-col lg:flex-row min-h-[50vh] gap-10 lg:gap-0 bg-gray-50">
 
+       
+      
+      </div> */}
 
+      {
+        openForm &&
+        <div className="w-full absolute inset-0 backdrop-blur-sm h-full flex justify-center items-center p-4 z-50 ">
+          <div className="lg:w-1/2 w-full flex items-center justify-center p-4 sm:p-6 md:p-8">
 
-
-      <div className="flex flex-col lg:flex-row min-h-[50vh] gap-10 lg:gap-0 bg-gray-50">
-
-
-
-
-
-
-
-        {/* Form Section */}
-        {
-          openForm &&
-          <div className="w-full absolute inset-0 backdrop-blur-sm h-full flex justify-center items-center p-4 z-50">
-            <div className="lg:w-1/2 w-full flex items-center justify-center p-4 sm:p-6 md:p-8">
-              <div className="w-full max-w-md bg-black/40 backdrop-blur-lg p-6 sm:p-8 rounded-2xl shadow-lg">
-                <div className="text-center mb-6 sm:mb-8">
-                  <h1 className="text-2xl sm:text-3xl font-bold text-white">নতুন অ্যাকাউন্ট তৈরি করুন</h1>
-                  <p className="text-gray-200 mt-2">আমাদের কমিউনিটিতে যোগ দিন!</p>
-                </div>
-
-                <form onSubmit={handleSignUp} className="space-y-4 sm:space-y-6">
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      id="name"
-                      name="name"
-                      type="text"
-                      placeholder="আপনার পুরো নাম"
-                      required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                    />
-                  </div>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="আপনার ইমেইল"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                    />
-                  </div>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      placeholder="আপনার ফোন নম্বর"
-                      required
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                    />
-                  </div>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      id="password"
-                      name="password"
-                      type="password"
-                      placeholder="নতুন পাসওয়ার্ড"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                    />
-                  </div>
-                  <div className="flex items-start">
-                    <input
-                      id="terms"
-                      name="terms"
-                      type="checkbox"
-                      required
-                      className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mt-1"
-                    />
-                    <label htmlFor="terms" className="ml-3 text-sm text-gray-100">
-                      আমি{' '}
-                      <button
-                        type="button"
-                        onClick={() => toast({ title: "🚧 এই ফিচারটি এখনও চালু হয়নি।" })}
-                        className="font-medium text-orange-600 hover:underline"
-                      >
-                        শর্তাবলী
-                      </button>{' '}
-                      এর সাথে একমত
-                    </label>
-                  </div>
-                  <Button
-                    size="lg"
-                    className="w-full flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 transition-colors"
-                    type="submit"
-                  >
-                    <UserPlus className="w-5 h-5" />
-                    সাইন আপ
-                  </Button>
-                </form>
-
-                <p className="mt-6 sm:mt-8 text-center text-sm text-gray-300">
-                  ইতিমধ্যে একটি অ্যাকাউন্ট আছে?{' '}
-                  <Link to={`/login?redirect=${from}`} className="font-semibold text-orange-600 hover:underline">
-                    লগইন করুন
-                  </Link>
-                </p>
+            <div className="w-full max-w-md bg-black/40 backdrop-blur-lg p-6 sm:p-8 rounded-2xl shadow-lg">
+              <div className="text-center mb-6 sm:mb-8">
+                <h1 className="text-2xl sm:text-3xl font-bold text-white">নতুন অ্যাকাউন্ট তৈরি করুন</h1>
+                <p className="text-gray-200 mt-2">আমাদের কমিউনিটিতে যোগ দিন!</p>
               </div>
+
+              <form onSubmit={handleSignUp} className="space-y-4 sm:space-y-6">
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    placeholder="আপনার পুরো নাম"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="আপনার ইমেইল"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="আপনার ফোন নম্বর"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="নতুন পাসওয়ার্ড"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div className="flex items-start">
+                  <input
+                    id="terms"
+                    name="terms"
+                    type="checkbox"
+                    required
+                    className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mt-1"
+                  />
+                  <label htmlFor="terms" className="ml-3 text-sm text-gray-100">
+                    আমি{' '}
+                    <button
+                      type="button"
+                      onClick={() => toast({ title: "🚧 এই ফিচারটি এখনও চালু হয়নি।" })}
+                      className="font-medium text-orange-600 hover:underline"
+                    >
+                      শর্তাবলী
+                    </button>{' '}
+                    এর সাথে একমত
+                  </label>
+                </div>
+                <Button
+                  size="lg"
+                  className="w-full flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 transition-colors"
+                  type="submit"
+                >
+                  <UserPlus className="w-5 h-5" />
+                  সাইন আপ
+                </Button>
+              </form>
+
+              <p className="mt-6 sm:mt-8 text-center text-sm text-gray-300">
+                ইতিমধ্যে একটি অ্যাকাউন্ট আছে?{' '}
+                <Link to={`/login?redirect=${from}`} className="font-semibold text-orange-600 hover:underline">
+                  লগইন করুন
+                </Link>
+              </p>
             </div>
+
           </div>
-        }
-      </div>
+        </div>
+      }
     </>
   );
 };

@@ -34,9 +34,9 @@ const Layout = () => {
       <main className="flex-grow mobile-content">
         <Outlet />
       </main>
-      {
+      {/* {
         !user && !user?.email ? <AboutUsPage></AboutUsPage> : null
-      }
+      } */}
 
       <Footer />
       <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
