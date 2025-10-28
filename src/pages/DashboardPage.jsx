@@ -499,7 +499,7 @@ const DashboardPage = () => {
         } else if (hour >= 15 && hour < 18) {
             setBikal(true);
         } else if (hour >= 18 && hour < 19) {
-            setBikal(true);
+            setShondha(true);
         } else {
             setRat(true);
         }
