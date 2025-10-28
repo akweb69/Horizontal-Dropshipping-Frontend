@@ -53,6 +53,8 @@ import ClassRequest from './components/layout/ClassRequest';
 import ManageClassRequest from './pages/admin/ManageClassRequest';
 import ManageRefferWithDraw from './pages/admin/ManageRefferWithDraw';
 import LavUttolon from './pages/admin/LavUttolon';
+import Amader from './pages/Amader';
+import Kivabe from './pages/Kivabe';
 
 function App() {
   return (
@@ -77,6 +79,8 @@ function App() {
           <Route path="support" element={<SupportPage />} />
           <Route path="cart" element={<CartPage />} />
           <Route path="product/:id" element={<ProductDetails />} />
+          <Route path="amader-sompare" element={<Amader />} />
+          <Route path="kivabe" element={<Kivabe />} />
         </Route>
 
         <Route

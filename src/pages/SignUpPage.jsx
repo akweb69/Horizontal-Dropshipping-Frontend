@@ -133,8 +133,8 @@ const SignUpPage = () => {
           {/* right side */}
           <div className="flex items-center gap-3">
             <Link className='hover:bg-orange-500 px-2 rounded-lg p-1 hover:text-white' to={"/"}>হোম</Link>
-            <Link className='hover:bg-orange-500 px-2 rounded-lg p-1 hover:text-white' to={"/"}>কিভাবে কাজ করে</Link>
-            <Link className='hover:bg-orange-500 px-2 rounded-lg p-1 hover:text-white' to={"/"}>আমাদের সম্পর্কে</Link>
+            <Link className='hover:bg-orange-500 px-2 rounded-lg p-1 hover:text-white' to={"/kivabe"}>কিভাবে কাজ করে</Link>
+            <Link className='hover:bg-orange-500 px-2 rounded-lg p-1 hover:text-white' to={"/amader-sompare"}>আমাদের সম্পর্কে</Link>
             <div className='hover:bg-orange-600 px-2 text-white hover:text-black rounded-lg p-1 cursor-pointer bg-orange-500' onClick={() => setOpenForm(true)} >শাইন আপ</div>
           </div>
         </div>
