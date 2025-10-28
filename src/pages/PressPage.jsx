@@ -7,19 +7,19 @@ const PressPage = () => {
     const pressMentions = [
         {
             outlet: 'ডিজিটাল উদ্যোক্তা ম্যাগাজিন',
-            title: 'LetsDropship: বাংলাদেশের নতুন ই-কমার্স বিপ্লব',
+            title: 'UnicDropex: বাংলাদেশের নতুন ই-কমার্স বিপ্লব',
             date: 'জুলাই ২৫, ২০২৫',
             link: '#',
         },
         {
             outlet: 'টেক নিউজ বিডি',
-            title: 'ড্রপশিপিংকে সহজ করছে LetsDropship',
+            title: 'ড্রপশিপিংকে সহজ করছে UnicDropex',
             date: 'জুলাই ২০, ২০২৫',
             link: '#',
         },
         {
             outlet: 'বিজনেস ইনসাইডার বাংলাদেশ',
-            title: 'যেভাবে হাজারো তরুণের কর্মসংস্থান করছে LetsDropship',
+            title: 'যেভাবে হাজারো তরুণের কর্মসংস্থান করছে UnicDropex',
             date: 'জুলাই ১৫, ২০২৫',
             link: '#',
         },
@@ -28,8 +28,8 @@ const PressPage = () => {
     return (
         <>
             <Helmet>
-                <title>প্রেস - LetsDropship</title>
-                <meta name="description" content="LetsDropship সম্পর্কে মিডিয়া কী বলছে তা দেখুন এবং আমাদের প্রেস কিট ডাউনলোড করুন।" />
+                <title>প্রেস - UnicDropex</title>
+                <meta name="description" content="UnicDropex সম্পর্কে মিডিয়া কী বলছে তা দেখুন এবং আমাদের প্রেস কিট ডাউনলোড করুন।" />
             </Helmet>
             <div className="bg-slate-50 py-16">
                 <div className="max-w-5xl mx-auto px-4">
@@ -76,7 +76,7 @@ const PressPage = () => {
                             <div className="mt-8">
                                 <h3 className="font-semibold text-lg text-gray-800 mb-2">মিডিয়া যোগাযোগের জন্য:</h3>
                                 <p className="text-gray-600">
-                                    <span className="font-semibold">ইমেইল:</span> <a href="mailto:press@letsdropship.com" className="text-orange-600 hover:underline">press@letsdropship.com</a>
+                                    <span className="font-semibold">ইমেইল:</span> <a href="mailto:press@UnicDropex.com" className="text-orange-600 hover:underline">press@UnicDropex.com</a>
                                 </p>
                             </div>
                         </motion.div>

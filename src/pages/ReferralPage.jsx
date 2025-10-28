@@ -106,8 +106,8 @@ const ReferralPage = () => {
   return (
     <>
       <Helmet>
-        <title>রেফারেল প্রোগ্রাম - LetsDropship</title>
-        <meta name="description" content="LetsDropship রেফারেল প্রোগ্রামে যোগ দিন এবং আয় করুন।" />
+        <title>রেফারেল প্রোগ্রাম - UnicDropex</title>
+        <meta name="description" content="UnicDropex রেফারেল প্রোগ্রামে যোগ দিন এবং আয় করুন।" />
       </Helmet>
       <div className="relative py-16 md:py-24 overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
         <div className="absolute inset-0 bg-cover bg-center opacity-10" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1518655048521-f130df041f66?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')` }}></div>
@@ -126,7 +126,7 @@ const ReferralPage = () => {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-lg md:text-xl mb-8 max-w-2xl mx-auto"
           >
-            আপনার বন্ধুদের LetsDropship-এ রেফার করুন এবং প্রতিটি সফল সাইনআপ বা কেনাকাটার জন্য বিশেষ পুরস্কার ও কমিশন পান।
+            আপনার বন্ধুদের UnicDropex-এ রেফার করুন এবং প্রতিটি সফল সাইনআপ বা কেনাকাটার জন্য বিশেষ পুরস্কার ও কমিশন পান।
           </motion.p>
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}

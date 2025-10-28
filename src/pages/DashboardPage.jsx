@@ -526,8 +526,8 @@ const DashboardPage = () => {
     return (
         <>
             <Helmet>
-                <title>ড্যাশবোর্ড - LetsDropship</title>
-                <meta name="description" content="আপনার LetsDropship ড্যাশবোর্ড পরিচালনা করুন।" />
+                <title>ড্যাশবোর্ড - UnicDropex</title>
+                <meta name="description" content="আপনার UnicDropex ড্যাশবোর্ড পরিচালনা করুন।" />
             </Helmet>
 
             <div className="p-0 md:p-6 min-h-screen bg-gradient-to-br space-y-6 bangla">
@@ -567,7 +567,7 @@ const DashboardPage = () => {
                                     <div className="relative z-10 bg-transparent   rounded-2xl px-3 md:p-6 overflow-hidden">
                                         {/* তোমার কার্ডের content */}
                                         <p className="inline-block bg-gradient-to-r from-orange-400 to-amber-500 text-white text-[8px] md:text-sm font-semibold px-4 py-2 md:py-3 rounded-md shadow-md shadow-orange-200/60">
-                                            LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                            UnicDropex · <span>{user?.subscription?.plan}</span>
                                         </p>
 
                                         <div className="mt-3 md:mt-6 text-gray-600 tracking-widest text-lg font-semibold">
@@ -622,7 +622,7 @@ const DashboardPage = () => {
 
                                     <div className="relative z-10">
                                         <p className="inline-block bg-orange-400 text-white text-sm font-semibold px-4 py-1 rounded-md shadow-md">
-                                            LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                            UnicDropex · <span>{user?.subscription?.plan}</span>
                                         </p>
 
                                         <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
@@ -676,7 +676,7 @@ const DashboardPage = () => {
                                     </div>
                                     <div className="relative z-10">
                                         <p className="inline-block bg-orange-400 text-white text-sm font-semibold px-4 py-1 rounded-md">
-                                            LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                            UnicDropex · <span>{user?.subscription?.plan}</span>
                                         </p>
                                         <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
                                             ****** {user?.phone.slice(5, 11)}
@@ -706,7 +706,7 @@ const DashboardPage = () => {
                                 <div className="premium-card overflow-hidden">
                                     <div className="relative z-10 bg-transparent rounded-2xl px-3 md:p-6 overflow-hidden">
                                         <p className="inline-block bg-gradient-to-r from-orange-400 to-amber-500 text-white text-[8px] md:text-sm font-semibold px-4 py-2 md:py-3 rounded-md shadow-md shadow-orange-200/60">
-                                            LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                            UnicDropex · <span>{user?.subscription?.plan}</span>
                                         </p>
                                         <div className="mt-3 md:mt-6 text-gray-600 tracking-widest text-lg font-semibold">
                                             ****** {user?.phone.slice(5, 11)}
@@ -758,7 +758,7 @@ const DashboardPage = () => {
                                     </div>
                                     <div className="relative z-10">
                                         <p className="inline-block bg-orange-400 text-white text-sm font-semibold px-4 py-1 rounded-md">
-                                            LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                            UnicDropex · <span>{user?.subscription?.plan}</span>
                                         </p>
                                         <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
                                             ****** {user?.phone.slice(5, 11)}
@@ -788,7 +788,7 @@ const DashboardPage = () => {
                                 <div className="premium-card overflow-hidden">
                                     <div className="relative z-10 bg-transparent rounded-2xl px-3 md:p-6 overflow-hidden">
                                         <p className="inline-block bg-gradient-to-r from-orange-400 to-amber-500 text-white text-[8px] md:text-sm font-semibold px-4 py-2 md:py-3 rounded-md shadow-md shadow-orange-200/60">
-                                            LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                            UnicDropex · <span>{user?.subscription?.plan}</span>
                                         </p>
                                         <div className="mt-3 md:mt-6 text-gray-600 tracking-widest text-lg font-semibold">
                                             ****** {user?.phone.slice(5, 11)}
@@ -839,7 +839,7 @@ const DashboardPage = () => {
                                     </div>
                                     <div className="relative z-10">
                                         <p className="inline-block bg-orange-400 text-white text-sm font-semibold px-4 py-1 rounded-md">
-                                            LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                            UnicDropex · <span>{user?.subscription?.plan}</span>
                                         </p>
                                         <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
                                             ****** {user?.phone.slice(5, 11)}
@@ -869,7 +869,7 @@ const DashboardPage = () => {
                                 <div className="premium-card overflow-hidden">
                                     <div className="relative z-10 bg-transparent rounded-2xl px-3 md:p-6 overflow-hidden">
                                         <p className="inline-block bg-gradient-to-r from-orange-400 to-amber-500 text-white text-[8px] md:text-sm font-semibold px-4 py-2 md:py-3 rounded-md shadow-md shadow-orange-200/60">
-                                            LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                            UnicDropex · <span>{user?.subscription?.plan}</span>
                                         </p>
                                         <div className="mt-3 md:mt-6 text-gray-600 tracking-widest text-lg font-semibold">
                                             ****** {user?.phone.slice(5, 11)}
@@ -920,7 +920,7 @@ const DashboardPage = () => {
                                     </div>
                                     <div className="relative z-10">
                                         <p className="inline-block bg-orange-400 text-white text-sm font-semibold px-4 py-1 rounded-md">
-                                            LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                            UnicDropex · <span>{user?.subscription?.plan}</span>
                                         </p>
                                         <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
                                             ****** {user?.phone.slice(5, 11)}
@@ -950,7 +950,7 @@ const DashboardPage = () => {
                                 <div className="premium-card overflow-hidden">
                                     <div className="relative z-10 bg-transparent rounded-2xl px-3 md:p-6 overflow-hidden">
                                         <p className="inline-block bg-gradient-to-r from-orange-400 to-amber-500 text-white text-[8px] md:text-sm font-semibold px-4 py-2 md:py-3 rounded-md shadow-md shadow-orange-200/60">
-                                            LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                            UnicDropex · <span>{user?.subscription?.plan}</span>
                                         </p>
                                         <div className="mt-3 md:mt-6 text-gray-600 tracking-widest text-lg font-semibold">
                                             ****** {user?.phone.slice(5, 11)}
@@ -1001,7 +1001,7 @@ const DashboardPage = () => {
                                     </div>
                                     <div className="relative z-10">
                                         <p className="inline-block bg-orange-400 text-white text-sm font-semibold px-4 py-1 rounded-md">
-                                            LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                            UnicDropex · <span>{user?.subscription?.plan}</span>
                                         </p>
                                         <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
                                             ****** {user?.phone.slice(5, 11)}
@@ -1031,7 +1031,7 @@ const DashboardPage = () => {
                                 <div className="premium-card overflow-hidden">
                                     <div className="relative z-10 bg-transparent rounded-2xl px-3 md:p-6 overflow-hidden">
                                         <p className="inline-block bg-gradient-to-r from-orange-400 to-amber-500 text-white text-[8px] md:text-sm font-semibold px-4 py-2 md:py-3 rounded-md shadow-md shadow-orange-200/60">
-                                            LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                            UnicDropex · <span>{user?.subscription?.plan}</span>
                                         </p>
                                         <div className="mt-3 md:mt-6 text-gray-600 tracking-widest text-lg font-semibold">
                                             ****** {user?.phone.slice(5, 11)}
@@ -1082,7 +1082,7 @@ const DashboardPage = () => {
                                     </div>
                                     <div className="relative z-10">
                                         <p className="inline-block bg-orange-400 text-white text-sm font-semibold px-4 py-1 rounded-md">
-                                            LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                            UnicDropex · <span>{user?.subscription?.plan}</span>
                                         </p>
                                         <div className="mt-6 text-gray-600 tracking-widest text-lg font-semibold">
                                             ****** {user?.phone.slice(5, 11)}
@@ -1112,7 +1112,7 @@ const DashboardPage = () => {
                                 <div className="premium-card overflow-hidden">
                                     <div className="relative z-10 bg-transparent rounded-2xl px-3 md:p-6 overflow-hidden">
                                         <p className="inline-block bg-gradient-to-r from-orange-400 to-amber-500 text-white text-[8px] md:text-sm font-semibold px-4 py-2 md:py-3 rounded-md shadow-md shadow-orange-200/60">
-                                            LetsDropShip · <span>{user?.subscription?.plan}</span>
+                                            UnicDropex · <span>{user?.subscription?.plan}</span>
                                         </p>
                                         <div className="mt-3 md:mt-6 text-gray-600 tracking-widest text-lg font-semibold">
                                             ****** {user?.phone.slice(5, 11)}

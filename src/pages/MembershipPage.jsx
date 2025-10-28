@@ -305,7 +305,7 @@ const MembershipPage = () => {
     return (
         <>
             <Helmet>
-                <title>মেম্বারশিপ - LetsDropship</title>
+                <title>মেম্বারশিপ - UnicDropex</title>
                 <meta name="description" content="বিশেষ সুবিধা উপভোগ করুন এবং সকল পণ্যের দাম দেখুন।" />
             </Helmet>
 

@@ -50,7 +50,7 @@ const AnalyticsPage = () => {
     return (
         <>
             <Helmet>
-                <title>অ্যানালিটিক্স - LetsDropship</title>
+                <title>অ্যানালিটিক্স - UnicDropex</title>
             </Helmet>
             <div className="space-y-6">
                 <div>

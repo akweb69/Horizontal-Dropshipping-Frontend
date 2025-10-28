@@ -331,7 +331,7 @@ const OrderTrackingDashboardPage = () => {
 
       doc.setFontSize(10);
       doc.setTextColor("#888888");
-      doc.text("Thank you for shopping with LetsDropship!", 14, 285);
+      doc.text("Thank you for shopping with UnicDropex!", 14, 285);
 
       doc.save(`Invoice_${orderData._id?.$oid || orderData._id}.pdf`);
 
@@ -353,7 +353,7 @@ const OrderTrackingDashboardPage = () => {
   return (
     <>
       <Helmet>
-        <title>Order Tracking - LetsDropship</title>
+        <title>Order Tracking - UnicDropex</title>
       </Helmet>
       <div className="space-y-6 p-4 md:p-6">
         <div>

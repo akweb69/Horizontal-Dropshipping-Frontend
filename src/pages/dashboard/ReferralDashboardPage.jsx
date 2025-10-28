@@ -257,7 +257,7 @@ const ReferralDashboardPage = () => {
     if (!userData) {
         return (
             <div className="space-y-6">
-                <Helmet><title>রেফারেল - LetsDropship</title></Helmet>
+                <Helmet><title>রেফারেল - UnicDropex</title></Helmet>
                 <Card><CardContent className="text-center py-8 text-muted-foreground">ডেটা লোড করতে সমস্যা।</CardContent></Card>
             </div>
         );
@@ -265,7 +265,7 @@ const ReferralDashboardPage = () => {
 
     return (
         <>
-            <Helmet><title>রেফারেল প্রোগ্রাম - LetsDropship</title></Helmet>
+            <Helmet><title>রেফারেল প্রোগ্রাম - UnicDropex</title></Helmet>
             <div className="space-y-6 p-4 md:p-6">
 
                 {/* Header */}
@@ -300,7 +300,7 @@ const ReferralDashboardPage = () => {
                                 </div>
                                 <div className="relative z-10">
                                     <p className="inline-block bg-orange-400 text-white text-sm font-semibold px-4 py-1 rounded-md">
-                                        LetsDropShip · <span>{authUser?.subscription?.plan}</span>
+                                        UnicDropex · <span>{authUser?.subscription?.plan}</span>
                                     </p>
                                     <div className="md:mt-6 mt-2 text-gray-600 tracking-widest text-lg font-semibold">
                                         ****** {authUser?.phone.slice(5, 11)}

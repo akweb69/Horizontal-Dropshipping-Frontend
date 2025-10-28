@@ -114,7 +114,7 @@ const ManageUsersPage = () => {
   };
 
   const handleDelete = async (userId, userEmail) => {
-    if (userEmail === 'admin@letsdropship.com') {
+    if (userEmail === 'admin@UnicDropex.com') {
       toast({ title: "ত্রুটি", description: "মূল অ্যাডমিনকে মুছে ফেলা যাবে না।", variant: "destructive" });
       return;
     }
@@ -319,7 +319,7 @@ const ManageUsersPage = () => {
                       size="icon"
                       onClick={() => handleToggleAdmin(user._id, user.email)}
                       title={user.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
-                      disabled={user.email === 'admin@letsdropship.com'}
+                      disabled={user.email === 'admin@UnicDropex.com'}
                     >
                       {user.role === 'admin' ? (
                         <ShieldOff className="h-4 w-4 text-yellow-600" />
@@ -338,7 +338,7 @@ const ManageUsersPage = () => {
                           variant="ghost"
                           size="icon"
                           className="text-red-600 hover:text-red-700"
-                          disabled={user.email === 'admin@letsdropship.com'}
+                          disabled={user.email === 'admin@UnicDropex.com'}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

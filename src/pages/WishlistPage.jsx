@@ -85,7 +85,7 @@ const WishlistPage = () => {
   return (
     <>
       <Helmet>
-        <title>আমার পছন্দের তালিকা - LetsDropship</title>
+        <title>আমার পছন্দের তালিকা - UnicDropex</title>
         <meta name="description" content="আপনার পছন্দের পণ্যগুলো দেখুন এবং পরিচালনা করুন।" />
       </Helmet>
       <div className="bg-slate-50 min-h-screen py-12">

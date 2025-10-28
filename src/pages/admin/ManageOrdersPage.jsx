@@ -135,7 +135,7 @@ const ManageOrdersPage = () => {
         return;
       }
 
-      const { shopName = "LetsDropship", shopAddress = "N/A", shopContact = "N/A", shopImage } = orderData.store_info || {};
+      const { shopName = "UnicDropex", shopAddress = "N/A", shopContact = "N/A", shopImage } = orderData.store_info || {};
       const isCOD = orderData.payment_method?.toLowerCase().includes('cash') || orderData.payment_method?.toLowerCase() === 'cod';
       const productTotal = orderData.amar_bikri_mullo - (orderData.delivery_charge || 0);
       const grandTotal = orderData.amar_bikri_mullo || 0;
@@ -227,7 +227,7 @@ const ManageOrdersPage = () => {
       // Footer
       doc.setFontSize(10);
       doc.setTextColor("#888888");
-      doc.text("Thank you for shopping with LetsDropship!", 14, 285);
+      doc.text("Thank you for shopping with UnicDropex!", 14, 285);
 
       doc.save(`Invoice_${orderId}.pdf`);
       toast({ title: "সফল!", description: "ইনভয়েস তৈরি হয়েছে।", variant: "default" });

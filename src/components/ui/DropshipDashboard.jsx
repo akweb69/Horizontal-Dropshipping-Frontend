@@ -19,7 +19,7 @@ const DropshipDashboard = () => {
     }, []);
 
     const premiumCards = [
-        { title: "LetsDropShip · PREMIUM", label: "বর্তমান ব্যালান্স", amount: "৳ ২০" },
+        { title: "UnicDropex · PREMIUM", label: "বর্তমান ব্যালান্স", amount: "৳ ২০" },
         { title: "আজকের লাভ", label: "আজকের মোট ইনকাম", amount: "৳ ৫৫০" },
         { title: "গত ৭ দিন", label: "৭ দিনের মোট ইনকাম", amount: "৳ ১,২০০" },
         { title: "গত ১৪ দিন", label: "১৪ দিনের মোট ইনকাম", amount: "৳ ২,৫০০" },

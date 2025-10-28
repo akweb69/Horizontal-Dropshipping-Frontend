@@ -28,7 +28,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <img className='max-h-8' src={websiteData} alt="LetsDropShip" />
+            <img className='max-h-8' src={websiteData} alt="UnicDropex" />
             <p className="mt-4 text-gray-300 text-sm">আপনার ড্রপশিপিং ব্যবসার জন্য সেরা প্ল্যাটফর্ম।</p>
           </div>
           <div>

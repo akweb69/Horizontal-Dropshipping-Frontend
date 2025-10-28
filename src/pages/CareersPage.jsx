@@ -23,7 +23,7 @@ const CareersPage = () => {
     return (
         <>
             <Helmet>
-                <title>ক্যারিয়ার - LetsDropship</title>
+                <title>ক্যারিয়ার - UnicDropex</title>
                 <meta name="description" content="আমাদের দলে যোগ দিন এবং বাংলাদেশের ই-কমার্স ভবিষ্যৎ নির্মাণে অংশ নিন।" />
             </Helmet>
             <div className="bg-slate-50 py-16">
@@ -59,7 +59,7 @@ const CareersPage = () => {
                                 </div>
                             ))}
                         </div>
-                         <p className="text-center mt-8 text-gray-600">আপনার পছন্দের পদটি খুঁজে পাচ্ছেন না? আপনার সিভি আমাদের কাছে পাঠিয়ে দিন <a href="mailto:careers@letsdropship.com" className="text-orange-600 font-semibold hover:underline">careers@letsdropship.com</a></p>
+                        <p className="text-center mt-8 text-gray-600">আপনার পছন্দের পদটি খুঁজে পাচ্ছেন না? আপনার সিভি আমাদের কাছে পাঠিয়ে দিন <a href="mailto:careers@UnicDropex.com" className="text-orange-600 font-semibold hover:underline">careers@UnicDropex.com</a></p>
                     </motion.div>
                 </div>
             </div>

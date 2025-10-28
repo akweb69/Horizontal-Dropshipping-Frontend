@@ -6,12 +6,12 @@ const ReturnPolicyPage = () => {
   return (
     <>
       <Helmet>
-        <title>ফেরত নীতি - LetsDropship</title>
+        <title>ফেরত নীতি - UnicDropex</title>
         <meta name="description" content="আমাদের পণ্য ফেরত এবং রিফান্ড প্রক্রিয়া সম্পর্কে বিস্তারিত জানুন।" />
       </Helmet>
       <div className="bg-slate-50 py-16">
         <div className="max-w-4xl mx-auto px-4">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -45,7 +45,7 @@ const ReturnPolicyPage = () => {
                 <li>পণ্যটি আমাদের ওয়্যারহাউজে পৌঁছানোর পর মান যাচাই করা হবে।</li>
                 <li>যাচাই প্রক্রিয়া সফল হলে, ৭-১০ কার্যদিবসের মধ্যে আপনার টাকা রিফান্ড করা হবে।</li>
               </ol>
-              
+
               <p>যেকোনো প্রশ্নের জন্য, আমাদের <a href="/contact" className="text-orange-600 font-semibold hover:underline">গ্রাহক সেবা</a> বিভাগে যোগাযোগ করুন।</p>
             </div>
           </motion.div>

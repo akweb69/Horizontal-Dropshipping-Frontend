@@ -15,7 +15,7 @@ const AboutUsPage = () => {
   return (
     <>
       <Helmet>
-        <title>আমাদের সম্পর্কে - LetsDropship</title>
+        <title>আমাদের সম্পর্কে - UnicDropex</title>
         <meta name="description" content="ড্রপশিপিং এর মাধ্যমে বাংলাদেশী বিক্রেতা এবং ক্রেতাদের ক্ষমতায়ন। আমাদের লক্ষ্য এবং কার্যপদ্ধতি সম্পর্কে আরও জানুন।" />
       </Helmet>
 

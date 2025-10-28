@@ -71,7 +71,7 @@ const ClassRequest = () => {
     return (
         <>
             <Helmet>
-                <title>ক্লাস রিকোয়েস্ট - LetsDropship</title>
+                <title>ক্লাস রিকোয়েস্ট - UnicDropex</title>
                 <meta name="description" content="আপনার পছন্দের ক্লাসের জন্য রিকোয়েস্ট করুন। আমরা আপনার সাথে যোগাযোগ করব।" />
             </Helmet>
 

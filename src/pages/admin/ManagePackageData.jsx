@@ -236,7 +236,7 @@ const ManagePackageData = () => {
     return (
         <>
             <Helmet>
-                <title>প্যাকেজ ম্যানেজ করুন - LetsDropship</title>
+                <title>প্যাকেজ ম্যানেজ করুন - UnicDropex</title>
                 <meta name="description" content="মেম্বারশিপ প্যাকেজ তৈরি, সম্পাদনা, এবং মুছে ফেলুন।" />
             </Helmet>
 

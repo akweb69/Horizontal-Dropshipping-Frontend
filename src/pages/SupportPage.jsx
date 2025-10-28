@@ -9,7 +9,7 @@ const SupportPage = () => {
     return (
         <>
             <Helmet>
-                <title>সাপোর্ট - LetsDropship</title>
+                <title>সাপোর্ট - UnicDropex</title>
                 <meta name="description" content="যেকোনো প্রয়োজনে আমাদের সাপোর্ট টিমের সাহায্য নিন। আমরা আপনাকে সহায়তা করতে প্রস্তুত।" />
             </Helmet>
             <div className="bg-slate-50 py-16">
@@ -59,7 +59,7 @@ const SupportPage = () => {
 
                         <div className="bg-white rounded-xl shadow-lg p-8">
                             <h2 className="text-2xl font-bold text-gray-800 mb-6">সরাসরি যোগাযোগ</h2>
-                             <div className="space-y-4">
+                            <div className="space-y-4">
                                 <Link to="/contact" className="flex items-center gap-4 p-4 border rounded-lg hover:bg-slate-50 transition-colors">
                                     <Phone className="w-8 h-8 text-orange-500" />
                                     <div>
@@ -74,7 +74,7 @@ const SupportPage = () => {
                                         <p className="text-gray-600">আমাদের সাপোর্ট এজেন্টের সাথে চ্যাট করুন।</p>
                                     </div>
                                 </Link>
-                                 <Link to="/contact" className="flex items-center gap-4 p-4 border rounded-lg hover:bg-slate-50 transition-colors">
+                                <Link to="/contact" className="flex items-center gap-4 p-4 border rounded-lg hover:bg-slate-50 transition-colors">
                                     <BookOpen className="w-8 h-8 text-orange-500" />
                                     <div>
                                         <h3 className="font-semibold text-lg text-gray-900">গাইডলাইন পড়ুন</h3>

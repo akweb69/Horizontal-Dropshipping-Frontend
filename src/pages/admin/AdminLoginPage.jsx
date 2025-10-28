@@ -41,7 +41,7 @@ const AdminLoginPage = () => {
   return (
     <>
       <Helmet>
-        <title>অ্যাডমিন লগইন - LetsDropship</title>
+        <title>অ্যাডমিন লগইন - UnicDropex</title>
         <meta name="description" content="অ্যাডমিন প্যানেল অ্যাক্সেস করতে লগইন করুন।" />
       </Helmet>
       <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">

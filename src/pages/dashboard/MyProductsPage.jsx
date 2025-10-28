@@ -135,7 +135,7 @@ const MyProductsPage = () => {
     return (
         <>
             <Helmet>
-                <title>আমার পণ্য - LetsDropship</title>
+                <title>আমার পণ্য - UnicDropex</title>
             </Helmet>
             <div className="space-y-6">
                 <div>

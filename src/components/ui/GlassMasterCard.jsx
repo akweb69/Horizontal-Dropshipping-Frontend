@@ -34,7 +34,7 @@ export default function GlassMasterCard({
                                     <path d="M4 7H16" stroke="white" strokeOpacity="0.15" strokeWidth="0.6" />
                                 </svg>
                             </div>
-                            <div className="text-xs md:text-base text-yellow-800">LetsDropShip · PREMIUM</div>
+                            <div className="text-xs md:text-base text-yellow-800">UnicDropex · PREMIUM</div>
                         </div>
 
                         {/* MasterCard style logo */}

@@ -119,7 +119,7 @@ const SignUpPage = () => {
   return (
     <>
       <Helmet>
-        <title>সাইন আপ - LetsDropship</title>
+        <title>সাইন আপ - UnicDropex</title>
         <meta name="description" content="একটি নতুন অ্যাকাউন্ট তৈরি করুন এবং আমাদের সাথে আপনার যাত্রা শুরু করুন।" />
       </Helmet>
 
@@ -148,7 +148,7 @@ const SignUpPage = () => {
         <div className="absolute  top-0 left-0 w-full h-full z-50 flex flex-col justify-center items-center">
           <motion.h1
             initial={{ opacity: 0, y: 150, delay: 1 }} animate={{ opacity: 1, y: 0 }}
-            className="text-3xl bangla text-center font-extrabold text-white md:text-5xl lg:text-6xl py-4 flex flex-col justify-center items-center gap-5"> UniDropex - ড্রপশিপিং করে আয় করুন <span className=""> বিনা পুঁজিতেই!</span></motion.h1>
+            className="text-3xl bangla text-center font-extrabold text-white md:text-5xl lg:text-6xl py-4 flex flex-col justify-center items-center gap-5"> UnicDropex - ড্রপশিপিং করে আয় করুন <span className=""> বিনা পুঁজিতেই!</span></motion.h1>
 
           <h2 className="text-xl md:text-2xl lg:text-3xl text-center font-semibold text-gray-200">
             আমরাই আনছি স্মার্ট অনলাইন আয়ের সহজতম পথ।
