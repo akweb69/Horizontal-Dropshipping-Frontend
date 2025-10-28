@@ -84,7 +84,7 @@ const LoginPage = () => {
           <img
             src={logo}
             alt="UniDropEx Logo"
-            className="absolute inset-0 w-full h-full object-cover opacity-50 blur-sm"
+            className="absolute inset-0 w-full h-full object-cover opacity-80 blur-sm"
           />
         )}
 
@@ -92,7 +92,7 @@ const LoginPage = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="relative z-10 bg-white/90 backdrop-blur-xl p-8 sm:p-10 rounded-2xl shadow-2xl max-w-md w-full border border-orange-100"
+          className="relative z-10 bg-white/30 backdrop-blur-xl p-8 sm:p-10 rounded-2xl shadow-2xl max-w-md w-full border border-orange-100"
         >
           <div className="text-center mb-8">
             {/* {logo && (
