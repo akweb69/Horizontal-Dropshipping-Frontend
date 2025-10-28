@@ -104,6 +104,10 @@ const AdminDashboardPage = () => {
     const [pendingProfit, setPendingProfit] = useState(0)
     const [completedProfit, setCompletedProfit] = useState(0)
     const [totalAdminWithdraw, setTotalAdminWithdraw] = useState(0)
+    const [subscriptionIncome, setSubscriptionIncome] = useState(0);
+    // const [refferWithdraw, setRefferWithdraw] = useState(0);
+
+
     // const [netProfit, setNetProfit] = useState(0)
     // load all data---<
     useEffect(() => {
@@ -162,6 +166,16 @@ const AdminDashboardPage = () => {
                 setUiLoading(false)
 
             })
+        axios.get(`${import.meta.env.VITE_BASE_URL}/buy-package`)
+            .then(res => {
+
+                const data = res.data;
+                setSubscriptionIncome(data.reduce((acc, order) => acc + order.amount, 0));
+                console.log("--------->", data.reduce((acc, order) => acc + order.amount, 0));
+            })
+            .catch(err => {
+                setError("Something went wrong!");
+            });
         axios.get(`${import.meta.env.VITE_BASE_URL}/refer-withdraw`)
             .then(res => {
                 const data = res.data
@@ -307,11 +321,11 @@ const AdminDashboardPage = () => {
         { title: "রিটার্ন টাকা", value: `৳ ${stats.returnOrderAmount}`, desc: stats.returnOrderAmount > 0 ? `৳${stats.returnOrderAmount} রিফান্ড` : 'কোনো রিটার্ন নেই' },
         { title: "পেন্ডিং অর্ডার", value: `৳ ${stats.pendingOrderAmount}`, desc: stats.pendingOrderAmount > 0 ? `৳${stats.pendingOrderAmount} পেন্ডিং` : 'কোনো পেন্ডিং নেই' },
         { title: "ডেলিভার্ড টাকা", value: `৳ ${stats.deliveredOrderAmount}`, desc: stats.deliveredOrderAmount > 0 ? `৳${stats.deliveredOrderAmount} সফল` : 'কোনো ডেলিভারি নেই' },
-        { title: "ব্যবহারকারী ব্যালান্স", value: `৳ ${(totalUB + totalRB) - (totalNW + totalNRW)}`, desc: ".." },
+        { title: "ব্যবহারকারী ব্যালান্স", value: `৳ ${(totalUB + totalRB) - (totalNW + totalNRW)}`, },
         { title: "উত্তোলন রিকোয়েস্ট", value: withdrawStats.totalWithdrawRequest, desc: withdrawStats.totalWithdrawRequest > 0 ? `${withdrawStats.totalWithdrawRequest} টি রিকোয়েস্ট` : 'কোনো রিকোয়েস্ট নেই' },
         { title: "উত্তোলিত টাকা", value: `৳ ${withdrawStats.completedWithdrawAmount}`, desc: withdrawStats.completedWithdrawAmount > 0 ? `৳${withdrawStats.completedWithdrawAmount} অনুমোদিত` : 'কোনো উত্তোলন নেই' },
         { title: "পেন্ডিং উত্তোলন", value: `৳ ${withdrawStats.pendingWithdrawAmount}`, desc: withdrawStats.pendingWithdrawAmount > 0 ? `৳${withdrawStats.pendingWithdrawAmount} অপেক্ষায়` : 'কোনো পেন্ডিং নেই' },
-        { title: "মোট অ্যাডমিন লাভ", value: `৳ ${completedProfit - totalAdminWithdraw}` },
+        { title: "মোট অ্যাডমিন লাভ", value: `৳ ${completedProfit + subscriptionIncome - totalAdminWithdraw - totalNRW} ` },
         { title: "মোট লাভ উত্তোলন ", value: `৳ ${totalAdminWithdraw}` },
     ];
 

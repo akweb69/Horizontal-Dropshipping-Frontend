@@ -15,6 +15,8 @@ const LavUttolon = () => {
     const [totalwithdraw, setTotalWithdraw] = useState(0);
     const [openDetailsWithdraw, setOpenDetailsWithdraw] = useState(false);
     const [openOrdersWithdraw, setOpenOrdersWithdraw] = useState(false);
+    const [subscriptionIncome, setSubscriptionIncome] = useState(0);
+    const [refferWithdraw, setRefferWithdraw] = useState(0);
     const { user } = useAuth();
 
     // Pagination States
@@ -22,7 +24,10 @@ const LavUttolon = () => {
     const [ordersPage, setOrdersPage] = useState(1);
     const itemsPerPage = 5;
 
-    const balance = totalbalance - totalwithdraw;
+    const bb = totalbalance + subscriptionIncome
+    const cc = totalwithdraw + refferWithdraw
+
+    const balance = bb - cc;
 
     // Load data
     useEffect(() => {
@@ -39,10 +44,28 @@ const LavUttolon = () => {
             .catch(err => {
                 setError("Something went wrong!");
             });
+        // load subscription data
+        axios.get(`${import.meta.env.VITE_BASE_URL}/buy-package`)
+            .then(res => {
 
+                const data = res.data;
+                setSubscriptionIncome(data.reduce((acc, order) => acc + order.amount, 0));
+                console.log("--------->", data.reduce((acc, order) => acc + order.amount, 0));
+            })
+            .catch(err => {
+                setError("Something went wrong!");
+            });
+        // load refferwithdraw data
+        axios.get(`${import.meta.env.VITE_BASE_URL}/refer-withdraw`)
+            .then(res => {
+                const data = res.data.filter(i => i.status === 'Approved');
+                setRefferWithdraw(data.reduce((acc, order) => acc + order.amount, 0));
+                console.log("--------->", data.reduce((acc, order) => acc + order.amount, 0));
+            })
         // Load withdraw data
         axios.get(`${import.meta.env.VITE_BASE_URL}/withdraw_admin`)
             .then(res => {
+
                 const data = res.data;
                 setData(data);
                 setTotalWithdraw(data.reduce((acc, order) => acc + order.amount, 0));
@@ -452,7 +475,8 @@ const LavUttolon = () => {
                             <p>Delivery Charge: ৳{orderDetails?.delivery_charge}</p>
                             <p className="font-semibold text-gray-800">Grand Total: ৳{orderDetails?.grand_total}</p>
                             <p>Paid Amount: ৳{orderDetails?.paid_amount}</p>
-                            <p>Due Amount: ৳{orderDetails?.due_amount}</p>
+                            <p>Sell  Amount: ৳{orderDetails?.amar_bikkri_mullo}</p>
+                            {/* <p>Due Amount: ৳{orderDetails?.due_amount}</p> */}
                             <p className="flex items-center gap-2 text-gray-700 mt-1">
                                 <Calendar size={16} className="text-orange-600" />
                                 Date: {getDate(orderDetails?.order_date)}
