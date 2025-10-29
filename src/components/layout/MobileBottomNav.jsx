@@ -33,7 +33,7 @@ const MobileBottomNav = ({ activeTab, setActiveTab }) => {
   }
 
   return (
-    <nav className={`${show ? "block" : "hidden"} mobile-bottom-nav`}>
+    <nav className={`${show ? "block lg:hidden" : "hidden"} mobile-bottom-nav`}>
       <div className="flex justify-around">
         <button
           onClick={() => handleNavigation('/', 'home')}

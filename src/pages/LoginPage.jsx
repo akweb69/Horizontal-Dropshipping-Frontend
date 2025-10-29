@@ -16,25 +16,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.search.split("?redirect=")[1] || "/dashboard";
-  const [logo, setLogo] = useState(null);
-  const [loading, setLoading] = useState(false);
 
-  // 🔹 Load logo dynamically
-  useEffect(() => {
-    const fetchLogo = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/sign_up_banner`);
-        setLogo(res?.data?.image);
-        setLoading(false)
-      } catch (err) {
-        console.error("Failed to fetch logo:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchLogo();
-  }, []);
 
   // 🔹 Handle Login
   const handleLogin = async (e) => {
@@ -78,104 +60,67 @@ const LoginPage = () => {
         <meta name="description" content="UniDropEx-এ লগইন করে আপনার ড্যাশবোর্ডে প্রবেশ করুন।" />
       </Helmet>
 
-      <div className="relative w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 via-white to-slate-100 overflow-hidden">
-
-        {/* Background blur image */}
-        {logo && (
-          <img
-            src={logo}
-            alt="UniDropEx Logo"
-            className="absolute inset-0 w-full h-full object-cover opacity-80 blur-sm"
+      <form onSubmit={handleLogin} className="space-y-6">
+        <div className="relative">
+          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="email"
+            placeholder="আপনার ইমেইল"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
           />
-        )}
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="relative z-10 bg-white/30 backdrop-blur-xl p-8 sm:p-10 rounded-2xl shadow-2xl max-w-md w-11/12 mx-auto border border-orange-100"
+        <div className="relative">
+          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="password"
+            placeholder="আপনার পাসওয়ার্ড"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+          />
+        </div>
+
+        <div className="flex items-center justify-between text-sm">
+          <label className="flex items-center gap-2">
+            <input type="checkbox" className="accent-orange-500 h-4 w-4 rounded" />
+            <span className="text-gray-200">আমাকে মনে রাখুন</span>
+          </label>
+          <button
+            type="button"
+            onClick={() => toast({ title: "🚧 পাসওয়ার্ড পরিবর্তনের জন্য হেল্পলাইনে যোগাযোগ করুন ।" })}
+            className="text-orange-600 hover:text-orange-500 font-medium"
+          >
+            পাসওয়ার্ড ভুলে গেছেন?
+          </button>
+        </div>
+
+        <Button
+          size="lg"
+          className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-base font-semibold rounded-xl shadow-md transition"
+          type="submit"
         >
-          <div className="text-center mb-8">
-            {/* {logo && (
-              <motion.img
-                src={logo}
-                alt="Logo"
-                className="mx-auto w-20 h-20 rounded-full shadow-sm object-cover"
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              />
-            )} */}
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mt-4">
-              আবারও স্বাগতম!
-            </h1>
-            <p className="text-gray-600 mt-1">চালিয়ে যেতে লগইন করুন</p>
-          </div>
+          <LogIn className="w-5 h-5" />
+          লগইন
+        </Button>
+      </form>
 
-          {/* 🔹 Login Form */}
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="email"
-                placeholder="আপনার ইমেইল"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-              />
-            </div>
-
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="password"
-                placeholder="আপনার পাসওয়ার্ড"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-              />
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2">
-                <input type="checkbox" className="accent-orange-500 h-4 w-4 rounded" />
-                <span className="text-gray-700">আমাকে মনে রাখুন</span>
-              </label>
-              <button
-                type="button"
-                onClick={() => toast({ title: "🚧 এই ফিচারটি এখনও চালু হয়নি।" })}
-                className="text-orange-600 hover:text-orange-500 font-medium"
-              >
-                পাসওয়ার্ড ভুলে গেছেন?
-              </button>
-            </div>
-
-            <Button
-              size="lg"
-              className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-base font-semibold rounded-xl shadow-md transition"
-              type="submit"
-            >
-              <LogIn className="w-5 h-5" />
-              লগইন
-            </Button>
-          </form>
-
-          <p className="mt-8 text-center text-gray-600 text-sm">
-            অ্যাকাউন্ট নেই?{" "}
-            <Link
-              to={`/signup?redirect=${from}`}
-              className="font-semibold text-orange-600 hover:underline"
-            >
-              হোম এ ফিরে যান
-            </Link>
-          </p>
-        </motion.div>
-      </div>
+      <p className="mt-8 text-center text-gray-100 text-sm">
+        অ্যাকাউন্ট নেই?{" "}
+        <Link
+          to={`/signup?redirect=${from}`}
+          className="font-semibold text-orange-600 hover:underline"
+        >
+          হোম এ ফিরে যান
+        </Link>
+      </p>
 
 
-      <Keno></Keno>
+
 
     </>
   );
