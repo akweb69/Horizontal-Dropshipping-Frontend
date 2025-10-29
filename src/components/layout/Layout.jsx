@@ -29,15 +29,12 @@ const Layout = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {
-        user && user?.email ? <Header /> : null
+        user && user?.email && <Header />
       }
 
       <main className="flex-grow mobile-content">
         <Outlet />
       </main>
-      {/* {
-        !user && !user?.email ? <Keno></Keno> : null
-      } */}
 
       <Footer />
       {

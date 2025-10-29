@@ -77,7 +77,7 @@ const HeroSection = () => {
 
   return (
     <section
-      className="relative w-full h-[250px] md:h-[50vh] overflow-hidden rounded-lg"
+      className="relative mt-[52px] -mb-4 w-full h-[250px] md:h-[50vh] overflow-hidden rounded-lg"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
