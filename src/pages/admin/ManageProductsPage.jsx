@@ -77,7 +77,13 @@ const ManageProductsPage = () => {
   const handleSizeChange = (index, field, value) => {
     setFormData(prev => {
       const newSizes = [...prev.sizes];
-      newSizes[index][field] = value;
+      newSizes[index] = { ...newSizes[index], [field]: value };
+
+      // Auto calculate profit
+      const price = parseFloat(newSizes[index].price) || 0;
+      const buyPrice = parseFloat(newSizes[index].buyPrice) || 0;
+      newSizes[index].profit = (price - buyPrice).toFixed(2);
+
       return { ...prev, sizes: newSizes };
     });
   };
@@ -85,7 +91,7 @@ const ManageProductsPage = () => {
   const addSize = () => {
     setFormData(prev => ({
       ...prev,
-      sizes: [...prev.sizes, { size: '', price: '', stock: '', profit: '' }]
+      sizes: [...prev.sizes, { size: '', price: '', buyPrice: '', profit: '0.00', stock: '' }]
     }));
   };
 
@@ -160,8 +166,9 @@ const ManageProductsPage = () => {
       sizes: product.sizes ? product.sizes.map(s => ({
         size: s.size,
         price: s.price.toString(),
-        stock: s.stock.toString(),
-        profit: s.profit?.toString() || ''  // Load profit if exists
+        buyPrice: s.buyPrice?.toString() || '',
+        profit: s.profit?.toString() || '0.00',
+        stock: s.stock.toString()
       })) : [],
       sliderImages: product.sliderImages || []
     });
@@ -174,7 +181,7 @@ const ManageProductsPage = () => {
     e.preventDefault();
     setBtnLoading(true);
 
-    if (!formData.name || !formData.category || !formData.sectionName || !formData.description || formData.sizes.length === 0 || formData.sizes.some(s => !s.size || !s.price || !s.stock)) {
+    if (!formData.name || !formData.category || !formData.sectionName || !formData.description || formData.sizes.length === 0 || formData.sizes.some(s => !s.size || !s.price || !s.buyPrice || !s.stock)) {
       toast({ title: "ত্রুটি", description: "অনুগ্রহ করে সমস্ত ঘর পূরণ করুন।", variant: "destructive" });
       setBtnLoading(false);
       return;
@@ -210,8 +217,9 @@ const ManageProductsPage = () => {
       sizes: formData.sizes.map(s => ({
         size: s.size,
         price: parseFloat(s.price),
-        stock: parseInt(s.stock, 10),
-        profit: s.profit ? parseFloat(s.profit) : 0  // Parse profit
+        buyPrice: parseFloat(s.buyPrice),
+        profit: parseFloat(s.profit),
+        stock: parseInt(s.stock, 10)
       }))
     };
 
@@ -269,6 +277,13 @@ const ManageProductsPage = () => {
     const max = Math.max(...prices);
     return min === max ? `৳${min}` : `৳${min} - ৳${max}`;
   };
+  const getPriceRange1 = (sizes) => {
+    if (!sizes || sizes.length === 0) return 'N/A';
+    const prices = sizes.map(s => s.buyPrice);
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+    return min === max ? `৳${min}` : `৳${min} - ৳${max}`;
+  };
 
   const getTotalStock = (sizes) => {
     if (!sizes || sizes.length === 0) return 0;
@@ -277,16 +292,14 @@ const ManageProductsPage = () => {
 
   const getTotalProfit = (sizes) => {
     if (!sizes || sizes.length === 0) return 0;
-    // return sizes.reduce((sum, s) => sum + (s.profit || 0), 0);
-
-    if (sizes.length === 1) return sizes[0].profit;
-    const max = sizes.length - 1;
-    return `${sizes[0].profit} ... ${sizes[max].profit}`;
+    const profits = sizes.map(s => s.profit || 0);
+    const total = profits.reduce((sum, p) => sum + p, 0);
+    return total.toFixed(2);
   };
 
   const getAvailableSizes = (sizes) => {
     if (!sizes || sizes.length === 0) return 'নেই';
-    return sizes.map(s => s.size).join(', ');
+    return sizes.map(s => `${s.size} (৳${s.profit})`).join(', ');
   };
 
   const getSliderImagesPreview = (sliderImages) => {
@@ -294,7 +307,7 @@ const ManageProductsPage = () => {
     return (
       <div className="flex gap-2">
         {sliderImages.slice(0, 3).map((url, index) => (
-          <img key={index} src={url} alt={`Slider ${index + 1} `} className="h-10 w-10 object-cover rounded" />
+          <img key={index} src={url} alt={`Slider ${index + 1}`} className="h-10 w-10 object-cover rounded" />
         ))}
         {sliderImages.length > 3 && <span className="text-sm">+{sliderImages.length - 3}</span>}
       </div>
@@ -331,13 +344,14 @@ const ManageProductsPage = () => {
               <TableRow>
                 <TableHead>থাম্বনেইল</TableHead>
                 <TableHead>নাম</TableHead>
-                <TableHead>মূল্য</TableHead>
-                <TableHead>লাভ</TableHead>
+                <TableHead>ক্রয় মূল্য</TableHead>
+                <TableHead>বিক্রয় মূল্য</TableHead>
+                <TableHead>মোট লাভ</TableHead>
                 <TableHead>ক্যাটাগরি</TableHead>
                 <TableHead>সেকশন</TableHead>
                 <TableHead>স্টক</TableHead>
                 <TableHead>বিবরণ</TableHead>
-                <TableHead>উপলব্ধ সাইজ</TableHead>
+                <TableHead>সাইজ ও লাভ</TableHead>
                 <TableHead>স্লাইডার ছবি</TableHead>
                 <TableHead className="text-right">অ্যাকশন</TableHead>
               </TableRow>
@@ -353,6 +367,7 @@ const ManageProductsPage = () => {
                     )}
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
+                  <TableCell>{getPriceRange1(product.sizes)}</TableCell>
                   <TableCell>{getPriceRange(product.sizes)}</TableCell>
                   <TableCell className="font-semibold text-green-600">৳{getTotalProfit(product.sizes)}</TableCell>
                   <TableCell>{product.category}</TableCell>
@@ -461,10 +476,10 @@ const ManageProductsPage = () => {
               </div>
             </div>
 
-            {/* Size, Price, Stock, Profit - Dynamic */}
+            {/* Size, Price, BuyPrice, Profit, Stock - Dynamic */}
             <Card className="p-4 border">
               <div className="flex justify-between items-center mb-3">
-                <Label className="text-sm font-semibold">সাইজ, মূল্য, স্টক ও লাভ <span className="text-red-500">*</span></Label>
+                <Label className="text-sm font-semibold">সাইজ, মূল্য, ক্রয় মূল্য, লাভ ও স্টক <span className="text-red-500">*</span></Label>
                 <Button type="button" size="sm" onClick={addSize} className="flex items-center gap-1">
                   <PlusCircle className="h-4 w-4" /> সাইজ যোগ করুন
                 </Button>
@@ -477,21 +492,30 @@ const ManageProductsPage = () => {
                   </p>
                 ) : (
                   formData.sizes.map((s, index) => (
-                    <div key={index} className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end border-b pb-3 last:border-0">
+                    <div key={index} className="grid grid-cols-1 sm:grid-cols-5 gap-2 items-end border-b pb-3 last:border-0">
                       <div>
-                        <Label htmlFor={`size - ${index} `} className="text-xs">সাইজ</Label>
+                        <Label className="text-xs">সাইজ</Label>
                         <Input
-                          id={`size - ${index} `}
                           placeholder="S, M, L"
                           value={s.size}
                           onChange={(e) => handleSizeChange(index, 'size', e.target.value)}
                           className="h-9"
                         />
                       </div>
+
                       <div>
-                        <Label htmlFor={`price - ${index} `} className="text-xs">মূল্য (৳)</Label>
+                        <Label className="text-xs">ক্রয় মূল্য (৳)</Label>
                         <Input
-                          id={`price - ${index} `}
+                          type="number"
+                          placeholder="200"
+                          value={s.buyPrice}
+                          onChange={(e) => handleSizeChange(index, 'buyPrice', e.target.value)}
+                          className="h-9"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs">বিক্রয় মূল্য (৳)</Label>
+                        <Input
                           type="number"
                           placeholder="299"
                           value={s.price}
@@ -500,25 +524,22 @@ const ManageProductsPage = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor={`stock - ${index} `} className="text-xs">স্টক</Label>
+                        <Label className="text-xs">লাভ (৳)</Label>
                         <Input
-                          id={`stock - ${index} `}
-                          type="number"
-                          placeholder="50"
-                          value={s.stock}
-                          onChange={(e) => handleSizeChange(index, 'stock', e.target.value)}
-                          className="h-9"
+                          type="text"
+                          value={s.profit}
+                          disabled
+                          className="h-9 bg-muted"
                         />
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 items-end">
                         <div className="flex-1">
-                          <Label htmlFor={`profit - ${index} `} className="text-xs">লাভ (৳)</Label>
+                          <Label className="text-xs">স্টক</Label>
                           <Input
-                            id={`profit - ${index} `}
                             type="number"
                             placeholder="50"
-                            value={s.profit}
-                            onChange={(e) => handleSizeChange(index, 'profit', e.target.value)}
+                            value={s.stock}
+                            onChange={(e) => handleSizeChange(index, 'stock', e.target.value)}
                             className="h-9"
                           />
                         </div>
@@ -591,7 +612,7 @@ const ManageProductsPage = () => {
                       <div key={index} className="relative">
                         <img
                           src={url}
-                          alt={`Slider ${index + 1} `}
+                          alt={`Slider ${index + 1}`}
                           className="h-24 w-24 object-cover rounded-lg border"
                         />
                         <Button
