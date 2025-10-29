@@ -22,7 +22,7 @@ const WishlistPage = () => {
   }, [user, loveData])
 
   if (loading) {
-    return <div className='w-full min-h-[90vh] flex justify-center items-center text-center text-2xl'>Loading...</div>;
+    return <div className='w-full min-h-[90vh] flex justify-center items-center text-center text-2xl'></div>;
   }
   const showToast = () => {
     toast({

@@ -130,7 +130,7 @@ const SignUpPage = () => {
         <div className=" w-full flex justify-between gap-2 md:p-4 py-3 px-1 ">
           {/* left side */}
           <div className="">
-            <img className='max-w-[100px] md:max-w-[200px] md:w-full max-h-10 ' src={logo} alt="" />
+            <img className='max-w-[100px] md:max-w-[300px] md:w-full max-h-10 md:max-h-12 ' src={logo} alt="" />
           </div>
           {/* right side */}
           <div className=" items-center md:gap-2 flex">

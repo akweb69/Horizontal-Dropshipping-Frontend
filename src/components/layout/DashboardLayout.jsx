@@ -4,7 +4,8 @@ import { useAuth } from '@/context/AuthContext';
 import {
   LayoutDashboard, Package, FileText, Settings, LifeBuoy, Menu, X, LogOut, User, BarChart2, Gift, Truck,
   Plus,
-  Home
+  Home,
+  Loader2
 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -81,7 +82,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   }, [matchedPackage]);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <div className="flex justify-center items-center h-screen"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
   }
 
   return (
@@ -90,7 +91,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         <div className="flex items-center justify-between h-16 px-6 border-b">
           <NavLink to="/" className="text-2xl font-bold text-primary">
             {websiteLogo ? (
-              <img src={websiteLogo} alt="Logo" className="h-8 w-auto max-w-[200px]" />
+              <img src={websiteLogo} alt="Logo" className="h-8 md:h-12 max-w-[250px] w-full" />
             ) : (
               'ড্যাশবোর্ড'
             )}

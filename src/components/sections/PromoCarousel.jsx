@@ -49,11 +49,11 @@ const PromoCarousel = () => {
     }
   };
 
-  if (loading) return <div className="text-center py-8">Loading promos...</div>;
+  if (loading) return <div className="text-center py-8"></div>;
 
-  if (promoData.length === 0) {
-    return <div className="text-center py-8 text-gray-500">No active promotions</div>;
-  }
+  // if (promoData.length === 0) {
+  //   return <div className="text-center py-8 text-gray-500">No active promotions</div>;
+  // }
 
   return (
     <section className="py-8 bg-white">
