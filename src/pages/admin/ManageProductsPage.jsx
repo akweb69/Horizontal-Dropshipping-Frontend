@@ -25,7 +25,8 @@ const ManageProductsPage = () => {
     sectionName: '',
     description: '',
     sizes: [],
-    sliderImages: []
+    sliderImages: [],
+    availableColors: []          // ← নতুন ফিল্ড
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedSliderFiles, setSelectedSliderFiles] = useState([]);
@@ -71,7 +72,13 @@ const ManageProductsPage = () => {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'availableColors') {
+      // কমা দিয়ে আলাদা করে array বানাই
+      const colors = value.split(',').map(c => c.trim()).filter(c => c);
+      setFormData(prev => ({ ...prev, availableColors: colors }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSizeChange = (index, field, value) => {
@@ -79,7 +86,6 @@ const ManageProductsPage = () => {
       const newSizes = [...prev.sizes];
       newSizes[index] = { ...newSizes[index], [field]: value };
 
-      // Auto calculate profit
       const price = parseFloat(newSizes[index].price) || 0;
       const buyPrice = parseFloat(newSizes[index].buyPrice) || 0;
       newSizes[index].profit = (price - buyPrice).toFixed(2);
@@ -103,13 +109,8 @@ const ManageProductsPage = () => {
     });
   };
 
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
-
-  const handleSliderFilesChange = (e) => {
-    setSelectedSliderFiles(Array.from(e.target.files));
-  };
+  const handleFileChange = (e) => setSelectedFile(e.target.files[0]);
+  const handleSliderFilesChange = (e) => setSelectedSliderFiles(Array.from(e.target.files));
 
   const removeSliderImage = (index) => {
     setFormData(prev => {
@@ -128,11 +129,7 @@ const ManageProductsPage = () => {
         body: uploadFormData,
       });
       const data = await res.json();
-      if (data.success) {
-        return data.data.url;
-      } else {
-        throw new Error('Upload failed');
-      }
+      return data.success ? data.data.url : null;
     } catch (error) {
       toast({ title: "ত্রুটি", description: "ইমেজ আপলোড করতে ব্যর্থ হয়েছে।", variant: "destructive" });
       return null;
@@ -148,7 +145,8 @@ const ManageProductsPage = () => {
       sectionName: '',
       description: '',
       sizes: [],
-      sliderImages: []
+      sliderImages: [],
+      availableColors: []          // ← রিসেট
     });
     setSelectedFile(null);
     setSelectedSliderFiles([]);
@@ -170,7 +168,8 @@ const ManageProductsPage = () => {
         profit: s.profit?.toString() || '0.00',
         stock: s.stock.toString()
       })) : [],
-      sliderImages: product.sliderImages || []
+      sliderImages: product.sliderImages || [],
+      availableColors: product.availableColors || []   // ← এডিটে লোড
     });
     setSelectedFile(null);
     setSelectedSliderFiles([]);
@@ -181,6 +180,7 @@ const ManageProductsPage = () => {
     e.preventDefault();
     setBtnLoading(true);
 
+    // required validation (availableColors optional)
     if (!formData.name || !formData.category || !formData.sectionName || !formData.description || formData.sizes.length === 0 || formData.sizes.some(s => !s.size || !s.price || !s.buyPrice || !s.stock)) {
       toast({ title: "ত্রুটি", description: "অনুগ্রহ করে সমস্ত ঘর পূরণ করুন।", variant: "destructive" });
       setBtnLoading(false);
@@ -190,30 +190,22 @@ const ManageProductsPage = () => {
     let thumbnailUrl = formData.thumbnail;
     if (selectedFile) {
       const uploadedUrl = await uploadImage(selectedFile);
-      if (uploadedUrl) {
-        thumbnailUrl = uploadedUrl;
-      } else {
-        setBtnLoading(false);
-        return;
-      }
+      if (!uploadedUrl) { setBtnLoading(false); return; }
+      thumbnailUrl = uploadedUrl;
     }
 
     let sliderImageUrls = [...formData.sliderImages];
     if (selectedSliderFiles.length > 0) {
-      const uploadPromises = selectedSliderFiles.map(file => uploadImage(file));
-      const uploadedUrls = await Promise.all(uploadPromises);
-      if (uploadedUrls.every(url => url !== null)) {
-        sliderImageUrls = [...sliderImageUrls, ...uploadedUrls];
-      } else {
-        setBtnLoading(false);
-        return;
-      }
+      const uploadedUrls = await Promise.all(selectedSliderFiles.map(uploadImage));
+      if (uploadedUrls.some(u => !u)) { setBtnLoading(false); return; }
+      sliderImageUrls = [...sliderImageUrls, ...uploadedUrls];
     }
 
     const productData = {
       ...formData,
       thumbnail: thumbnailUrl,
       sliderImages: sliderImageUrls,
+      availableColors: formData.availableColors,   // ← সার্ভারে পাঠানো
       sizes: formData.sizes.map(s => ({
         size: s.size,
         price: parseFloat(s.price),
@@ -224,29 +216,26 @@ const ManageProductsPage = () => {
     };
 
     try {
-      let res;
-      if (currentProduct) {
-        res = await fetch(`${base_url}/products/${currentProduct._id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(productData),
-        });
-      } else {
-        res = await fetch(`${base_url}/products`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(productData),
-        });
-      }
+      const url = currentProduct
+        ? `${base_url}/products/${currentProduct._id}`
+        : `${base_url}/products`;
+      const method = currentProduct ? 'PATCH' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productData),
+      });
+
       if (res.ok) {
-        toast({ title: "সফল", description: currentProduct ? "পণ্য সফলভাবে আপডেট করা হয়েছে।" : "নতুন পণ্য সফলভাবে যোগ করা হয়েছে।" });
+        toast({ title: "সফল", description: currentProduct ? "পণ্য আপডেট হয়েছে।" : "নতুন পণ্য যোগ হয়েছে।" });
         setIsDialogOpen(false);
         fetchProducts();
       } else {
-        toast({ title: "ত্রুটি", description: "অপারেশন ব্যর্থ হয়েছে।", variant: "destructive" });
+        toast({ title: "ত্রুটি", description: "অপারেশন ব্যর্থ।", variant: "destructive" });
       }
     } catch (error) {
-      toast({ title: "ত্রুটি", description: "এরর হয়েছে।", variant: "destructive" });
+      toast({ title: "ত্রুটি", description: "এরর হয়েছে।", variant: "destructive" });
     } finally {
       setBtnLoading(false);
     }
@@ -256,69 +245,64 @@ const ManageProductsPage = () => {
     try {
       const res = await fetch(`${base_url}/products/${productId}`, { method: 'DELETE' });
       if (res.ok) {
-        toast({ title: "সফল", description: "পণ্য সফলভাবে মুছে ফেলা হয়েছে।" });
+        toast({ title: "সফল", description: "পণ্য মুছে ফেলা হয়েছে।" });
         fetchProducts();
       } else {
-        toast({ title: "ত্রুটি", description: "মুছে ফেলতে ব্যর্থ হয়েছে।", variant: "destructive" });
+        toast({ title: "ত্রুটি", description: "মুছে ফেলতে ব্যর্থ।", variant: "destructive" });
       }
     } catch (error) {
       toast({ title: "ত্রুটি", description: "এরর হয়েছে।", variant: "destructive" });
     }
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  /* ---------- হেল্পার ফাংশন ---------- */
   const getPriceRange = (sizes) => {
-    if (!sizes || sizes.length === 0) return 'N/A';
+    if (!sizes?.length) return 'N/A';
     const prices = sizes.map(s => s.price);
-    const min = Math.min(...prices);
-    const max = Math.max(...prices);
+    const min = Math.min(...prices), max = Math.max(...prices);
     return min === max ? `৳${min}` : `৳${min} - ৳${max}`;
   };
   const getPriceRange1 = (sizes) => {
-    if (!sizes || sizes.length === 0) return 'N/A';
+    if (!sizes?.length) return 'N/A';
     const prices = sizes.map(s => s.buyPrice);
-    const min = Math.min(...prices);
-    const max = Math.max(...prices);
+    const min = Math.min(...prices), max = Math.max(...prices);
     return min === max ? `৳${min}` : `৳${min} - ৳${max}`;
   };
-
-  const getTotalStock = (sizes) => {
-    if (!sizes || sizes.length === 0) return 0;
-    return sizes.reduce((sum, s) => sum + s.stock, 0);
-  };
-
+  const getTotalStock = (sizes) => sizes?.reduce((s, c) => s + c.stock, 0) ?? 0;
   const getTotalProfit = (sizes) => {
-    if (!sizes || sizes.length === 0) return 0;
-    const profits = sizes.map(s => s.profit || 0);
-    const total = profits.reduce((sum, p) => sum + p, 0);
+    if (!sizes?.length) return '0.00';
+    const total = sizes.reduce((s, c) => s + (c.profit || 0), 0);
     return total.toFixed(2);
   };
-
   const getAvailableSizes = (sizes) => {
-    if (!sizes || sizes.length === 0) return 'নেই';
+    if (!sizes?.length) return 'নেই';
     return sizes.map(s => `${s.size} (৳${s.profit})`).join(', ');
   };
-
-  const getSliderImagesPreview = (sliderImages) => {
-    if (!sliderImages || sliderImages.length === 0) return 'নেই';
+  const getColorsDisplay = (colors) => {
+    if (!colors?.length) return 'নেই';
+    return colors.join(', ');
+  };
+  const getSliderImagesPreview = (imgs) => {
+    if (!imgs?.length) return 'নেই';
     return (
       <div className="flex gap-2">
-        {sliderImages.slice(0, 3).map((url, index) => (
-          <img key={index} src={url} alt={`Slider ${index + 1}`} className="h-10 w-10 object-cover rounded" />
+        {imgs.slice(0, 3).map((url, i) => (
+          <img key={i} src={url} alt="" className="h-10 w-10 object-cover rounded" />
         ))}
-        {sliderImages.length > 3 && <span className="text-sm">+{sliderImages.length - 3}</span>}
+        {imgs.length > 3 && <span className="text-sm">+{imgs.length - 3}</span>}
       </div>
     );
   };
 
   return (
     <>
-      <Helmet>
-        <title>পণ্য ম্যানেজ করুন - অ্যাডমিন</title>
-      </Helmet>
+      <Helmet><title>পণ্য ম্যানেজ করুন - অ্যাডমিন</title></Helmet>
+
+      {/* ---------- টেবিল ---------- */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>পণ্য ম্যানেজমেন্ট</CardTitle>
@@ -328,9 +312,9 @@ const ManageProductsPage = () => {
               <Input
                 type="search"
                 placeholder="পণ্য খুঁজুন..."
-                className="pl-8"
+                className="pl-8 w-64"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
               />
             </div>
             <Button onClick={handleAddNew}>
@@ -338,6 +322,7 @@ const ManageProductsPage = () => {
             </Button>
           </div>
         </CardHeader>
+
         <CardContent>
           <Table>
             <TableHeader>
@@ -352,44 +337,42 @@ const ManageProductsPage = () => {
                 <TableHead>স্টক</TableHead>
                 <TableHead>বিবরণ</TableHead>
                 <TableHead>সাইজ ও লাভ</TableHead>
+                <TableHead>উপলব্ধ রং</TableHead>   {/* ← নতুন কলাম */}
                 <TableHead>স্লাইডার ছবি</TableHead>
                 <TableHead className="text-right">অ্যাকশন</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredProducts.map((product) => (
-                <TableRow key={product._id}>
+              {filteredProducts.map(p => (
+                <TableRow key={p._id}>
                   <TableCell>
-                    {product.thumbnail ? (
-                      <img src={product.thumbnail} alt={product.name} className="h-10 w-10 object-cover rounded" />
-                    ) : (
-                      'নেই'
-                    )}
+                    {p.thumbnail ? <img src={p.thumbnail} alt={p.name} className="h-10 w-10 object-cover rounded" /> : 'নেই'}
                   </TableCell>
-                  <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>{getPriceRange1(product.sizes)}</TableCell>
-                  <TableCell>{getPriceRange(product.sizes)}</TableCell>
-                  <TableCell className="font-semibold text-green-600">৳{getTotalProfit(product.sizes)}</TableCell>
-                  <TableCell>{product.category}</TableCell>
-                  <TableCell>{product.sectionName}</TableCell>
-                  <TableCell>{getTotalStock(product.sizes)}</TableCell>
-                  <TableCell>{product?.description?.slice(0, 50) + " ..." || 'নেই'}</TableCell>
-                  <TableCell>{getAvailableSizes(product.sizes)}</TableCell>
-                  <TableCell>{getSliderImagesPreview(product.sliderImages)}</TableCell>
+                  <TableCell className="font-medium">{p.name}</TableCell>
+                  <TableCell>{getPriceRange1(p.sizes)}</TableCell>
+                  <TableCell>{getPriceRange(p.sizes)}</TableCell>
+                  <TableCell className="font-semibold text-green-600">৳{getTotalProfit(p.sizes)}</TableCell>
+                  <TableCell>{p.category}</TableCell>
+                  <TableCell>{p.sectionName}</TableCell>
+                  <TableCell>{getTotalStock(p.sizes)}</TableCell>
+                  <TableCell>{p.description?.slice(0, 50) || 'নেই'}...</TableCell>
+                  <TableCell>{getAvailableSizes(p.sizes)}</TableCell>
+                  <TableCell>{getColorsDisplay(p.availableColors)}</TableCell>   {/* ← ডিসপ্লে */}
+                  <TableCell>{getSliderImagesPreview(p.sliderImages)}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}><Edit className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleEdit(p)}><Edit className="h-4 w-4" /></Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-red-600 hover:text-red-700"><Trash2 className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="text-red-600"><Trash2 className="h-4 w-4" /></Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>আপনি কি নিশ্চিত?</AlertDialogTitle>
-                          <AlertDialogDescription>এই কাজটি বাতিল করা যাবে না। এটি স্থায়ীভাবে পণ্যটি মুছে ফেলবে।</AlertDialogDescription>
+                          <AlertDialogDescription>এই পণ্যটি স্থায়ীভাবে মুছে যাবে।</AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>বাতিল</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(product._id)} className="bg-red-600 hover:bg-red-700">মুছে ফেলুন</AlertDialogAction>
+                          <AlertDialogAction onClick={() => handleDelete(p._id)} className="bg-red-600">মুছে ফেলুন</AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
@@ -401,6 +384,7 @@ const ManageProductsPage = () => {
         </CardContent>
       </Card>
 
+      {/* ---------- ডায়ালগ / ফর্ম ---------- */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -410,146 +394,80 @@ const ManageProductsPage = () => {
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Product Name & Category */}
+
+            {/* নাম + ক্যাটাগরি */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="name" className="text-sm font-medium">পণ্যের নাম <span className="text-red-500">*</span></Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleFormChange}
-                  placeholder="যেমন: পুরুষদের টি-শার্ট"
-                  className="mt-1"
-                  required
-                />
+                <Label htmlFor="name">পণ্যের নাম <span className="text-red-500">*</span></Label>
+                <Input id="name" name="name" value={formData.name} onChange={handleFormChange} placeholder="যেমন: পুরুষদের টি-শার্ট" required />
               </div>
-
               <div>
-                <Label htmlFor="category" className="text-sm font-medium">ক্যাটাগরি <span className="text-red-500">*</span></Label>
-                <select
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleFormChange}
-                  className="mt-1 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  required
-                >
+                <Label htmlFor="category">ক্যাটাগরি <span className="text-red-500">*</span></Label>
+                <select id="category" name="category" value={formData.category} onChange={handleFormChange}
+                  className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                   <option value="" disabled>ক্যাটাগরি নির্বাচন করুন</option>
-                  {categories?.map((cat) => (
-                    <option key={cat._id} value={cat.name}>{cat.name}</option>
-                  ))}
+                  {categories?.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
                 </select>
               </div>
             </div>
 
-            {/* Section & Description */}
+            {/* সেকশন + বিবরণ */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="sectionName" className="text-sm font-medium">সেকশন <span className="text-red-500">*</span></Label>
-                <select
-                  id="sectionName"
-                  name="sectionName"
-                  value={formData.sectionName}
-                  onChange={handleFormChange}
-                  className="mt-1 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  required
-                >
+                <Label htmlFor="sectionName">সেকশন <span className="text-red-500">*</span></Label>
+                <select id="sectionName" name="sectionName" value={formData.sectionName} onChange={handleFormChange}
+                  className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                   <option value="" disabled>সেকশন নির্বাচন করুন</option>
-                  {sectionOptions.map((option) => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
+                  {sectionOptions.map(o => <option key={o} value={o}>{o}</option>)}
                 </select>
               </div>
-
               <div>
-                <Label htmlFor="description" className="text-sm font-medium">বিবরণ <span className="text-red-500">*</span></Label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleFormChange}
-                  placeholder="পণ্যের বিস্তারিত বিবরণ লিখুন..."
-                  className="mt-1 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[80px]"
-                  required
-                />
+                <Label htmlFor="description">বিবরণ <span className="text-red-500">*</span></Label>
+                <textarea id="description" name="description" value={formData.description}
+                  onChange={handleFormChange} placeholder="পণ্যের বিস্তারিত বিবরণ লিখুন..."
+                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]" required />
               </div>
             </div>
 
-            {/* Size, Price, BuyPrice, Profit, Stock - Dynamic */}
+            {/* ---------- নতুন ফিল্ড: উপলব্ধ রং ---------- */}
+            <div>
+              <Label htmlFor="availableColors">আভেইলাবল রং (অপশনাল)</Label>
+              <Input
+                id="availableColors"
+                name="availableColors"
+                value={formData.availableColors.join(', ')}
+                onChange={handleFormChange}
+                placeholder="Red, Blue, Green (কমা দিয়ে আলাদা করুন)"
+                className="mt-1 bg-white"
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                কমা (,) দিয়ে একাধিক রং লিখুন। ফাঁকা রাখলে কোনো রং যোগ হবে না।
+              </p>
+            </div>
+
+            {/* সাইজ সেকশন */}
             <Card className="p-4 border">
               <div className="flex justify-between items-center mb-3">
                 <Label className="text-sm font-semibold">সাইজ, মূল্য, ক্রয় মূল্য, লাভ ও স্টক <span className="text-red-500">*</span></Label>
-                <Button type="button" size="sm" onClick={addSize} className="flex items-center gap-1">
+                <Button type="button" size="sm" onClick={addSize}>
                   <PlusCircle className="h-4 w-4" /> সাইজ যোগ করুন
                 </Button>
               </div>
-
               <div className="space-y-3">
                 {formData.sizes.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
                     কোনো সাইজ যোগ করা হয়নি। "সাইজ যোগ করুন" বাটনে ক্লিক করুন।
                   </p>
                 ) : (
-                  formData.sizes.map((s, index) => (
-                    <div key={index} className="grid grid-cols-1 sm:grid-cols-5 gap-2 items-end border-b pb-3 last:border-0">
-                      <div>
-                        <Label className="text-xs">সাইজ</Label>
-                        <Input
-                          placeholder="S, M, L"
-                          value={s.size}
-                          onChange={(e) => handleSizeChange(index, 'size', e.target.value)}
-                          className="h-9"
-                        />
-                      </div>
-
-                      <div>
-                        <Label className="text-xs">ক্রয় মূল্য (৳)</Label>
-                        <Input
-                          type="number"
-                          placeholder="200"
-                          value={s.buyPrice}
-                          onChange={(e) => handleSizeChange(index, 'buyPrice', e.target.value)}
-                          className="h-9"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-xs">বিক্রয় মূল্য (৳)</Label>
-                        <Input
-                          type="number"
-                          placeholder="299"
-                          value={s.price}
-                          onChange={(e) => handleSizeChange(index, 'price', e.target.value)}
-                          className="h-9"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-xs">লাভ (৳)</Label>
-                        <Input
-                          type="text"
-                          value={s.profit}
-                          disabled
-                          className="h-9 bg-muted"
-                        />
-                      </div>
+                  formData.sizes.map((s, i) => (
+                    <div key={i} className="grid grid-cols-1 sm:grid-cols-5 gap-2 items-end border-b pb-3 last:border-0">
+                      <div><Label className="text-xs">সাইজ</Label><Input value={s.size} onChange={e => handleSizeChange(i, 'size', e.target.value)} className="h-9" /></div>
+                      <div><Label className="text-xs">ক্রয় মূল্য (৳)</Label><Input type="number" value={s.buyPrice} onChange={e => handleSizeChange(i, 'buyPrice', e.target.value)} className="h-9" /></div>
+                      <div><Label className="text-xs">বিক্রয় মূল্য (৳)</Label><Input type="number" value={s.price} onChange={e => handleSizeChange(i, 'price', e.target.value)} className="h-9" /></div>
+                      <div><Label className="text-xs">লাভ (৳)</Label><Input value={s.profit} disabled className="h-9 bg-muted" /></div>
                       <div className="flex gap-2 items-end">
-                        <div className="flex-1">
-                          <Label className="text-xs">স্টক</Label>
-                          <Input
-                            type="number"
-                            placeholder="50"
-                            value={s.stock}
-                            onChange={(e) => handleSizeChange(index, 'stock', e.target.value)}
-                            className="h-9"
-                          />
-                        </div>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="h-9 w-9"
-                          onClick={() => removeSize(index)}
-                        >
+                        <div className="flex-1"><Label className="text-xs">স্টক</Label><Input type="number" value={s.stock} onChange={e => handleSizeChange(i, 'stock', e.target.value)} className="h-9" /></div>
+                        <Button type="button" variant="destructive" size="icon" className="h-9 w-9" onClick={() => removeSize(i)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -559,27 +477,16 @@ const ManageProductsPage = () => {
               </div>
             </Card>
 
-            {/* Thumbnail */}
+            {/* থাম্বনেইল */}
             <div>
-              <Label className="text-sm font-medium">থাম্বনেইল ছবি</Label>
+              <Label>থাম্বনেইল ছবি</Label>
               <div className="mt-2 flex items-center gap-4">
                 {formData.thumbnail ? (
                   <div className="relative">
-                    <img
-                      src={formData.thumbnail}
-                      alt="Preview"
-                      className="h-24 w-24 object-cover rounded-lg border"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
+                    <img src={formData.thumbnail} alt="Preview" className="h-24 w-24 object-cover rounded-lg border" />
+                    <Button type="button" variant="destructive" size="icon"
                       className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
-                      onClick={() => {
-                        setFormData(prev => ({ ...prev, thumbnail: '' }));
-                        setSelectedFile(null);
-                      }}
-                    >
+                      onClick={() => { setFormData(p => ({ ...p, thumbnail: '' })); setSelectedFile(null); }}>
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
@@ -589,87 +496,42 @@ const ManageProductsPage = () => {
                   </div>
                 )}
                 <div className="flex-1">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="cursor-pointer"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    সর্বোচ্চ 2MB, JPG/PNG
-                  </p>
+                  <Input type="file" accept="image/*" onChange={handleFileChange} />
+                  <p className="text-xs text-muted-foreground mt-1">সর্বোচ্চ 2MB, JPG/PNG</p>
                 </div>
               </div>
             </div>
 
-            {/* Slider Images */}
+            {/* স্লাইডার ছবি */}
             <div>
-              <Label className="text-sm font-medium">স্লাইডার ছবি</Label>
+              <Label>স্লাইডার ছবি</Label>
               <div className="mt-2">
                 <div className="flex flex-wrap gap-4 mb-4">
-                  {formData.sliderImages.length > 0 ? (
-                    formData.sliderImages.map((url, index) => (
-                      <div key={index} className="relative">
-                        <img
-                          src={url}
-                          alt={`Slider ${index + 1}`}
-                          className="h-24 w-24 object-cover rounded-lg border"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
-                          onClick={() => removeSliderImage(index)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))
-                  ) : (
+                  {formData.sliderImages.length > 0 ? formData.sliderImages.map((url, i) => (
+                    <div key={i} className="relative">
+                      <img src={url} alt="" className="h-24 w-24 object-cover rounded-lg border" />
+                      <Button type="button" variant="destructive" size="icon"
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                        onClick={() => removeSliderImage(i)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )) : (
                     <div className="h-24 w-24 border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground">
                       <span className="text-xs text-center">কোনো ছবি নেই</span>
                     </div>
                   )}
                 </div>
-                <div className="flex-1">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleSliderFilesChange}
-                    className="cursor-pointer"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    একাধিক ছবি নির্বাচন করুন, সর্বোচ্চ 2MB প্রতিটি, JPG/PNG
-                  </p>
-                </div>
+                <Input type="file" accept="image/*" multiple onChange={handleSliderFilesChange} />
+                <p className="text-xs text-muted-foreground mt-1">একাধিক ছবি, প্রতিটি 2MB পর্যন্ত</p>
               </div>
             </div>
 
-            {/* Footer Buttons */}
-            <DialogFooter className="flex justify-end gap-2 sm:gap-3 flex-wrap">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsDialogOpen(false)}
-                disabled={btnLoading}
-              >
-                বাতিল
-              </Button>
-              <Button
-                type="submit"
-                disabled={btnLoading || formData.sizes.length === 0}
-                className="min-w-[120px]"
-              >
-                {btnLoading ? (
-                  <>
-                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                    সংরক্ষণ হচ্ছে...
-                  </>
-                ) : (
-                  'সংরক্ষণ করুন'
-                )}
+            {/* বাটন */}
+            <DialogFooter className="flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={btnLoading}>বাতিল</Button>
+              <Button type="submit" disabled={btnLoading || formData.sizes.length === 0}>
+                {btnLoading ? <>সংরক্ষণ হচ্ছে...</> : 'সংরক্ষণ করুন'}
               </Button>
             </DialogFooter>
           </form>
