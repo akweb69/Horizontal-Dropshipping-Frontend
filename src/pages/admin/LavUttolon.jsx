@@ -374,9 +374,9 @@ const LavUttolon = () => {
                                 <DollarSign className="text-green-600" size={16} />
                                 <span className="font-medium">Amount:</span> {details?.amount} Tk
                             </p>
-                            <p className="text-sm flex items-center gap-2 text-gray-700">
+                            <p className="text-sm flex items-center gap-2 text-gray-700 whitespace-pre-line  overflow-auto">
                                 <FileText className="text-blue-600" size={16} />
-                                <span className="font-medium">Description:</span> {details?.description}
+                                <span className="font-medium ">Description:</span> {details?.description}
                             </p>
                             <p className="text-sm flex items-center gap-2 text-gray-700">
                                 <Calendar className="text-orange-600" size={16} />
