@@ -17,6 +17,7 @@ import {
     DialogFooter
 } from "@/components/ui/dialog";
 import axios from 'axios';
+import Loader11 from '../../components/layout/Loader11';
 
 // =================== FULLY FUNCTIONAL CUSTOM SELECT ===================
 const Select = ({ value, onValueChange, children, placeholder = "Select an option", ...props }) => {
@@ -247,10 +248,7 @@ const ReferralDashboardPage = () => {
 
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen space-y-4">
-                <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-                <p className="text-muted-foreground">লোড হচ্ছে...</p>
-            </div>
+            <Loader11></Loader11>
         );
     }
 

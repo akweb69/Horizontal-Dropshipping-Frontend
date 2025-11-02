@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
 import Keno from "./Keno";
+import Loader11 from "../components/layout/Loader11";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -50,7 +51,7 @@ const LoginPage = () => {
 
   // 🔹 Loading Screen
   if (loading) {
-    return <div className="min-h-screen"></div>
+    return <Loader11></Loader11>
   }
 
   return (

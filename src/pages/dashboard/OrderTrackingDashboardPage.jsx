@@ -35,6 +35,7 @@ import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import Loader11 from '../../components/layout/Loader11';
 
 const OrderTrackingDashboardPage = () => {
   const { toast } = useToast();
@@ -344,9 +345,7 @@ const OrderTrackingDashboardPage = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
-      </div>
+      <Loader11></Loader11>
     );
   }
 

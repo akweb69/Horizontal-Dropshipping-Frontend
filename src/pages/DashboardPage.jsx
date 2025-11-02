@@ -35,6 +35,7 @@ import {
     Tooltip,
     Legend,
 } from "chart.js";
+import Loader11 from '../components/layout/Loader11';
 
 // Chart.js রেজিস্ট্রেশন
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -322,9 +323,7 @@ const DashboardPage = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-screen text-lg font-semibold text-gray-600">
-                🔄 ডেটা লোড হচ্ছে...
-            </div>
+            <Loader11></Loader11>
         );
     }
 

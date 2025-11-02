@@ -15,6 +15,7 @@ import {
     MessageSquare
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import Loader11 from '../../components/layout/Loader11';
 
 const ManageContactUs = () => {
     const base_url = import.meta.env.VITE_BASE_URL;
@@ -104,10 +105,7 @@ const ManageContactUs = () => {
     // Loading UI
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen bg-gray-50">
-                <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full" />
-            </div>
+            <Loader11></Loader11>
         );
     }
 

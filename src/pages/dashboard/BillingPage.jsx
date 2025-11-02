@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { useToast } from '@/components/ui/use-toast';
+import Loader11 from '../../components/layout/Loader11';
 
 const BillingPage = () => {
     const { user } = useAuth();
@@ -153,12 +154,7 @@ const BillingPage = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-center">
-                    <ShoppingCart className="mx-auto h-12 w-12 animate-spin text-primary mb-4" />
-                    <p className="text-muted-foreground">বিলিং ডেটা লোড হচ্ছে...</p>
-                </div>
-            </div>
+            <Loader11></Loader11>
         );
     }
 
@@ -176,7 +172,7 @@ const BillingPage = () => {
                 </div>
 
                 {/* Current Plan Card */}
-                <Card>
+                {/* <Card>
                     <CardHeader>
                         <CardTitle>আপনার বর্তমান প্ল্যান</CardTitle>
                     </CardHeader>
@@ -193,7 +189,7 @@ const BillingPage = () => {
                             </Button>
                         </div>
                     </CardContent>
-                </Card>
+                </Card> */}
 
                 {/* Billing History */}
                 <Card>

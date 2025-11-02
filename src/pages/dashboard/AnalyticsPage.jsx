@@ -6,6 +6,7 @@ import { DollarSign, ShoppingCart, Package, TrendingUp } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
+import Loader11 from '../../components/layout/Loader11';
 
 const salesData = [
     { name: 'জান', revenue: 4000, profit: 2400 },
@@ -42,10 +43,9 @@ const AnalyticsPage = () => {
                 setLoading(false);
             });
     }, [user?.email]);
+    // check loading
     if (loading) {
-        return <div className="flex justify-center items-center h-screen">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
-        </div>
+        return <Loader11></Loader11>
     }
     return (
         <>

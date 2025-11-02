@@ -3,6 +3,7 @@ import { Loader, Search, Filter, X, Calendar, XCircle } from 'lucide-react';
 import React, { useEffect, useState, useMemo } from 'react';
 import { Info, CreditCard, Calendar as CalendarIcon, User, BadgeCheck, Wallet, Edit3, Eye } from "lucide-react";
 import { toast } from '@/components/ui/use-toast';
+import Loader11 from '../../components/layout/Loader11';
 
 const ManagePackage = () => {
     const [packages, setPackages] = useState([]);
@@ -115,10 +116,7 @@ const ManagePackage = () => {
     // Loading UI
     if (loading) {
         return (
-            <div className='min-h-screen w-full flex flex-col justify-center items-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800'>
-                <Loader className='w-16 h-16 text-primary animate-spin' />
-                <p className="mt-4 text-lg font-medium text-gray-600 dark:text-gray-300">লোড হচ্ছে...</p>
-            </div>
+            <Loader11></Loader11>
         );
     }
 

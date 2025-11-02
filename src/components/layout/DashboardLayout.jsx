@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import axios from 'axios';
 import { toast } from 'react-toastify'; // Assuming react-toastify is installed for error notifications
+import Loader11 from './Loader11';
 
 // Centralized axios instance (create a separate api.js file or inline here)
 const api = axios.create({
@@ -82,7 +83,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   }, [matchedPackage]);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
+    <Loader11></Loader11>
   }
 
   return (

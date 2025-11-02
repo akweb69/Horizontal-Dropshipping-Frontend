@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Loader } from 'lucide-react';
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import Loader11 from './Loader11';
 
 const SeeUser = () => {
     const [data, setData] = React.useState({});
@@ -53,11 +54,7 @@ const SeeUser = () => {
 
     if (loading) {
         return (
-            <div className="w-full min-h-[70vh] flex justify-center items-center bg-gray-50">
-                <div className="relative flex items-center justify-center">
-                    <Loader className="h-10 w-10 text-orange-600 animate-spin" />
-                </div>
-            </div>
+            <Loader11></Loader11>
         );
     }
 

@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wallet, CheckCircle, Clock, XCircle } from 'lucide-react';
+import Loader11 from '../../components/layout/Loader11';
 
 const ConnectStorePage = () => {
     const [orders, setOrders] = useState([]);
@@ -120,10 +121,7 @@ const ConnectStorePage = () => {
 
     if (loading) {
         return (
-            <motion.div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-blue-600" />
-            </motion.div>
+            <Loader11></Loader11>
         );
     }
 

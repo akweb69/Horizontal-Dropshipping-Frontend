@@ -9,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
 import axios from 'axios';
+import Loader11 from '../components/layout/Loader11';
 
 const ReferralPage = () => {
   const { isAuthenticated, user, loading } = useAuth();
@@ -17,12 +18,6 @@ const ReferralPage = () => {
   const [member, setMember] = useState(false);
   // load user name --->
 
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen">
-      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white">
-      </div>
-    </div>;
-  }
 
 
   useEffect(() => {
@@ -49,10 +44,7 @@ const ReferralPage = () => {
   }, [user])
 
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">
-      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white">
-      </div>
-    </div>;
+    return <Loader11></Loader11>
   }
 
   if (!member && !loading) {

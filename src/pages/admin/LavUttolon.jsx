@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from "framer-motion";
 import { X, ShoppingBag, DollarSign, Calendar, MapPin, Store } from "lucide-react";
+import Loader11 from '../../components/layout/Loader11';
 
 const LavUttolon = () => {
     const [loading, setLoading] = useState(false);
@@ -203,9 +204,7 @@ const LavUttolon = () => {
 
     if (loading) {
         return (
-            <div className="w-full flex items-center justify-center h-64">
-                <Loader className="h-12 w-12 animate-spin text-primary" />
-            </div>
+            <Loader11></Loader11>
         );
     }
 

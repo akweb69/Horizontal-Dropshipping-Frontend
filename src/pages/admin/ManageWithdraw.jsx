@@ -3,6 +3,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
+import Loader11 from '../../components/layout/Loader11';
 
 const ManageWithdraw = () => {
     const [withdrawals, setWithdrawals] = useState([]);
@@ -95,9 +96,7 @@ const ManageWithdraw = () => {
     // Loading
     if (loading) {
         return (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-gray-100">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600" />
-            </motion.div>
+            <Loader11></Loader11>
         );
     }
 

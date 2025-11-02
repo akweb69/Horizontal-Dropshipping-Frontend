@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Loader11 from './Loader11';
 
 const Footer = () => {
   const [websiteData, setWebsiteData] = React.useState(null);
@@ -22,7 +23,7 @@ const Footer = () => {
       });
   }, [])
   if (loading) {
-    return null;
+    <Loader11></Loader11>
   }
   return (
     <footer className="bg-gray-800 text-white py-12 bangla">

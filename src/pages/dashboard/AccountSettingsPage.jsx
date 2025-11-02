@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader } from 'lucide-react';
 import axios from 'axios';
+import Loader11 from '../../components/layout/Loader11';
 
 const AccountSettingsPage = () => {
     const { user } = useAuth();
@@ -109,9 +110,7 @@ const AccountSettingsPage = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center w-full min-h-[60vh]">
-                <Loader className="animate-spin w-8 h-8 text-primary" />
-            </div>
+            <Loader11></Loader11>
         );
     }
 

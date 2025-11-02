@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
+import Loader11 from '../../components/layout/Loader11';
 
 const MyProductsPage = () => {
     const { toast } = useToast();
@@ -126,9 +127,7 @@ const MyProductsPage = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-screen">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
-            </div>
+            <Loader11></Loader11>
         );
     }
 

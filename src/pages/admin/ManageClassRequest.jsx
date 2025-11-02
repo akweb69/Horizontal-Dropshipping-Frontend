@@ -16,6 +16,7 @@ import {
     Loader2,
     GraduationCap
 } from 'lucide-react';
+import Loader11 from '../../components/layout/Loader11';
 
 const ManageClassRequest = () => {
     const base_url = import.meta.env.VITE_BASE_URL;
@@ -76,13 +77,7 @@ const ManageClassRequest = () => {
     // Loading UI
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-                <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full"
-                />
-            </div>
+            <Loader11></Loader11>
         );
     }
 

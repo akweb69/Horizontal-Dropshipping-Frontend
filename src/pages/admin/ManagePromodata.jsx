@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Zap, Truck, Gift, Plus, Edit2, Trash2, X } from 'lucide-react';
+import Loader11 from '../../components/layout/Loader11';
 
 const ManagePromodata = () => {
     const base_url = import.meta.env.VITE_BASE_URL;
@@ -98,9 +99,7 @@ const ManagePromodata = () => {
     };
 
     if (loading) return (
-        <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
-        </div>
+        <Loader11></Loader11>
     );
 
     return (

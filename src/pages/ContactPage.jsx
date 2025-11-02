@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { Phone, Mail, Clock, Loader2, Send } from 'lucide-react';
 import axios from 'axios';
+import Loader11 from '../components/layout/Loader11';
 
 const ContactPage = () => {
   const [loading, setLoading] = useState(false);
@@ -75,13 +76,7 @@ const ContactPage = () => {
   // Loading UI
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-slate-50">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full"
-        />
-      </div>
+      <Loader11></Loader11>
     );
   }
 

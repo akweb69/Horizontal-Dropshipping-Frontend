@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
+import Loader11 from "../components/layout/Loader11";
 
 const CategoryProduct = () => {
     const [loading, setLoading] = useState(true);
@@ -23,9 +24,7 @@ const CategoryProduct = () => {
     // check loading
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
-            </div>
+            <Loader11></Loader11>
         );
     }
     return (

@@ -9,6 +9,7 @@ import { allProducts as products } from '@/data/products';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import Loader11 from '../components/layout/Loader11';
 
 const HomePage = () => {
   const [loading1, setLoading1] = useState(true);
@@ -57,6 +58,7 @@ const HomePage = () => {
       <div className="max-w-7xl mx-auto px-4 py-6">
         <HeroSection />
       </div>
+
 
       <PromoCarousel />
 

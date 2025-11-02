@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import Loader11 from './Loader11';
 
 const AdminSidebar = ({ isOpen, setIsOpen }) => {
   const { logout, loading, user } = useAuth();
@@ -72,7 +73,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
 
 
   if (loading) {
-    return null;
+    <Loader11></Loader11>
   }
   return (
     <>

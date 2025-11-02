@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Home, Heart, Gift, LogIn, ShoppingBasket } from 'lucide-react';
 import { useSearch } from '@/context/SearchContext';
 import { useAuth } from '@/context/AuthContext';
+import Loader11 from './Loader11';
 
 const MobileBottomNav = ({ activeTab, setActiveTab }) => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const MobileBottomNav = ({ activeTab, setActiveTab }) => {
     openSearch();
   };
   if (loading) {
-    return null;
+    <Loader11></Loader11>
   }
 
   return (
