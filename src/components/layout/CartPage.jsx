@@ -9,6 +9,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import Loader11 from './Loader11';
 
 const CartPage = () => {
     const { loading, cartData, setCartData, user, fetchCart } = useAuth();
@@ -266,15 +267,13 @@ const CartPage = () => {
 
     if (loading || isPaymentInfoLoading) {
         return (
-            <div className="w-full h-screen flex items-center justify-center">
-                <Loader className="animate-spin text-blue-600" size={48} />
-            </div>
+            <Loader11></Loader11>
         );
     }
 
     if (!cartData || cartData.length === 0) {
         return (
-            <div className="w-full max-w-7xl mx-auto py-8 px-4 min-h-[90vh]">
+            <div className="w-full max-w-7xl mx-auto py-8 px-4 min-h-[90vh] mt-20 ">
                 <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-800 pb-4">আপনার কার্ট</h1>
                 <p className="text-center text-gray-500 text-lg">আপনার কার্ট খালি।</p>
                 <div className="text-center mt-4">
@@ -285,7 +284,7 @@ const CartPage = () => {
     }
 
     return (
-        <div className="w-full max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 min-h-[90vh]">
+        <div className="w-full max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 min-h-[90vh] mt-20">
             <h1 className="text-3xl font-bold text-center text-gray-800 mb-8 border-b border-gray-200 pb-4">
                 আপনার কার্ট
             </h1>

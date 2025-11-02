@@ -19,7 +19,7 @@ const AboutUsPage = () => {
         <meta name="description" content="ড্রপশিপিং এর মাধ্যমে বাংলাদেশী বিক্রেতা এবং ক্রেতাদের ক্ষমতায়ন। আমাদের লক্ষ্য এবং কার্যপদ্ধতি সম্পর্কে আরও জানুন।" />
       </Helmet>
 
-      <div className="bg-white">
+      <div className="bg-white mt-16">
         <section className="bg-gradient-to-r from-orange-500 to-yellow-600 text-white py-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

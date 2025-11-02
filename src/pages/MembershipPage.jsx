@@ -309,7 +309,7 @@ const MembershipPage = () => {
                 <meta name="description" content="বিশেষ সুবিধা উপভোগ করুন এবং সকল পণ্যের দাম দেখুন।" />
             </Helmet>
 
-            <div className="bg-gray-50 py-16">
+            <div className="bg-gray-50 py-16 mt-14">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
                         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-6">
