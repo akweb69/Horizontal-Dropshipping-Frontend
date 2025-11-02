@@ -67,8 +67,8 @@ const Header = () => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full bg-gray-100 hover:bg-gray-200">
-              <div className="flex items-center justify-center w-full h-full text-primary font-bold">
+            <Button variant="ghost" className="relative  max-w-[10px] rounded-full border border-orange-500 bg-gray-100 hover:bg-gray-200">
+              <div className="flex items-center justify-center w-full h-full text-orange-500  font-bold">
                 {user?.name?.charAt(0).toUpperCase() || <User />}
               </div>
             </Button>
