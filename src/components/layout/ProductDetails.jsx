@@ -14,6 +14,7 @@ const ProductDetails = () => {
     const [selectedSize, setSelectedSize] = useState(null); // { size, price, stock }
     const [currentImageIndex, setCurrentImageIndex] = useState(0); // For slider navigation
     const { user, setLoveData, setCartData } = useAuth();
+    const [seeMore, setSeeMore] = useState(false);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -391,7 +392,15 @@ Description: ${data.description}
                     {/* Description */}
                     <div>
                         <h3 className="text-lg font-semibold text-gray-800 mb-2">Description</h3>
-                        <p className="text-gray-600 leading-relaxed whitespace-pre-line">{data.description}</p>
+                        {!seeMore &&
+                            <p className="text-gray-600 leading-relaxed whitespace-pre-line">{data?.description?.slice(0, 60)} <span
+                                onClick={() => setSeeMore(true)}
+                                className="font-semibold text-orange-500 cursor-pointer ml-2 hover:underline">Show More</span> </p>}
+                        {
+                            seeMore &&
+                            <p className="text-gray-600 leading-relaxed whitespace-pre-line">{data?.description} <span
+                                onClick={() => setSeeMore(false)}
+                                className="font-semibold text-orange-500 cursor-pointer ml-2 hover:underline">Show less</span> </p>}
                     </div>
 
                     {/* Action Buttons */}
