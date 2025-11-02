@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import Loader11 from '../../components/layout/Loader11';
 
 // StatCard (অপরিবর্তিত)
 const StatCard = ({ title, value, icon, description, isLoading, gradient }) => (
@@ -124,7 +125,9 @@ const AdminDashboardPage = () => {
             .then(res => {
                 const data = res.data
                 const balance1 = data.filter(i => i.status === "Delivered").reduce((acc, i) => acc + i.amar_bikri_mullo, 0)
+                // console.log("balance1", balance1)
                 const balance2 = data.filter(i => i.status === "Delivered").reduce((acc, i) => acc + i.grand_total, 0)
+                setTotalUB(balance1 - balance2)
 
                 // calculate profit
                 const profit1 = data.filter(i => i.status === "Delivered").reduce((acc, i) => acc + i.profit, 0)
@@ -143,10 +146,9 @@ const AdminDashboardPage = () => {
 
 
 
-                const balance = balance1 - balance2
-                setTotalUB(balance)
-
-                console.log("balance", balance)
+                // const balance = balance1 - balance2
+                // setTotalUB(balance)
+                // console.log("balance dsdsd", balance)
                 setUiLoading(false)
 
             })
@@ -321,7 +323,13 @@ const AdminDashboardPage = () => {
         { title: "রিটার্ন টাকা", value: `৳ ${stats.returnOrderAmount}`, desc: stats.returnOrderAmount > 0 ? `৳${stats.returnOrderAmount} রিফান্ড` : 'কোনো রিটার্ন নেই' },
         { title: "পেন্ডিং অর্ডার", value: `৳ ${stats.pendingOrderAmount}`, desc: stats.pendingOrderAmount > 0 ? `৳${stats.pendingOrderAmount} পেন্ডিং` : 'কোনো পেন্ডিং নেই' },
         { title: "ডেলিভার্ড টাকা", value: `৳ ${stats.deliveredOrderAmount}`, desc: stats.deliveredOrderAmount > 0 ? `৳${stats.deliveredOrderAmount} সফল` : 'কোনো ডেলিভারি নেই' },
+
+
+
         { title: "ব্যবহারকারী ব্যালান্স", value: `৳ ${(totalUB + totalRB) - (totalNW + totalNRW)}`, },
+
+
+
         { title: "উত্তোলন রিকোয়েস্ট", value: withdrawStats.totalWithdrawRequest, desc: withdrawStats.totalWithdrawRequest > 0 ? `${withdrawStats.totalWithdrawRequest} টি রিকোয়েস্ট` : 'কোনো রিকোয়েস্ট নেই' },
         { title: "উত্তোলিত টাকা", value: `৳ ${withdrawStats.completedWithdrawAmount}`, desc: withdrawStats.completedWithdrawAmount > 0 ? `৳${withdrawStats.completedWithdrawAmount} অনুমোদিত` : 'কোনো উত্তোলন নেই' },
         { title: "পেন্ডিং উত্তোলন", value: `৳ ${withdrawStats.pendingWithdrawAmount}`, desc: withdrawStats.pendingWithdrawAmount > 0 ? `৳${withdrawStats.pendingWithdrawAmount} অপেক্ষায়` : 'কোনো পেন্ডিং নেই' },
@@ -331,9 +339,7 @@ const AdminDashboardPage = () => {
 
     // check loading
     if (uiLoading) {
-        return <div className="flex w-full min-h-screen justify-center items-center">
-            <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
-        </div>
+        return <Loader11></Loader11>
     }
 
     return (
