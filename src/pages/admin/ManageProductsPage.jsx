@@ -26,7 +26,7 @@ const ManageProductsPage = () => {
     description: '',
     sizes: [],
     sliderImages: [],
-    availableColors: []          // ← নতুন ফিল্ড
+    colors: []                 // ← নতুন ফিল্ড
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedSliderFiles, setSelectedSliderFiles] = useState([]);
@@ -72,40 +72,50 @@ const ManageProductsPage = () => {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'availableColors') {
-      // কমা দিয়ে আলাদা করে array বানাই
-      const colors = value.split(',').map(c => c.trim()).filter(c => c);
-      setFormData(prev => ({ ...prev, availableColors: colors }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  /* ---------- SIZES ---------- */
   const handleSizeChange = (index, field, value) => {
     setFormData(prev => {
       const newSizes = [...prev.sizes];
       newSizes[index] = { ...newSizes[index], [field]: value };
-
       const price = parseFloat(newSizes[index].price) || 0;
       const buyPrice = parseFloat(newSizes[index].buyPrice) || 0;
       newSizes[index].profit = (price - buyPrice).toFixed(2);
-
       return { ...prev, sizes: newSizes };
     });
   };
-
   const addSize = () => {
     setFormData(prev => ({
       ...prev,
       sizes: [...prev.sizes, { size: '', price: '', buyPrice: '', profit: '0.00', stock: '' }]
     }));
   };
-
   const removeSize = (index) => {
     setFormData(prev => {
       const newSizes = [...prev.sizes];
       newSizes.splice(index, 1);
       return { ...prev, sizes: newSizes };
+    });
+  };
+
+  /* ---------- COLORS ---------- */
+  const handleColorChange = (index, value) => {
+    setFormData(prev => {
+      const newColors = [...prev.colors];
+      newColors[index] = value.trim();
+      return { ...prev, colors: newColors };
+    });
+  };
+  const addColor = () => {
+    setFormData(prev => ({ ...prev, colors: [...prev.colors, ''] }));
+  };
+  const removeColor = (index) => {
+    setFormData(prev => {
+      const newColors = [...prev.colors];
+      newColors.splice(index, 1);
+      return { ...prev, colors: newColors };
     });
   };
 
@@ -130,7 +140,7 @@ const ManageProductsPage = () => {
       });
       const data = await res.json();
       return data.success ? data.data.url : null;
-    } catch (error) {
+    } catch {
       toast({ title: "ত্রুটি", description: "ইমেজ আপলোড করতে ব্যর্থ হয়েছে।", variant: "destructive" });
       return null;
     }
@@ -146,7 +156,7 @@ const ManageProductsPage = () => {
       description: '',
       sizes: [],
       sliderImages: [],
-      availableColors: []          // ← রিসেট
+      colors: []               // ← রিসেট
     });
     setSelectedFile(null);
     setSelectedSliderFiles([]);
@@ -169,7 +179,7 @@ const ManageProductsPage = () => {
         stock: s.stock.toString()
       })) : [],
       sliderImages: product.sliderImages || [],
-      availableColors: product.availableColors || []   // ← এডিটে লোড
+      colors: product.colors || []          // ← লোড
     });
     setSelectedFile(null);
     setSelectedSliderFiles([]);
@@ -180,32 +190,36 @@ const ManageProductsPage = () => {
     e.preventDefault();
     setBtnLoading(true);
 
-    // required validation (availableColors optional)
-    if (!formData.name || !formData.category || !formData.sectionName || !formData.description || formData.sizes.length === 0 || formData.sizes.some(s => !s.size || !s.price || !s.buyPrice || !s.stock)) {
-      toast({ title: "ত্রুটি", description: "অনুগ্রহ করে সমস্ত ঘর পূরণ করুন।", variant: "destructive" });
+    if (!formData.name || !formData.category || !formData.sectionName || !formData.description ||
+      formData.sizes.length === 0 ||
+      formData.sizes.some(s => !s.size || !s.price || !s.buyPrice || !s.stock)) {
+      toast({ title: "ত্রুটি", description: "অনুগ্রহ করে সমস্ত বাধ্যতামূলক ঘর পূরণ করুন।", variant: "destructive" });
       setBtnLoading(false);
       return;
     }
 
+    // ---------- Thumbnail ----------
     let thumbnailUrl = formData.thumbnail;
     if (selectedFile) {
-      const uploadedUrl = await uploadImage(selectedFile);
-      if (!uploadedUrl) { setBtnLoading(false); return; }
-      thumbnailUrl = uploadedUrl;
+      const url = await uploadImage(selectedFile);
+      if (!url) { setBtnLoading(false); return; }
+      thumbnailUrl = url;
     }
 
+    // ---------- Slider ----------
     let sliderImageUrls = [...formData.sliderImages];
-    if (selectedSliderFiles.length > 0) {
-      const uploadedUrls = await Promise.all(selectedSliderFiles.map(uploadImage));
-      if (uploadedUrls.some(u => !u)) { setBtnLoading(false); return; }
-      sliderImageUrls = [...sliderImageUrls, ...uploadedUrls];
+    if (selectedSliderFiles.length) {
+      const urls = await Promise.all(selectedSliderFiles.map(uploadImage));
+      if (urls.some(u => !u)) { setBtnLoading(false); return; }
+      sliderImageUrls.push(...urls);
     }
 
+    // ---------- Final payload ----------
     const productData = {
       ...formData,
       thumbnail: thumbnailUrl,
       sliderImages: sliderImageUrls,
-      availableColors: formData.availableColors,   // ← সার্ভারে পাঠানো
+      colors: formData.colors.filter(c => c),            // শুধু non-empty
       sizes: formData.sizes.map(s => ({
         size: s.size,
         price: parseFloat(s.price),
@@ -216,11 +230,8 @@ const ManageProductsPage = () => {
     };
 
     try {
-      const url = currentProduct
-        ? `${base_url}/products/${currentProduct._id}`
-        : `${base_url}/products`;
       const method = currentProduct ? 'PATCH' : 'POST';
-
+      const url = currentProduct ? `${base_url}/products/${currentProduct._id}` : `${base_url}/products`;
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
@@ -228,14 +239,14 @@ const ManageProductsPage = () => {
       });
 
       if (res.ok) {
-        toast({ title: "সফল", description: currentProduct ? "পণ্য আপডেট হয়েছে।" : "নতুন পণ্য যোগ হয়েছে।" });
+        toast({ title: "সফল", description: currentProduct ? "পণ্য আপডেট হয়েছে।" : "নতুন পণ্য যোগ হয়েছে।" });
         setIsDialogOpen(false);
         fetchProducts();
       } else {
         toast({ title: "ত্রুটি", description: "অপারেশন ব্যর্থ।", variant: "destructive" });
       }
-    } catch (error) {
-      toast({ title: "ত্রুটি", description: "এরর হয়েছে।", variant: "destructive" });
+    } catch {
+      toast({ title: "ত্রুটি", description: "সার্ভার এরর।", variant: "destructive" });
     } finally {
       setBtnLoading(false);
     }
@@ -245,13 +256,11 @@ const ManageProductsPage = () => {
     try {
       const res = await fetch(`${base_url}/products/${productId}`, { method: 'DELETE' });
       if (res.ok) {
-        toast({ title: "সফল", description: "পণ্য মুছে ফেলা হয়েছে।" });
+        toast({ title: "সফল", description: "পণ্য মুছে ফেলা হয়েছে।" });
         fetchProducts();
-      } else {
-        toast({ title: "ত্রুটি", description: "মুছে ফেলতে ব্যর্থ।", variant: "destructive" });
       }
-    } catch (error) {
-      toast({ title: "ত্রুটি", description: "এরর হয়েছে।", variant: "destructive" });
+    } catch {
+      toast({ title: "ত্রুটি", description: "মুছে ফেলতে ব্যর্থ।", variant: "destructive" });
     }
   };
 
@@ -259,7 +268,7 @@ const ManageProductsPage = () => {
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  /* ---------- হেল্পার ফাংশন ---------- */
+  /* ---------- Helper UI ---------- */
   const getPriceRange = (sizes) => {
     if (!sizes?.length) return 'N/A';
     const prices = sizes.map(s => s.price);
@@ -274,18 +283,11 @@ const ManageProductsPage = () => {
   };
   const getTotalStock = (sizes) => sizes?.reduce((s, c) => s + c.stock, 0) ?? 0;
   const getTotalProfit = (sizes) => {
-    if (!sizes?.length) return '0.00';
-    const total = sizes.reduce((s, c) => s + (c.profit || 0), 0);
+    const total = sizes?.reduce((s, c) => s + (c.profit || 0), 0) ?? 0;
     return total.toFixed(2);
   };
-  const getAvailableSizes = (sizes) => {
-    if (!sizes?.length) return 'নেই';
-    return sizes.map(s => `${s.size} (৳${s.profit})`).join(', ');
-  };
-  const getColorsDisplay = (colors) => {
-    if (!colors?.length) return 'নেই';
-    return colors.join(', ');
-  };
+  const getAvailableSizes = (sizes) => sizes?.length ? sizes.map(s => `${s.size} (৳${s.profit})`).join(', ') : 'নেই';
+  const getAvailableColors = (colors) => colors?.length ? colors.join(', ') : 'নেই';
   const getSliderImagesPreview = (imgs) => {
     if (!imgs?.length) return 'নেই';
     return (
@@ -302,7 +304,7 @@ const ManageProductsPage = () => {
     <>
       <Helmet><title>পণ্য ম্যানেজ করুন - অ্যাডমিন</title></Helmet>
 
-      {/* ---------- টেবিল ---------- */}
+      {/* ---------- Product List ---------- */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>পণ্য ম্যানেজমেন্ট</CardTitle>
@@ -335,10 +337,9 @@ const ManageProductsPage = () => {
                 <TableHead>ক্যাটাগরি</TableHead>
                 <TableHead>সেকশন</TableHead>
                 <TableHead>স্টক</TableHead>
-                <TableHead>বিবরণ</TableHead>
                 <TableHead>সাইজ ও লাভ</TableHead>
-                <TableHead>উপলব্ধ রং</TableHead>   {/* ← নতুন কলাম */}
-                <TableHead>স্লাইডার ছবি</TableHead>
+                <TableHead>কালার</TableHead>   {/* ← নতুন কলাম */}
+                <TableHead>স্লাইডার</TableHead>
                 <TableHead className="text-right">অ্যাকশন</TableHead>
               </TableRow>
             </TableHeader>
@@ -355,9 +356,8 @@ const ManageProductsPage = () => {
                   <TableCell>{p.category}</TableCell>
                   <TableCell>{p.sectionName}</TableCell>
                   <TableCell>{getTotalStock(p.sizes)}</TableCell>
-                  <TableCell>{p.description?.slice(0, 50) || 'নেই'}...</TableCell>
                   <TableCell>{getAvailableSizes(p.sizes)}</TableCell>
-                  <TableCell>{getColorsDisplay(p.availableColors)}</TableCell>   {/* ← ডিসপ্লে */}
+                  <TableCell>{getAvailableColors(p.colors)}</TableCell>
                   <TableCell>{getSliderImagesPreview(p.sliderImages)}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(p)}><Edit className="h-4 w-4" /></Button>
@@ -384,8 +384,7 @@ const ManageProductsPage = () => {
         </CardContent>
       </Card>
 
-
-      {/* ---------- ডায়ালগ / ফর্ম ---------- */}
+      {/* ---------- Add / Edit Dialog ---------- */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -396,8 +395,7 @@ const ManageProductsPage = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
 
-
-            {/* নাম + ক্যাটাগরি */}
+            {/* Name & Category */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="name">পণ্যের নাম <span className="text-red-500">*</span></Label>
@@ -407,48 +405,67 @@ const ManageProductsPage = () => {
                 <Label htmlFor="category">ক্যাটাগরি <span className="text-red-500">*</span></Label>
                 <select id="category" name="category" value={formData.category} onChange={handleFormChange}
                   className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  <option value="" disabled>ক্যাটাগরি নির্বাচন করুন</option>
+                  <option value="" disabled>নির্বাচন করুন</option>
                   {categories?.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
                 </select>
               </div>
             </div>
 
-
-            {/* সেকশন + বিবরণ */}
+            {/* Section & Description */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="sectionName">সেকশন <span className="text-red-500">*</span></Label>
                 <select id="sectionName" name="sectionName" value={formData.sectionName} onChange={handleFormChange}
                   className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  <option value="" disabled>সেকশন নির্বাচন করুন</option>
+                  <option value="" disabled>নির্বাচন করুন</option>
                   {sectionOptions.map(o => <option key={o} value={o}>{o}</option>)}
                 </select>
               </div>
               <div>
                 <Label htmlFor="description">বিবরণ <span className="text-red-500">*</span></Label>
-                <textarea id="description" name="description" value={formData.description}
-                  onChange={handleFormChange} placeholder="পণ্যের বিস্তারিত বিবরণ লিখুন..."
+                <textarea id="description" name="description" value={formData.description} onChange={handleFormChange}
                   className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]" required />
               </div>
             </div>
 
-            {/* ---------- নতুন ফিল্ড: উপলব্ধ রং ---------- */}
-            <div>
-              <Label htmlFor="availableColors">আভেইলাবল রং (অপশনাল)</Label>
-              <Input
-                id="availableColors"
-                name="availableColors"
-                value={formData.availableColors.join(', ')}
-                onChange={handleFormChange}
-                placeholder="Red, Blue, Green (কমা দিয়ে আলাদা করুন)"
-                className="mt-1 bg-white"
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                কমা (,) দিয়ে একাধিক রং লিখুন। ফাঁকা রাখলে কোনো রং যোগ হবে না।
-              </p>
-            </div>
+            {/* ---------- Available Colors (Optional) ---------- */}
+            <Card className="p-4 border">
+              <div className="flex justify-between items-center mb-3">
+                <Label className="text-sm font-semibold">উপলব্ধ কালার (ঐচ্ছিক)</Label>
+                <Button type="button" size="sm" onClick={addColor} className="flex items-center gap-1">
+                  <PlusCircle className="h-4 w-4" /> কালার যোগ করুন
+                </Button>
+              </div>
 
-            {/* সাইজ সেকশন */}
+              <div className="space-y-3">
+                {formData.colors.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    কোনো কালার যোগ করা হয়নি। চাইলে “কালার যোগ করুন” বাটনে ক্লিক করুন।
+                  </p>
+                ) : (
+                  formData.colors.map((col, idx) => (
+                    <div key={idx} className="flex gap-2 items-center">
+                      <Input
+                        placeholder="যেমন: red"
+                        value={col}
+                        onChange={e => handleColorChange(idx, e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button type="button" variant="destructive" size="icon" onClick={() => removeColor(idx)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))
+                )}
+                {formData.colors.length > 0 && (
+                  <Button type="button" variant="outline" size="sm" onClick={addColor} className="w-full">
+                    আরও কালার যোগ করুন
+                  </Button>
+                )}
+              </div>
+            </Card>
+
+            {/* ---------- Sizes ---------- */}
             <Card className="p-4 border">
               <div className="flex justify-between items-center mb-3">
                 <Label className="text-sm font-semibold">সাইজ, মূল্য, ক্রয় মূল্য, লাভ ও স্টক <span className="text-red-500">*</span></Label>
@@ -459,18 +476,33 @@ const ManageProductsPage = () => {
               <div className="space-y-3">
                 {formData.sizes.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    কোনো সাইজ যোগ করা হয়নি। "সাইজ যোগ করুন" বাটনে ক্লিক করুন।
+                    কোনো সাইজ যোগ করা হয়নি। “সাইজ যোগ করুন” বাটনে ক্লিক করুন।
                   </p>
                 ) : (
                   formData.sizes.map((s, i) => (
                     <div key={i} className="grid grid-cols-1 sm:grid-cols-5 gap-2 items-end border-b pb-3 last:border-0">
-                      <div><Label className="text-xs">সাইজ</Label><Input value={s.size} onChange={e => handleSizeChange(i, 'size', e.target.value)} className="h-9" /></div>
-                      <div><Label className="text-xs">ক্রয় মূল্য (৳)</Label><Input type="number" value={s.buyPrice} onChange={e => handleSizeChange(i, 'buyPrice', e.target.value)} className="h-9" /></div>
-                      <div><Label className="text-xs">বিক্রয় মূল্য (৳)</Label><Input type="number" value={s.price} onChange={e => handleSizeChange(i, 'price', e.target.value)} className="h-9" /></div>
-                      <div><Label className="text-xs">লাভ (৳)</Label><Input value={s.profit} disabled className="h-9 bg-muted" /></div>
+                      <div>
+                        <Label className="text-xs">সাইজ</Label>
+                        <Input placeholder="S, M, L" value={s.size} onChange={e => handleSizeChange(i, 'size', e.target.value)} className="h-9" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">ক্রয় মূল্য (৳)</Label>
+                        <Input type="number" placeholder="200" value={s.buyPrice} onChange={e => handleSizeChange(i, 'buyPrice', e.target.value)} className="h-9" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">বিক্রয় মূল্য (৳)</Label>
+                        <Input type="number" placeholder="299" value={s.price} onChange={e => handleSizeChange(i, 'price', e.target.value)} className="h-9" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">লাভ (৳)</Label>
+                        <Input value={s.profit} disabled className="h-9 bg-muted" />
+                      </div>
                       <div className="flex gap-2 items-end">
-                        <div className="flex-1"><Label className="text-xs">স্টক</Label><Input type="number" value={s.stock} onChange={e => handleSizeChange(i, 'stock', e.target.value)} className="h-9" /></div>
-                        <Button type="button" variant="destructive" size="icon" className="h-9 w-9" onClick={() => removeSize(i)}>
+                        <div className="flex-1">
+                          <Label className="text-xs">স্টক</Label>
+                          <Input type="number" placeholder="50" value={s.stock} onChange={e => handleSizeChange(i, 'stock', e.target.value)} className="h-9" />
+                        </div>
+                        <Button type="button" variant="destructive" size="icon" onClick={() => removeSize(i)} className="h-9 w-9">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -480,13 +512,13 @@ const ManageProductsPage = () => {
               </div>
             </Card>
 
-            {/* থাম্বনেইল */}
+            {/* ---------- Thumbnail ---------- */}
             <div>
               <Label>থাম্বনেইল ছবি</Label>
               <div className="mt-2 flex items-center gap-4">
                 {formData.thumbnail ? (
                   <div className="relative">
-                    <img src={formData.thumbnail} alt="Preview" className="h-24 w-24 object-cover rounded-lg border" />
+                    <img src={formData.thumbnail} alt="thumb" className="h-24 w-24 object-cover rounded-lg border" />
                     <Button type="button" variant="destructive" size="icon"
                       className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
                       onClick={() => { setFormData(p => ({ ...p, thumbnail: '' })); setSelectedFile(null); }}>
@@ -499,20 +531,20 @@ const ManageProductsPage = () => {
                   </div>
                 )}
                 <div className="flex-1">
-                  <Input type="file" accept="image/*" onChange={handleFileChange} />
+                  <Input type="file" accept="image/*" onChange={handleFileChange} className="cursor-pointer" />
                   <p className="text-xs text-muted-foreground mt-1">সর্বোচ্চ 2MB, JPG/PNG</p>
                 </div>
               </div>
             </div>
 
-            {/* স্লাইডার ছবি */}
+            {/* ---------- Slider Images ---------- */}
             <div>
               <Label>স্লাইডার ছবি</Label>
               <div className="mt-2">
                 <div className="flex flex-wrap gap-4 mb-4">
-                  {formData.sliderImages.length > 0 ? formData.sliderImages.map((url, i) => (
+                  {formData.sliderImages.length ? formData.sliderImages.map((url, i) => (
                     <div key={i} className="relative">
-                      <img src={url} alt="" className="h-24 w-24 object-cover rounded-lg border" />
+                      <img src={url} alt={`slide-${i}`} className="h-24 w-24 object-cover rounded-lg border" />
                       <Button type="button" variant="destructive" size="icon"
                         className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
                         onClick={() => removeSliderImage(i)}>
@@ -525,16 +557,23 @@ const ManageProductsPage = () => {
                     </div>
                   )}
                 </div>
-                <Input type="file" accept="image/*" multiple onChange={handleSliderFilesChange} />
+                <Input type="file" accept="image/*" multiple onChange={handleSliderFilesChange} className="cursor-pointer" />
                 <p className="text-xs text-muted-foreground mt-1">একাধিক ছবি, প্রতিটি 2MB পর্যন্ত</p>
               </div>
             </div>
 
-            {/* বাটন */}
+            {/* ---------- Footer ---------- */}
             <DialogFooter className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={btnLoading}>বাতিল</Button>
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={btnLoading}>
+                বাতিল
+              </Button>
               <Button type="submit" disabled={btnLoading || formData.sizes.length === 0}>
-                {btnLoading ? <>সংরক্ষণ হচ্ছে...</> : 'সংরক্ষণ করুন'}
+                {btnLoading ? (
+                  <>
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                    সংরক্ষণ হচ্ছে...
+                  </>
+                ) : 'সংরক্ষণ করুন'}
               </Button>
             </DialogFooter>
           </form>

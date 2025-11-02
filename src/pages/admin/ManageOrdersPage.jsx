@@ -134,6 +134,7 @@ const ManageOrdersPage = () => {
         toast({ title: "Error!", description: "Order not found.", variant: "destructive" });
         return;
       }
+      const color = orderData?.SelectColor
 
       const { shopName = "UnicDropex", shopAddress = "N/A", shopContact = "N/A", shopImage } = orderData.store_info || {};
       const isCOD = orderData.payment_method?.toLowerCase().includes('cash') || orderData.payment_method?.toLowerCase() === 'cod';
@@ -144,7 +145,7 @@ const ManageOrdersPage = () => {
 
       // Header
       doc.setFontSize(20);
-      doc.setTextColor("#0D6EFD");
+      doc.setTextColor("#FFA500");
       doc.text("Order Invoice", 14, 20);
 
       if (shopImage) {
@@ -160,7 +161,7 @@ const ManageOrdersPage = () => {
 
       // Order Info
       doc.setFontSize(12);
-      doc.setTextColor("#555555");
+      doc.setTextColor("#000");
       doc.text(`Invoice ID: ${orderId}`, 14, 58);
       doc.text(`Order Date: ${formatDate(orderData.order_date)}`, 14, 66);
 
@@ -171,11 +172,11 @@ const ManageOrdersPage = () => {
       doc.line(14, 95, 196, 95);
 
       // Items Table
-      const tableColumn = ["Product Name", "Price", "Qty", "Size", "Subtotal"];
+      const tableColumn = ["Product Name", "Price", "Qty", "Size", "Color", "Subtotal"];
       const tableRows = [];
 
       const items = Array.isArray(orderData.items) ? orderData.items : [
-        { name: orderData.name, price: orderData.price, quantity: orderData.quantity || 1, size: orderData.size, subtotal: orderData.subtotal }
+        { name: orderData.name, price: orderData.price, quantity: orderData.quantity || 1, size: orderData.size, subtotal: orderData.subtotal, }
       ];
 
       items.forEach(item => {
@@ -186,7 +187,9 @@ const ManageOrdersPage = () => {
           `${price.toFixed(2)} Tk`,
           item.quantity || 1,
           `${item.size || 'N/A'}`,
-          `${subtotal.toFixed(2)} Tk`
+          `${color || 'N/A'}`,
+          `${subtotal.toFixed(2)} Tk`,
+
         ]);
       });
 
@@ -195,7 +198,7 @@ const ManageOrdersPage = () => {
         head: [tableColumn],
         body: tableRows,
         theme: "grid",
-        headStyles: { fillColor: [13, 110, 253], textColor: 255, fontStyle: "bold" },
+        headStyles: { fillColor: [255, 165, 0], textColor: 255, fontStyle: "bold" },
         styles: { fontSize: 11, cellPadding: 3 },
         alternateRowStyles: { fillColor: [245, 245, 245] }
       });
@@ -227,7 +230,7 @@ const ManageOrdersPage = () => {
       // Footer
       doc.setFontSize(10);
       doc.setTextColor("#888888");
-      doc.text("Thank you for shopping with UnicDropex!", 14, 285);
+      doc.text(`Thank you for shopping with ${shopName}!`, 14, 285);
 
       doc.save(`Invoice_${orderId}.pdf`);
       toast({ title: "সফল!", description: "ইনভয়েস তৈরি হয়েছে।", variant: "default" });
@@ -243,7 +246,7 @@ const ManageOrdersPage = () => {
         <title>অর্ডার ম্যানেজ করুন - অ্যাডমিন</title>
       </Helmet>
 
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bangla">
         <Card className="shadow-xl border border-gray-100 rounded-3xl overflow-hidden bg-white">
           <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
             <CardTitle className="text-2xl sm:text-3xl font-bold text-gray-900">
@@ -445,6 +448,11 @@ const ManageOrdersPage = () => {
                         </span>
                       </div>
                     ))}
+                    {
+                      selectedOrder?.SelectColor && <div className="">
+                        Selected Color : {selectedOrder?.SelectColor}
+                      </div>
+                    }
                   </div>
                 ) : (
                   <p className="text-gray-500">কোনো আইটেম নেই</p>

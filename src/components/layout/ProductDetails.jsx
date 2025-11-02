@@ -11,10 +11,11 @@ const ProductDetails = () => {
     const { id } = useParams();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState({});
-    const [selectedSize, setSelectedSize] = useState(null); // { size, price, stock }
-    const [currentImageIndex, setCurrentImageIndex] = useState(0); // For slider navigation
+    const [selectedSize, setSelectedSize] = useState(null);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const { user, setLoveData, setCartData } = useAuth();
     const [seeMore, setSeeMore] = useState(false);
+    const [colorSelected, setColorSelected] = useState("");
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -23,6 +24,7 @@ const ProductDetails = () => {
                 const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/products`);
                 const found = res.data.find((item) => item._id === id);
                 setData(found || {});
+                console.log("ad------>", found.colors)
 
                 // Set default selected size (first available size)
                 if (found?.sizes && found.sizes.length > 0) {
@@ -124,7 +126,8 @@ Description: ${data.description}
                 email: user.email,
                 size: selectedSize.size,
                 price: selectedSize.price,
-                profit: selectedSize.profit
+                profit: selectedSize.profit,
+                SelectColor: colorSelected
             });
 
             if (res.data) {
@@ -175,6 +178,11 @@ Description: ${data.description}
     const nextImage = () => {
         setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
     };
+
+    // handle select color---->
+    const handleSelectColor = (color) => {
+        setColorSelected(color);
+    }
 
     if (loading) {
         return (
@@ -381,6 +389,19 @@ Description: ${data.description}
                             </div>
                         </motion.div>
                     )}
+                    {/* available colors */}
+                    {
+                        data.colors && data.colors.length > 0 && <div className="">
+                            <p className="mb-2">Available Colors</p>
+                            {
+                                data.colors.map((color, i) => (
+                                    <span
+                                        onClick={() => handleSelectColor(color)}
+                                        key={i} className={` py-1  rounded-full text-sm font-medium text-black border px-4 ${colorSelected === color ? 'bg-orange-500 text-white' : ''} border-orange-500  hover:bg-orange-600 cursor-pointer mr-2`}>{color}</span>
+                                ))
+                            }
+                        </div>
+                    }
 
                     {/* Total Stock */}
                     <div className="space-y-1">

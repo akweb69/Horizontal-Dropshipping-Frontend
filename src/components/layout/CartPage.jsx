@@ -228,7 +228,10 @@ const CartPage = () => {
             email: email,
             amar_bikri_mullo: bikriMullo,
             store_info: user?.storeInfo,
-            codMethod
+            codMethod,
+            SelectColor: selectedItem?.SelectColor
+
+
         };
 
         setIsSubmitting(true);
@@ -315,7 +318,7 @@ const CartPage = () => {
                                             {item.size}
                                         </span>
                                         <span className="text-green-600 font-bold">৳{parseFloat(item.price).toFixed(2)}</span>
-
+                                        <span className='text-orange-500 font-semibold'>{item?.SelectColor}</span>
                                     </div>
                                     {maxStock < 10 && (
                                         <p className="text-xs text-red-600 mt-1">মাত্র {maxStock} টি আছে!</p>
@@ -381,6 +384,7 @@ const CartPage = () => {
                                                     {/* {getProfitPerItem(selectedItem) > 0 && (
                                                         <p className="text-xs text-green-600">লাভ: ৳{getProfitPerItem(selectedItem)}</p>
                                                     )} */}
+                                                    <p className="">{selectedItem?.SelectColor}</p>
                                                 </div>
                                             </div>
                                             <p className="font-semibold">৳{calculateItemTotal(selectedItem)}</p>
