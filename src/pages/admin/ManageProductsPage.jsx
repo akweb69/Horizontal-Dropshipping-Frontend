@@ -384,6 +384,7 @@ const ManageProductsPage = () => {
         </CardContent>
       </Card>
 
+
       {/* ---------- ডায়ালগ / ফর্ম ---------- */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -394,6 +395,7 @@ const ManageProductsPage = () => {
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+
 
             {/* নাম + ক্যাটাগরি */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -410,6 +412,7 @@ const ManageProductsPage = () => {
                 </select>
               </div>
             </div>
+
 
             {/* সেকশন + বিবরণ */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
