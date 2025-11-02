@@ -36,25 +36,25 @@ const Footer = () => {
           <div>
             <span className="font-semibold text-lg mb-4 block">কোম্পানি</span>
             <ul className="space-y-2 text-gray-300 text-sm">
-              <li><Link to="/our-story" className="hover:text-white transition-colors">আমাদের গল্প</Link></li>
-              <li><Link to="/careers" className="hover:text-white transition-colors">ক্যারিয়ার</Link></li>
-              <li><Link to="/press" className="hover:text-white transition-colors">প্রেস</Link></li>
+              <li><Link to="/" className="hover:text-white transition-colors">আমাদের গল্প</Link></li>
+              <li><Link to="/" className="hover:text-white transition-colors">ক্যারিয়ার</Link></li>
+              <li><Link to="/" className="hover:text-white transition-colors">প্রেস</Link></li>
             </ul>
           </div>
           <div>
             <span className="font-semibold text-lg mb-4 block">গ্রাহক সেবা</span>
             <ul className="space-y-2 text-gray-300 text-sm">
-              <li><Link to="/contact" className="hover:text-white transition-colors">যোগাযোগ করুন</Link></li>
-              <li><Link to="/return-policy" className="hover:text-white transition-colors">ফেরত নীতি</Link></li>
-              <li><Link to="/privacy-policy" className="hover:text-white transition-colors">গোপনীয়তা নীতি</Link></li>
+              <li><Link to="/" className="hover:text-white transition-colors">যোগাযোগ করুন</Link></li>
+              <li><Link to="/" className="hover:text-white transition-colors">ফেরত নীতি</Link></li>
+              <li><Link to="/" className="hover:text-white transition-colors">গোপনীয়তা নীতি</Link></li>
             </ul>
           </div>
           <div>
             <span className="font-semibold text-lg mb-4 block">দ্রুত অ্যাক্সেস</span>
             <ul className="space-y-2 text-gray-300 text-sm">
-              <li><Link to="/track-order" className="hover:text-white transition-colors">অর্ডার ট্র্যাক করুন</Link></li>
-              <li><Link to="/wishlist" className="hover:text-white transition-colors">উইশলিস্ট</Link></li>
-              <li><Link to="/support" className="hover:text-white transition-colors">সাপোর্ট</Link></li>
+              <li><Link to="/" className="hover:text-white transition-colors">অর্ডার ট্র্যাক করুন</Link></li>
+              <li><Link to="/" className="hover:text-white transition-colors">উইশলিস্ট</Link></li>
+              <li><Link to="/" className="hover:text-white transition-colors">সাপোর্ট</Link></li>
             </ul>
           </div>
         </div>
