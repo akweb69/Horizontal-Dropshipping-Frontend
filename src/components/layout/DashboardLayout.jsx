@@ -5,7 +5,8 @@ import {
   LayoutDashboard, Package, FileText, Settings, LifeBuoy, Menu, X, LogOut, User, BarChart2, Gift, Truck,
   Plus,
   Home,
-  Loader2
+  Loader2,
+  Users
 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -72,6 +73,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     { icon: FileText, label: 'বিলিং ও সাবস্ক্রিপশন', path: '/dashboard/billing' },
     { icon: Settings, label: 'অ্যাকাউন্ট সেটিংস', path: '/dashboard/settings' },
     { icon: LifeBuoy, label: 'সহায়তা কেন্দ্র', path: '/dashboard/support' },
+    { icon: Users, label: 'গ্রপে যুক্ত হন', path: '/dashboard/joingroup' },
   ];
 
   const navItems = useMemo(() => {
@@ -162,8 +164,8 @@ const DashboardHeader = ({ setIsOpen }) => {
       <div className="md:ml-auto">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-              <div className="flex items-center justify-center w-full h-full bg-primary/20 rounded-full text-primary font-bold">
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full border border-orange-500">
+              <div className="flex items-center justify-center w-full h-full bg-primary/20 rounded-full text-orange-500 font-bold">
                 {userName?.charAt(0).toUpperCase() || <User />}
               </div>
             </Button>

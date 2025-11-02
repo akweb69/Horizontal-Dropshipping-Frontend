@@ -186,7 +186,7 @@ Description: ${data.description}
 
     if (loading) {
         return (
-            <div className="container mx-auto px-4 py-12 max-w-7xl">
+            <div className="container mx-auto min-h-screen px-4 py-12 max-w-7xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                     <div className="bg-gray-200 animate-pulse rounded-xl h-96" />
                     <div className="space-y-6">

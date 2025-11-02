@@ -57,6 +57,7 @@ import Amader from './pages/Amader';
 import Kivabe from './pages/Kivabe';
 import Keno from './pages/Keno';
 import ManageTeligramGroup from './pages/admin/ManageTeligramGroup';
+import JoinTeligram from './pages/JoinTeligram';
 
 function App() {
 
@@ -110,6 +111,7 @@ function App() {
           <Route path="settings" element={<AccountSettingsPage />} />
           <Route path="support" element={<SupportPage />} />
           <Route path="class-requests" element={<ClassRequest />} />
+          <Route path="joingroup" element={<JoinTeligram />} />
         </Route>
 
         <Route path="/admin/login" element={<AdminLoginPage />} />
