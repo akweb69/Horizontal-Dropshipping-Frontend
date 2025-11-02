@@ -56,6 +56,7 @@ import LavUttolon from './pages/admin/LavUttolon';
 import Amader from './pages/Amader';
 import Kivabe from './pages/Kivabe';
 import Keno from './pages/Keno';
+import ManageTeligramGroup from './pages/admin/ManageTeligramGroup';
 
 function App() {
 
@@ -137,6 +138,7 @@ function App() {
           <Route path="classrequestdata" element={<ManageClassRequest />} />
           <Route path="reffer_withdraw" element={<ManageRefferWithDraw />} />
           <Route path="profit_withdraw" element={<LavUttolon />} />
+          <Route path="group" element={<ManageTeligramGroup />} />
         </Route>
 
       </Routes>
