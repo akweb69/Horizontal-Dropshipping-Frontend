@@ -207,7 +207,12 @@ const ManageOrdersPage = () => {
 
       if (isCOD) {
         doc.setFontSize(11);
-        doc.text(`Delivery Charge: ${(orderData.delivery_charge || 0).toFixed(2)} Tk , Paid`, 14, currentY);
+        doc.setTextColor("#000");
+        doc.text(`Delivery Charge: ${(orderData.delivery_charge || 0).toFixed(2)} Tk`, 14, currentY);
+        currentY += 10;
+        doc.setFontSize(11);
+        doc.setTextColor("#00FF00");
+        doc.text("Paid", 10, currentY);
         currentY += 10;
         doc.setFontSize(12);
         doc.setTextColor(0);
