@@ -200,8 +200,11 @@ const DashboardPage = () => {
         alert('⚠️ আপনার সাবস্ক্রিপশন মেয়াদ শেষ হয়েছে! দয়া করে প্ল্যান আপগ্রেড করুন।');
         axios
             .patch(`${import.meta.env.VITE_BASE_URL}/users_mayead_sesh`, data)
-            .then((response) => console.log('User plan status updated:', response.data))
-            .catch((error) => console.error('Error updating user plan status:', error));
+            .then((response) => {
+                console.log('User plan status updated:', response.data)
+                window.location.reload();
+            })
+            .catch((error) => window.location.reload());
     };
 
     const filteredSells = useMemo(() => {
