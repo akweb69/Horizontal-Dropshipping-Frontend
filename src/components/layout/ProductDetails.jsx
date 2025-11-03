@@ -13,6 +13,7 @@ import { useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
+import Loader11 from "./Loader11";
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -144,9 +145,7 @@ Description: ${data.description}
 
     if (loading)
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <Loader className="animate-spin text-gray-400" size={40} />
-            </div>
+            <Loader11></Loader11>
         );
 
     if (!data || Object.keys(data).length === 0)
