@@ -212,7 +212,7 @@ const ManageOrdersPage = () => {
         currentY += 10;
         doc.setFontSize(11);
         doc.setTextColor("#00FF00");
-        doc.text("Paid", 10, currentY);
+        doc.text("Paid", 14, currentY);
         currentY += 10;
         doc.setFontSize(12);
         doc.setTextColor(0);
@@ -426,7 +426,7 @@ const ManageOrdersPage = () => {
                 ) : (
                   <div className="col-span-2 mt-3 bg-orange-50 p-4 rounded-lg border border-orange-100 text-center">
                     <p className="text-orange-600 font-medium">
-                      🚚 {selectedOrder.delivery_charge < 100 ? "ঢাকার ভিতরে" : "ঢাকার বাহিরে"} — আনপেইড
+                      🚚 {selectedOrder.delivery_charge < 100 ? "ঢাকার ভিতরে" : "ঢাকার বাহিরে"} — অলপেইড
                     </p>
                   </div>
                 )}
