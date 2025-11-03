@@ -56,7 +56,7 @@ const ManageTeligramGroup = () => {
     }, []);
 
     return (
-        <div className="w-full md:py-20 py-12 bg-gradient-to-br from-orange-50 to-amber-50 min-h-screen">
+        <div className="w-full md:py-20 py-12  min-h-screen">
             <div className="max-w-2xl mx-auto px-4">
                 <div className="text-center mb-10">
                     <h1 className="text-3xl md:text-4xl font-bold text-orange-600">

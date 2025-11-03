@@ -158,7 +158,7 @@ Description: ${data.description}
         );
 
     return (
-        <div className="container mx-auto px-4 py-12 max-w-6xl mt-20">
+        <div className="container mx-auto px-4 py-12 max-w-6xl mt-10 md:mt-20">
             <ToastContainer position="top-center" autoClose={2000} />
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
