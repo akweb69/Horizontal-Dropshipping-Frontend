@@ -20,6 +20,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
   const navItems1 = [
     { icon: LayoutDashboard, label: 'ড্যাশবোর্ড', path: '/admin' },
     { icon: Home, label: 'হোমপেজ ম্যানেজ করুন', path: '/admin/homepage' },
+    { icon: DollarSignIcon, label: 'অ্যাডমিন অর্ডার হিসাব', path: '/admin/admin_order' },
     { icon: Package, label: 'পণ্য ম্যানেজ করুন', path: '/admin/products' },
     { icon: Tag, label: 'ক্যাটাগরি ম্যানেজ করুন', path: '/admin/categories' },
     { icon: Users, label: 'ব্যবহারকারী ম্যানেজ করুন', path: '/admin/users' },

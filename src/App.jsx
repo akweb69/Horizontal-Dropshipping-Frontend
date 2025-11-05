@@ -58,6 +58,7 @@ import Kivabe from './pages/Kivabe';
 import Keno from './pages/Keno';
 import ManageTeligramGroup from './pages/admin/ManageTeligramGroup';
 import JoinTeligram from './pages/JoinTeligram';
+import ManageHisab from './components/layout/ManageHisab';
 
 function App() {
 
@@ -141,6 +142,7 @@ function App() {
           <Route path="reffer_withdraw" element={<ManageRefferWithDraw />} />
           <Route path="profit_withdraw" element={<LavUttolon />} />
           <Route path="group" element={<ManageTeligramGroup />} />
+          <Route path="admin_order" element={<ManageHisab />} />
         </Route>
 
       </Routes>
