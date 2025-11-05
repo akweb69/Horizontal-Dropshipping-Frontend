@@ -115,12 +115,11 @@ Description: ${data.description}
             />
         ));
 
-    const getPriceRange = () => {
-        if (!data.sizes?.length) return "N/A";
-        const prices = data.sizes.map((s) => parseFloat(s.price));
-        const min = Math.min(...prices);
-        const max = Math.max(...prices);
-        return min === max ? `৳${min}` : `৳${min} - ৳${max}`;
+    const getSelectedPrice = () => {
+        if (selectedSize?.price) {
+            return `৳${selectedSize.price}`;
+        }
+        return "Select a size";
     };
 
     const getTotalStock = () =>
@@ -242,7 +241,7 @@ Description: ${data.description}
 
                     <div className="flex items-center gap-3">
                         <p className="text-3xl font-semibold text-gray-900">
-                            {getPriceRange()}
+                            {getSelectedPrice()}
                         </p>
                         <div className="flex">{renderStars(4.5)}</div>
                     </div>
