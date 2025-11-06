@@ -287,7 +287,7 @@ const CartPage = () => {
     }
 
     return (
-        <div className="w-full max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 min-h-[90vh] mt-20">
+        <div className="w-full max-w-7xl mx-auto py-8 px-4 bangla sm:px-6 lg:px-8 min-h-[90vh] mt-20">
             <h1 className="text-3xl font-bold text-center text-gray-800 mb-8 border-b border-gray-200 pb-4">
                 আপনার কার্ট
             </h1>
@@ -312,7 +312,7 @@ const CartPage = () => {
                                     className="w-20 h-20 lg:w-24 lg:h-24 rounded-lg object-cover flex-shrink-0"
                                 />
                                 <div className="ml-4 flex-1 min-w-0">
-                                    <h2 className="font-semibold text-lg text-gray-800 truncate">{item.name}</h2>
+                                    <h2 className="font-semibold text-lg text-gray-800 truncate">{item.name.slice(0, 30)}...</h2>
                                     <div className="flex items-center gap-2 mt-1">
                                         <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium">
                                             {item.size}
@@ -337,7 +337,7 @@ const CartPage = () => {
                                     </Button>
                                 </div>
 
-                                <p className="text-lg font-bold text-gray-800 whitespace-nowrap">৳{subtotal.toFixed(2)}</p>
+                                <p className="md:text-lg text-sm font-bold text-gray-800 whitespace-nowrap">৳{subtotal.toFixed(0)}</p>
 
 
                                 <div className="flex items-center gap-2">
@@ -356,7 +356,7 @@ const CartPage = () => {
 
             {/* Checkout Modal */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="sm:max-w-4xl md:max-w-6xl w-full max-h-[95vh] overflow-y-auto bg-white p-0">
+                <DialogContent className="sm:max-w-4xl bangla md:max-w-6xl w-full max-h-[95vh] overflow-y-auto bg-white p-0">
                     <div className="sticky top-0 bg-white border-b z-10 px-6 py-4 flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${step === 1 ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-600'}`}>1</div>

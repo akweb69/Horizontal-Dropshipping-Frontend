@@ -69,7 +69,7 @@ const BillingPage = () => {
             const processedPackages = approvedPackages.map(pkg => ({
                 id: pkg._id?.$oid || pkg._id,
                 type: 'package',
-                invoice: `PKG-${pkg._id?.$oid?.substring(0, 8) || 'N/A'}`,
+                invoice: `PKG-${pkg._id || 'N/A'}`,
                 planName: pkg.planName,
                 amount: pkg.amount,
                 paymentMethod: pkg.paymentMethod,
@@ -85,14 +85,14 @@ const BillingPage = () => {
 
                 if (order.items && Array.isArray(order.items)) {
                     // Multiple items order
-                    invoiceId = `ORD-${order._id?.$oid?.substring(0, 8) || 'N/A'}`;
+                    invoiceId = `ORD-${order._id || 'N/A'}`;
                     productName = `${order.items.length}টি পণ্য`;
-                    totalAmount = order.total;
+                    totalAmount = order.grand_total;
                 } else {
                     // Single item order
-                    invoiceId = `ORD-${order._id?.$oid?.substring(0, 8) || 'N/A'}`;
+                    invoiceId = `ORD-${order._id || 'N/A'}`;
                     productName = order.name;
-                    totalAmount = order.total || order.amount;
+                    totalAmount = order.grand_total || order.amount;
                 }
 
                 return {
@@ -165,7 +165,7 @@ const BillingPage = () => {
             <Helmet>
                 <title>বিলিং ও সাবস্ক্রিপশন - UnicDropex</title>
             </Helmet>
-            <div className="space-y-6">
+            <div className="space-y-6 bangla">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800">বিলিং ও সাবস্ক্রিপশন</h1>
                     <p className="text-muted-foreground">আপনার সাবস্ক্রিপশন প্ল্যান এবং অনুমোদিত লেনদেনের ইতিহাস দেখুন।</p>
