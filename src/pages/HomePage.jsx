@@ -9,7 +9,7 @@ import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Loader11 from '../components/layout/Loader11';
-import ScrollToTop from '../components/layout/ScrollToTop';
+import BackToTop from '../components/layout/BackToTop';
 
 const HomePage = () => {
   const [loading1, setLoading1] = useState(true);
@@ -47,7 +47,7 @@ const HomePage = () => {
         <title>লেটসড্রপশিপ - আপনার চূড়ান্ত শপিং গন্তব্য</title>
         <meta name="description" content="আকর্ষণীয় ডিল সহ দারুণ সব পণ্য আবিষ্কার করুন। ঘরে বসে কেনাকাটা করুন এবং আমাদের রেফারেল প্রোগ্রামের মাধ্যমে বড় সঞ্চয় করুন!" />
       </Helmet>
-      <ScrollToTop></ScrollToTop>
+      <BackToTop></BackToTop>
       {
         !loading1 && !loading ? <div className="">
           <div className="max-w-7xl mx-auto px-4 py-6">
