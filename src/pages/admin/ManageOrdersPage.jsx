@@ -139,7 +139,7 @@ const ManageOrdersPage = () => {
       const { shopName = "UnicDropex", shopAddress = "N/A", shopContact = "N/A", shopImage } = orderData.store_info || {};
       const isCOD = orderData.payment_method?.toLowerCase().includes('cash') || orderData.payment_method?.toLowerCase() === 'cod';
       const productTotal = orderData.amar_bikri_mullo - (orderData.delivery_charge || 0);
-      const grandTotal = orderData.amar_bikri_mullo || 0;
+      const grandTotal = isCOD ? (orderData.amar_bikri_mullo - orderData.delivery_charge || 0) : (orderData.amar_bikri_mullo || 0);
 
       const doc = new jsPDF("p", "mm", "a4");
 
@@ -181,7 +181,7 @@ const ManageOrdersPage = () => {
 
       items.forEach(item => {
         const price = productTotal / items.reduce((a, b) => a + (b.quantity || 1), 0) || item.price;
-        const subtotal = price * (item.quantity || 1);
+        const subtotal = price * (item.quantity || 1) + orderRes?.data?.delivery_charge;
         tableRows.push([
           item.name || 'N/A',
           `${price.toFixed(2)} Tk`,
