@@ -132,7 +132,7 @@ const ManageUsersPage = () => {
   };
 
   const handleToggleAdmin = async (userId, userEmail) => {
-    if (userEmail === 'admin@2.com') {
+    if (userEmail === 'freelancerrobi8@gmail.com') {
       toast({ title: "ত্রুটি", description: "মূল অ্যাডমিনকে পরিবর্তন করা যাবে না।", variant: "destructive" });
       return;
     }
@@ -158,7 +158,7 @@ const ManageUsersPage = () => {
 
   // handleUpdateUserRole
   const handleUpdateUserRole = async (newRole, email, userId) => {
-    if (email === 'admin@2.com') {
+    if (email === 'freelancerrobi8@gmail.com') {
       toast({ title: "ত্রুটি", description: "মূল অ্যাডমিনকে পরিবর্তন করা যাবে না।", variant: "destructive" });
       return;
     }
