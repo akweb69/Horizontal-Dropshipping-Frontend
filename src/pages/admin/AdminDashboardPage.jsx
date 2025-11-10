@@ -107,6 +107,7 @@ const AdminDashboardPage = () => {
     const [totalAdminWithdraw, setTotalAdminWithdraw] = useState(0)
     const [subscriptionIncome, setSubscriptionIncome] = useState(0);
     // const [refferWithdraw, setRefferWithdraw] = useState(0);
+    const [pendingRefferWithdraw, setPendingRefferWithdraw] = useState(0)
 
 
     // const [netProfit, setNetProfit] = useState(0)
@@ -181,6 +182,8 @@ const AdminDashboardPage = () => {
         axios.get(`${import.meta.env.VITE_BASE_URL}/refer-withdraw`)
             .then(res => {
                 const data = res.data
+                const pendingRefferWithdraw = data.filter(i => i.status === "Pending").length
+                setPendingRefferWithdraw(pendingRefferWithdraw)
                 const balance = data.filter(i => i.status === "Approved").reduce((acc, i) => acc + i.amount, 0)
                 console.log("balance", balance)
                 setTotalNRW(balance)
@@ -330,9 +333,15 @@ const AdminDashboardPage = () => {
 
 
 
-        { title: "উত্তোলন রিকোয়েস্ট", value: withdrawStats.totalWithdrawRequest, desc: withdrawStats.totalWithdrawRequest > 0 ? `${withdrawStats.totalWithdrawRequest} টি রিকোয়েস্ট` : 'কোনো রিকোয়েস্ট নেই' },
+        { title: "উত্তোলন রিকোয়েস্ট", value: withdrawStats.totalWithdrawRequest, desc: withdrawStats.totalWithdrawRequest > 0 ? `${pendingRefferWithdraw}  টি রেফার উত্তোলন রিকোয়েস্ট` : 'কোনো রিকোয়েস্ট নেই' },
+
+
         { title: "উত্তোলিত টাকা", value: `৳ ${withdrawStats.completedWithdrawAmount}`, desc: withdrawStats.completedWithdrawAmount > 0 ? `৳${withdrawStats.completedWithdrawAmount} অনুমোদিত` : 'কোনো উত্তোলন নেই' },
-        { title: "পেন্ডিং উত্তোলন", value: `৳ ${withdrawStats.pendingWithdrawAmount}`, desc: withdrawStats.pendingWithdrawAmount > 0 ? `৳${withdrawStats.pendingWithdrawAmount} অপেক্ষায়` : 'কোনো পেন্ডিং নেই' },
+
+
+        { title: "পেন্ডিং উত্তোলন", value: `৳ ${withdrawStats.pendingWithdrawAmount}`, desc: pendingRefferWithdraw > 0 ? `${pendingRefferWithdraw} টি রেফার উত্তোলন অপেক্ষায়` : 'কোনো পেন্ডিং নেই' },
+
+
         { title: "মোট অ্যাডমিন লাভ", value: `৳ ${completedProfit + subscriptionIncome - totalAdminWithdraw - totalNRW} ` },
         { title: "মোট লাভ উত্তোলন ", value: `৳ ${totalAdminWithdraw}` },
     ];

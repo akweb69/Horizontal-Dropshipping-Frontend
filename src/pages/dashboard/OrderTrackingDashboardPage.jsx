@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,9 @@ import {
   MapPin,
   CreditCard,
   ShoppingCart,
-  Loader2
+  Loader2,
+  Search,
+  Filter
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '../../context/AuthContext';
@@ -36,6 +38,8 @@ import axios from 'axios';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Loader11 from '../../components/layout/Loader11';
+import { Input } from '@/components/ui/input';
+import { debounce } from 'lodash'; // Optional: use lodash.debounce for better performance
 
 const OrderTrackingDashboardPage = () => {
   const { toast } = useToast();
@@ -46,20 +50,16 @@ const OrderTrackingDashboardPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Process only SINGLE ITEM orders
   const processOrdersData = (rawOrders) => {
     const processed = [];
 
     rawOrders.forEach(order => {
-      // Only process if it has NO items array (i.e. single item) OR items array has exactly 1 item
       const hasMultipleItems = order.items && Array.isArray(order.items) && order.items.length > 1;
+      if (hasMultipleItems) return;
 
-      if (hasMultipleItems) {
-        return; // Skip multiple item orders
-      }
-
-      // Handle single item (either from items[0] or direct fields)
       const item = Array.isArray(order.items) && order.items.length === 1
         ? order.items[0]
         : {
@@ -70,7 +70,7 @@ const OrderTrackingDashboardPage = () => {
           subtotal: order.subtotal || order.price
         };
 
-      if (!item.name) return; // Skip invalid
+      if (!item.name) return;
 
       processed.push({
         orderId: order._id?.$oid || order._id || `LD-${Date.now()}`,
@@ -91,7 +91,10 @@ const OrderTrackingDashboardPage = () => {
         trackingLink: order.trackingLink,
         itemsCount: 1,
         grand_total: order.amar_bikri_mullo,
-        fullOrder: order // Keep full order for invoice & tracking
+        fullOrder: order,
+        // Extra searchable fields
+        phone: order.delivery_details?.phone || '',
+        address: order.delivery_details?.address || ''
       });
     });
 
@@ -182,21 +185,54 @@ const OrderTrackingDashboardPage = () => {
     return { variant, icon, label };
   };
 
-  const filteredOrders = orders.filter(order => {
-    const status = order.status?.trim();
-    switch (activeTab) {
-      case 'delivered':
-        return status === 'Delivered';
-      case 'processing':
-        return status === 'Processing' || status === 'pending' || status === 'Pending';
-      case 'returned':
-        return status === 'Returned';
-      case 'shipped':
-        return status === 'Shipped';
-      default:
-        return true;
+  // Debounced search
+  const debouncedSetSearch = useMemo(
+    () => debounce((value) => setSearchQuery(value), 300),
+    []
+  );
+
+  const handleSearchChange = (e) => {
+    debouncedSetSearch(e.target.value);
+  };
+
+  // Filter by Tab + Search
+  const filteredOrders = useMemo(() => {
+    let filtered = orders;
+
+    // Apply Tab Filter
+    filtered = filtered.filter(order => {
+      const status = order.status?.trim();
+      switch (activeTab) {
+        case 'delivered':
+          return status === 'Delivered';
+        case 'processing':
+          return status === 'Processing' || status === 'pending' || status === 'Pending';
+        case 'returned':
+          return status === 'Returned';
+        case 'shipped':
+          return status === 'Shipped';
+        default:
+          return true;
+      }
+    });
+
+    // Apply Search
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(order => {
+        return (
+          order.orderId.toLowerCase().includes(query) ||
+          order.productName.toLowerCase().includes(query) ||
+          order.status.toLowerCase().includes(query) ||
+          order.phone.includes(query) ||
+          order.payment_method.toLowerCase().includes(query) ||
+          formatDate(order.order_date).toLowerCase().includes(query)
+        );
+      });
     }
-  });
+
+    return filtered;
+  }, [orders, activeTab, searchQuery]);
 
   const handleTrackOrder = async (order) => {
     setTrackingLoading(true);
@@ -285,7 +321,7 @@ const OrderTrackingDashboardPage = () => {
 
       const price = parseFloat(orderData.amar_bikri_mullo - (orderData.delivery_charge || 0) || 0);
       const quantity = parseFloat(item.quantity || 1);
-      const subtotal = price + orderData.delivery_charge || 0;
+      const subtotal = price + (orderData.delivery_charge || 0);
 
       tableRows.push([
         item.name || 'N/A',
@@ -322,8 +358,6 @@ const OrderTrackingDashboardPage = () => {
         doc.text(`Grand Total: ${grandTotal.toFixed(2)} Tk`, 120, currentY + 10);
       }
 
-
-
       if (!isCOD) {
         doc.setFontSize(13);
         doc.setTextColor("#000000");
@@ -344,9 +378,7 @@ const OrderTrackingDashboardPage = () => {
   };
 
   if (loading) {
-    return (
-      <Loader11></Loader11>
-    );
+    return <Loader11 />;
   }
 
   return (
@@ -357,98 +389,160 @@ const OrderTrackingDashboardPage = () => {
       <div className="space-y-6 p-4 md:p-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Order Tracking Panel</h1>
-          <p className="text-muted-foreground">View the status of your orders.</p>
+          <p className="text-muted-foreground">Search and track your orders in real-time.</p>
         </div>
+
+        {/* Search Bar */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search by Order ID, Product, Phone, Status..."
+                className="pl-10 pr-10"
+                onChange={handleSearchChange}
+                defaultValue={searchQuery}
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0"
+                  onClick={() => {
+                    setSearchQuery('');
+                    debouncedSetSearch('');
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            {searchQuery && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Found {filteredOrders.length} result{filteredOrders.length !== 1 ? 's' : ''} for "<strong>{searchQuery}</strong>"
+              </p>
+            )}
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Your Orders</CardTitle>
-            <CardDescription>
-              Total Orders: {orders.length} | Active: {filteredOrders.length}
-            </CardDescription>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <CardTitle>Your Orders</CardTitle>
+                <CardDescription>
+                  Total: {orders.length} | Showing: {filteredOrders.length}
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Filter className="h-4 w-4" />
+                {activeTab === 'all' ? 'All Orders' : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-5 mb-4">
                 <TabsTrigger value="all">All ({orders.length})</TabsTrigger>
                 <TabsTrigger value="delivered">Delivered</TabsTrigger>
                 <TabsTrigger value="processing">Processing</TabsTrigger>
                 <TabsTrigger value="returned">Returned</TabsTrigger>
                 <TabsTrigger value="shipped">Shipped</TabsTrigger>
               </TabsList>
-              <TabsContent value={activeTab} className="mt-6">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Order ID</TableHead>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Total</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Invoice</TableHead>
-                      <TableHead className="text-right">Track</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredOrders.length > 0 ? (
-                      filteredOrders.map((order) => {
-                        const { variant, icon, label } = getStatusInfo(order.status);
-                        return (
-                          <TableRow key={order.orderId}>
-                            <TableCell className="font-mono">
-                              #{order.orderId.substring(0, 8)}...
-                            </TableCell>
-                            <TableCell className="font-medium max-w-xs">
-                              {order.productName}
-                            </TableCell>
-                            <TableCell className="font-semibold">
-                              ৳{order.grand_total || order.total}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant={variant} className="flex items-center w-fit">
-                                {icon}
-                                {label}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              {formatDate(order.order_date)}
-                            </TableCell>
-                            <TableCell>
-                              <Button
-                                className="text-emerald-600"
-                                variant="link"
-                                size="sm"
-                                onClick={() => handleGenerateInvoice(order)}
-                              >
-                                <Eye className="h-4 w-4 mr-2" />
-                                Invoice
-                              </Button>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleTrackOrder(order)}
-                              >
-                                {trackingLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                                Track
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })
-                    ) : (
+
+              <TabsContent value={activeTab} className="mt-0">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-12">
-                          <ShoppingCart className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                          <p className="text-muted-foreground text-lg">
-                            No orders found
-                          </p>
-                        </TableCell>
+                        <TableHead>Order ID</TableHead>
+                        <TableHead>Product</TableHead>
+                        <TableHead>Total</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Invoice</TableHead>
+                        <TableHead className="text-right">Track</TableHead>
                       </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredOrders.length > 0 ? (
+                        filteredOrders.map((order) => {
+                          const { variant, icon, label } = getStatusInfo(order.status);
+                          return (
+                            <TableRow key={order.orderId}>
+                              <TableCell className="font-mono text-xs sm:text-sm">
+                                #{order.orderId.substring(0, 8)}...
+                              </TableCell>
+                              <TableCell className="font-medium max-w-[150px] truncate">
+                                {order.productName}
+                              </TableCell>
+                              <TableCell className="font-semibold">
+                                ৳{order.grand_total || order.total}
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant={variant} className="flex items-center w-fit text-xs">
+                                  {icon}
+                                  {label}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-xs sm:text-sm">
+                                {formatDate(order.order_date)}
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  className="text-emerald-600 h-8"
+                                  variant="link"
+                                  size="sm"
+                                  onClick={() => handleGenerateInvoice(order)}
+                                >
+                                  <Eye className="h-3.5 w-3.5 mr-1" />
+                                  Invoice
+                                </Button>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8"
+                                  onClick={() => handleTrackOrder(order)}
+                                  disabled={trackingLoading}
+                                >
+                                  {trackingLoading ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : null}
+                                  Track
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-16">
+                            <div className="flex flex-col items-center">
+                              <Search className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                              <p className="text-muted-foreground text-lg font-medium">
+                                {searchQuery ? 'No orders match your search.' : 'No orders found'}
+                              </p>
+                              {searchQuery && (
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="mt-2"
+                                  onClick={() => {
+                                    setSearchQuery('');
+                                    debouncedSetSearch('');
+                                  }}
+                                >
+                                  Clear search
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>
@@ -503,7 +597,7 @@ const OrderTrackingDashboardPage = () => {
 
                 {/* Tracking Steps */}
                 <div className="space-y-4">
-                  <h4 className="font-semibold flex items-center gap-2"><MapPin className="h-4 w-4" /> Delivery Status</h4>
+                  <h4 className="font-semibold flex items-center gap-2"><Truck className="h-4 w-4" /> Delivery Status</h4>
                   <div className="relative space-y-2">
                     {(() => {
                       const status = selectedOrder.status?.trim().toLowerCase();
@@ -519,7 +613,10 @@ const OrderTrackingDashboardPage = () => {
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${s.completed ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}`}>
                             <s.icon className="h-4 w-4" />
                           </div>
-                          <div><p className="font-medium">{s.step}</p><p className="text-xs text-muted-foreground">{s.completed ? 'Completed' : 'Pending'}</p></div>
+                          <div>
+                            <p className="font-medium">{s.step}</p>
+                            <p className="text-xs text-muted-foreground">{s.completed ? 'Completed' : 'Pending'}</p>
+                          </div>
                         </div>
                       ));
                     })()}
@@ -539,7 +636,9 @@ const OrderTrackingDashboardPage = () => {
                   <Button variant="outline" className="flex-1" onClick={closeModal}>Close</Button>
                   {selectedOrder.trackingLink && (
                     <Button asChild className="flex-1">
-                      <a href={selectedOrder.trackingLink} target="_blank" rel="noopener noreferrer">External Tracking</a>
+                      <a href={selectedOrder.trackingLink} target="_blank" rel="noopener noreferrer">
+                        External Tracking
+                      </a>
                     </Button>
                   )}
                 </div>
