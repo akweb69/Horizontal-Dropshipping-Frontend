@@ -73,6 +73,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     { icon: FileText, label: 'বিলিং ও সাবস্ক্রিপশন', path: '/dashboard/billing' },
     { icon: Settings, label: 'অ্যাকাউন্ট সেটিংস', path: '/dashboard/settings' },
     { icon: LifeBuoy, label: 'সহায়তা কেন্দ্র', path: '/dashboard/support' },
+    { icon: LifeBuoy, label: 'গিফট কালেক্ট করুন', path: '/dashboard/gift_collect' },
     { icon: Users, label: 'গ্রপে যুক্ত হন', path: '/dashboard/joingroup' },
   ];
 

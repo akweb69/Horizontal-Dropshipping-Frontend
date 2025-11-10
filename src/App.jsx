@@ -60,6 +60,8 @@ import ManageTeligramGroup from './pages/admin/ManageTeligramGroup';
 import JoinTeligram from './pages/JoinTeligram';
 import ManageHisab from './components/layout/ManageHisab';
 import NotFoundPage404 from './components/layout/NotFoundPage404';
+import ManageGift from './pages/admin/ManageGift';
+import CollectGift from './pages/CollectGift';
 
 function App() {
 
@@ -114,6 +116,7 @@ function App() {
           <Route path="support" element={<SupportPage />} />
           <Route path="class-requests" element={<ClassRequest />} />
           <Route path="joingroup" element={<JoinTeligram />} />
+          <Route path="gift_collect" element={<CollectGift />} />
         </Route>
 
         <Route path="/admin/login" element={<AdminLoginPage />} />
@@ -144,6 +147,7 @@ function App() {
           <Route path="profit_withdraw" element={<LavUttolon />} />
           <Route path="group" element={<ManageTeligramGroup />} />
           <Route path="admin_order" element={<ManageHisab />} />
+          <Route path="gift" element={<ManageGift />} />
         </Route>
         {/* ❌ Catch-all route for 404 */}
         <Route path="*" element={<NotFoundPage404 />} />

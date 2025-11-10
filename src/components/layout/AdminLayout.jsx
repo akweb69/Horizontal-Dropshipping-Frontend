@@ -37,6 +37,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { icon: AlertTriangleIcon, label: 'রিকুয়েস্ট ম্যানেজ করুন', path: '/admin/requestdata' },
     { icon: AlertTriangleIcon, label: 'ক্লাসের রিকুয়েস্ট ম্যানেজ করুন', path: '/admin/classrequestdata' },
     { icon: AlertTriangleIcon, label: 'গ্রুপ  ম্যানেজ করুন', path: '/admin/group' },
+    { icon: AlertTriangleIcon, label: 'গিফট  ম্যানেজ করুন', path: '/admin/gift' },
 
 
   ];
