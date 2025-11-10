@@ -59,6 +59,7 @@ import Keno from './pages/Keno';
 import ManageTeligramGroup from './pages/admin/ManageTeligramGroup';
 import JoinTeligram from './pages/JoinTeligram';
 import ManageHisab from './components/layout/ManageHisab';
+import NotFoundPage404 from './components/layout/NotFoundPage404';
 
 function App() {
 
@@ -144,7 +145,8 @@ function App() {
           <Route path="group" element={<ManageTeligramGroup />} />
           <Route path="admin_order" element={<ManageHisab />} />
         </Route>
-
+        {/* ❌ Catch-all route for 404 */}
+        <Route path="*" element={<NotFoundPage404 />} />
       </Routes>
       <Toaster />
       <SearchModal />

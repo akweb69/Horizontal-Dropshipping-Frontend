@@ -103,6 +103,17 @@ const MembershipPage = () => {
 
     const handleCheckReferralCode = () => {
         if (!selectedPlan) return;
+        // check my reffer code
+        if (referralCode === user?.myReferralCode) {
+            Swal.fire({
+                title: "আপনি নিজের রেফার কোড দিয়েছেন! অনুগ্রহ করে অন্যান্য রেফার কোড দিন!",
+                icon: "warning",
+                showConfirmButton: false,
+                timer: 1500
+            });
+            return
+
+        }
         const foundUser = allUsers.find(u => u.myReferralCode === referralCode);
         if (foundUser && discount === 0) {
             const newDiscount = discountAmount;
