@@ -43,6 +43,7 @@ export const SearchProvider = ({ children }) => {
     searchQuery,
     setSearchQuery: performSearch,
     searchResults,
+    setIsSearchOpen,
     isLoading
   };
 

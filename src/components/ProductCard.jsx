@@ -14,12 +14,14 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { useSearch } from '../context/SearchContext';
 
 const ProductCard = ({ product }) => {
   const { isMember, user, setLoveData, setCartData } = useAuth();
   const navigate = useNavigate();
   const [showSizeModal, setShowSizeModal] = useState(false);
   const [selectedSize, setSelectedSize] = useState(null);
+  const { setIsSearchOpen } = useSearch()
 
   // Helper: Get price range
   const getPriceRange = () => {
@@ -125,6 +127,7 @@ const ProductCard = ({ product }) => {
     }
     else {
       navigate(`/product/${productId}`);
+      setIsSearchOpen(false)
     }
   };
 
