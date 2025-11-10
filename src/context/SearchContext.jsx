@@ -19,14 +19,14 @@ export const SearchProvider = ({ children }) => {
       setIsLoading(false);
       return;
     }
-    
+
     setTimeout(() => {
-      const filteredResults = allProducts.filter(product => 
+      const filteredResults = allProducts.filter(product =>
         product.name.toLowerCase().includes(query.toLowerCase())
       );
       setSearchResults(filteredResults);
       setIsLoading(false);
-    }, 500); 
+    }, 500);
   };
 
   const openSearch = () => setIsSearchOpen(true);

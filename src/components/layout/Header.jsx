@@ -107,7 +107,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="hidden md:block bg-white shadow-sm fixed w-full top-0 z-50">
+      <header className="hidden md:block bg-white shadow-sm fixed w-full max-w-[1550px] top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-8">
