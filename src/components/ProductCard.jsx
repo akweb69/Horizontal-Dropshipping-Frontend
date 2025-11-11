@@ -224,7 +224,7 @@ const ProductCard = ({ product }) => {
             <div className=" lg:flex gap-2 space-y-2 lg:space-y-0 w-full">
               <Button
                 variant="outline"
-                className="flex-1 rounded-lg  w-full outline-orange-500 hover:bg-orange-50 text-orange-600"
+                className="flex-1 rounded-lg  w-full outline-orange-500 hover:bg-orange-50 text-orange-600 hover:text-orange-700"
                 onClick={() => handleProductDetails(product._id)}
               >
                 বিস্তারিত

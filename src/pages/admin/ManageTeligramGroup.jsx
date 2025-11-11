@@ -79,15 +79,15 @@ const ManageTeligramGroup = () => {
                     ) : currentGroup ? (
                         <div>
                             <a
-                                href={currentGroup.link}
+                                href={currentGroup?.link}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-xl text-orange-600 hover:text-orange-700 underline break-all font-medium"
                             >
-                                {currentGroup.link}
+                                {currentGroup?.link}
                             </a>
                             <p className="text-sm text-orange-500 mt-2">
-                                Last updated: {new Date(currentGroup.updatedAt || currentGroup._id.getTimestamp()).toLocaleString()}
+                                Last updated: {new Date(currentGroup?.updatedAt || currentGroup?._id.getTimestamp()).toLocaleString()}
                             </p>
                         </div>
                     ) : (

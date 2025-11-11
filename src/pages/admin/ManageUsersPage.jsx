@@ -114,7 +114,7 @@ const ManageUsersPage = () => {
   };
 
   const handleDelete = async (userId, userEmail) => {
-    if (userEmail === 'admin@UnicDropex.com') {
+    if (userEmail === 'freelancerrobi8@gmail.com') {
       toast({ title: "ত্রুটি", description: "মূল অ্যাডমিনকে মুছে ফেলা যাবে না।", variant: "destructive" });
       return;
     }
@@ -162,6 +162,7 @@ const ManageUsersPage = () => {
       toast({ title: "ত্রুটি", description: "মূল অ্যাডমিনকে পরিবর্তন করা যাবে না।", variant: "destructive" });
       return;
     }
+
     axios.patch(`${base_url}/users/${userId}`, { role: newRole })
       .then(res => {
         if (res.status === 200) {

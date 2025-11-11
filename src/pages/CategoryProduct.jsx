@@ -28,7 +28,7 @@ const CategoryProduct = () => {
         );
     }
     return (
-        <div className="w-full min-h-screen">
+        <div className="w-full min-h-screen mt-10 md:mt-16">
             <div className="w-11/12 mx-auto">
                 {/* heading */}
                 <h1 className="text-3xl md:text-5xl py-10 font-bold text-center text-gray-800">
