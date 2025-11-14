@@ -4,7 +4,7 @@ import { useEffect } from "react";
 const BackToTop = () => {
 
     useEffect(() => {
-        window.scrollTo({ top: 0, left: 0, smooth: true });
+        window.scrollTo({ top: 0 });
     }, []);
 
     return null;

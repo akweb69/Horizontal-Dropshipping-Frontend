@@ -7,6 +7,7 @@ import {
 } from 'firebase/auth';
 import auth from '../firebase';
 import axios from 'axios';
+import useProduct from '../components/sections/useProduct';
 
 const AuthContext = createContext(null);
 
@@ -16,6 +17,8 @@ export const AuthProvider = ({ children }) => {
   const [loveData, setLoveData] = useState([]);
   const [cartData, setCartData] = useState([]);
   const [showHomePage, setShowHomePage] = useState(false);
+  const { products, productLoading, error, refetch } = useProduct();
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -96,7 +99,11 @@ export const AuthProvider = ({ children }) => {
     setCartData,
     cartData,
     showHomePage,
-    setLoading
+    setLoading,
+    products,
+    productLoading,
+    refetch,
+    error,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

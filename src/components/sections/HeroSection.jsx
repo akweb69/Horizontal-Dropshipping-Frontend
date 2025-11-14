@@ -77,12 +77,12 @@ const HeroSection = () => {
 
   return (
     <section
-      className="relative mt-[52px] -mb-4 w-full h-[250px] md:h-[50vh] overflow-hidden rounded-lg"
+      className="relative mt-[52px] -mb-4 w-full h-[190px]  md:h-[450px] overflow-hidden rounded-lg"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
       {loading ? (
-        <div className="w-full max-h-[300px]  md:min-h-[60vh] md:max-h-[60vh] flex items-center justify-center">
+        <div className="w-full h-[300px]  md:h-[450px]  flex items-center justify-center">
           <div className="w-full h-full flex items-center justify-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white">
             </div>
@@ -102,36 +102,11 @@ const HeroSection = () => {
             >
               <img
                 alt={slides[currentIndex]?.title}
-                className="w-full h-full"
+                className="w-full h-full  object-center"
                 src={slides[currentIndex]?.thumbnail}
               />
-              {/* <div className="absolute inset-0 bg-black bg-opacity-40"></div> */}
-              {/* <div className="absolute inset-0 flex flex-col items-center justify-end text-center text-white p-4 md:p-12">
-                <div className="bg-black bg-opacity-50 p-4 md:p-6 rounded-lg mb-12 md:mb-20 max-w-2xl">
-                  <h5 className="text-2xl md:text-4xl font-bold mb-2">{slides[currentIndex]?.title}</h5>
-                  <p className="text-sm md:text-lg hidden sm:block">{slides[currentIndex]?.subtitle}</p>
-                </div>
-              </div> */}
             </motion.div>
           </AnimatePresence>
-
-          {/* <button
-            type="button"
-            onClick={prevSlide}
-            className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-opacity z-10"
-            aria-label="Previous Slide"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <button
-            type="button"
-            onClick={nextSlide}
-            className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-opacity z-10"
-            aria-label="Next Slide"
-          >
-            <ChevronRight size={24} />
-          </button> */}
-
           <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
             {slides.map((_, slideIndex) => (
               <button

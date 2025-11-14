@@ -32,7 +32,7 @@ const Layout = () => {
         user && user?.email && <Header />
       }
 
-      <main className="flex-grow mobile-content">
+      <main className="flex-grow mobile-content min-h-screen">
         <Outlet />
       </main>
 
@@ -40,6 +40,7 @@ const Layout = () => {
       {
         user && user?.email && <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
       }
+
       {/* <FloatingActionButtons /> */}
     </div>
   );

@@ -535,21 +535,37 @@ const DashboardPage = () => {
             <div className="p-0 md:p-6 min-h-screen bg-gradient-to-br space-y-6 bangla">
                 {/* grettings */}
                 <div className="">
-                    <div className="md:text-3xl text-2xl font-bold  text-orange-500">
+                    <motion.div
+
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                        className="md:text-3xl text-2xl font-bold  text-orange-500">
                         {sokal && <p> শুভ সকাল! 🌅 </p>}
                         {dupur && <p> শুভ দুপুর! ☀️</p>}
                         {bikal && <p>শুভ বিকাল! 🌇 </p>}
                         {sondha && <p>শুভ সন্ধ্যা! 🌇 </p>}
                         {rat && <p> শুভ রাত্রি! 🌙</p>}
-                    </div>
-                    <div className="">
+                    </motion.div>
+                    <motion.div
+
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5, delay: 0.4 }}
+                        className="">
                         {user?.name} , ড্যাশবোর্ডে আপনাকে স্বাগতম।
-                    </div>
+                    </motion.div>
                 </div>
 
 
                 {/* Swiper */}
-                <div className="max-w-[550px] w-full mx-auto ">
+                <motion.div
+
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0 }}
+
+                    className="max-w-[550px] w-full mx-auto ">
                     <Swiper
                         spaceBetween={30}
                         centeredSlides={true}
@@ -1157,7 +1173,7 @@ const DashboardPage = () => {
                             transform: scale(1.2);
                         }
                     `}</style>
-                </div>
+                </motion.div>
                 {/* Swiper */}
                 {/* ড্যাশবোর্ড মেট্রিক্স */}
                 <div className="">

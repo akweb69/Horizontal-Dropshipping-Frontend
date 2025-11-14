@@ -137,21 +137,13 @@ const ProductCard = ({ product }) => {
   return (
     <>
       <motion.div
-        className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-2xl relative border border-gray-100"
+        className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-2xl relative border border-gray-100 bangla"
         whileHover={{ y: -5, scale: 1.02 }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
-        {/* Love Icon */}
-        {/* <motion.div
-          onClick={() => handleLoveClick(product._id)}
-          className="absolute top-4 right-4 z-10 cursor-pointer"
-          whileHover={{ scale: 1.2 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <Heart className={`w-6 h-6 transition-colors ${isMember ? 'text-red-500 hover:text-red-600' : 'text-gray-400'}`} />
-        </motion.div> */}
+
 
         {/* Product Image */}
         <div

@@ -2,7 +2,7 @@ import React from 'react';
 import ProductCard from '@/components/ProductCard';
 
 const ProductSection = ({ title, products, emoji }) => (
-  <section className="mb-8">
+  <section className="mb-8 min-h-screen">
     <div className="flex items-center mb-4">
       <span className="text-2xl mr-2">{emoji}</span>
       <h2 className="text-xl font-bold text-gray-800">{title}</h2>

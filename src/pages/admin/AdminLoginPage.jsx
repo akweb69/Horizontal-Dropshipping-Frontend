@@ -27,7 +27,7 @@ const AdminLoginPage = () => {
           title: "🎉 অ্যাডমিন লগইন সফল হয়েছে!",
           description: "আপনাকে অ্যাডমিন ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে।",
         });
-        navigate(from, { replace: true });
+        navigate("/admin", { replace: true });
       } else {
         toast({
           variant: "destructive",

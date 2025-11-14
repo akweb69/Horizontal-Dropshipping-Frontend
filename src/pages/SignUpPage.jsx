@@ -108,7 +108,9 @@ const SignUpPage = () => {
         })
           .then((response) => {
             console.log(response.data);
+
             window.location.reload()
+            navigate("/")
 
           })
           .catch((error) => {
@@ -119,7 +121,7 @@ const SignUpPage = () => {
           title: "🎉 সাইন আপ সফল হয়েছে!",
           description: "আমাদের কমিউনিটিতে আপনাকে স্বাগতম।",
         });
-        navigate(from, { replace: true });
+        navigate("/");
       } else {
         toast({
           variant: "destructive",
@@ -155,7 +157,7 @@ const SignUpPage = () => {
           description: "আপনাকে ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে।",
         });
         window.location.reload()
-        navigate(from, { replace: true });
+        navigate("/");
       } else {
         toast({
           variant: "destructive",
@@ -230,7 +232,7 @@ const SignUpPage = () => {
       {/* hero section */}
       {
         openHero && <div className="">
-          <div className="w-full h-[95vh] md:h-[94vh] relative -mb-32 sm:-mb-12 md:-mb-0 ">
+          <div className="w-full h-[94vh] md:h-[94vh] relative -mb-32 sm:-mb-12 md:-mb-0 ">
             <img className='w-full h-full opacity-90 object-cover  ' src={uploadedBanner} alt="" />
 
             <div className="bg-black bg-opacity-20 w-full h-full absolute top-0 left-0 backdrop-blur-[2px]"></div>
