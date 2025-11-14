@@ -216,13 +216,13 @@ const ProductCard = ({ product }) => {
             <div className=" lg:flex gap-2 space-y-2 lg:space-y-0 w-full">
               <Button
                 variant="outline"
-                className="flex-1 rounded-lg  w-full outline-orange-500 hover:bg-orange-50 text-orange-600 hover:text-orange-700"
+                className="flex-1 rounded-lg  w-full outline-orange-500 hover:bg-orange-50 text-orange-600 hover:text-orange-700 text-xs"
                 onClick={() => handleProductDetails(product._id)}
               >
                 বিস্তারিত
               </Button>
               <Button
-                className="flex-1 w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg flex items-center justify-center gap-1"
+                className="flex-1 w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg flex items-center justify-center gap-1 text-xs"
                 onClick={handleOpenSizeModal}
                 disabled={isOutOfStock}
               >
