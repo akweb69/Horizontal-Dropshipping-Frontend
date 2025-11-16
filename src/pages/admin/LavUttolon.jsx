@@ -49,7 +49,7 @@ const LavUttolon = () => {
         axios.get(`${import.meta.env.VITE_BASE_URL}/buy-package`)
             .then(res => {
 
-                const data = res.data;
+                const data = res.data.filter(i => i.packageStatus === 'Approved');
                 setSubscriptionIncome(data.reduce((acc, order) => acc + order.amount, 0));
                 console.log("--------->", data.reduce((acc, order) => acc + order.amount, 0));
             })
