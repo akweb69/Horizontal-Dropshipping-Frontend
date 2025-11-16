@@ -116,13 +116,14 @@ const SignUpPage = () => {
       window.location.reload();
 
     } catch (error) {
+      console.log(error.code);
       const msg = error.code?.startsWith('auth/')
         ? {
           'auth/email-already-in-use': 'ইমেইলটি ইতিমধ্যে ব্যবহৃত',
           'auth/invalid-email': 'অবৈধ ইমেইল',
           'auth/weak-password': 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে',
         }[error.code] || 'অথেনটিকেশন সমস্যা'
-        : error.response?.data?.message || 'সার্ভারে সমস্যা';
+        : error.response?.data?.message || 'ইমেইলটি  ইতিমধ্যে ব্যবহৃত হয়েছে , দয়া করে নতুন ইমেইল দিয়ে আবার চেষ্টা করুন -- একটি ইমেইল শুধুমাত্র একবার ব্যবহার করা যাবে।';
 
       toast({ variant: "destructive", title: "সাইন আপ ব্যর্থ", description: msg });
     } finally {
