@@ -25,8 +25,8 @@ export const AuthProvider = ({ children }) => {
       if (currentUser) {
         try {
           setLoading(true);
-          const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/users`);
-          const userData = response.data.find(u => u.email === currentUser.email);
+          const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/users/${currentUser?.email}`);
+          const userData = response.data;
           setUser(userData || null);
           if (userData && userData.email) {
             setShowHomePage(true);

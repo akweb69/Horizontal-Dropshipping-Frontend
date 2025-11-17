@@ -59,7 +59,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300 text-sm">
-          <p>&copy; {date} লেটসড্রপশিপ। সর্বস্বত্ব সংরক্ষিত।</p>
+          <p>&copy; {date} UnicDropex. সর্বস্বত্ব সংরক্ষিত।</p>
         </div>
       </div>
     </footer>
