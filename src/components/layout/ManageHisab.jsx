@@ -17,10 +17,12 @@ import {
   ChevronDown,
   CheckCircle,
   XCircle,
+  Trash2,
 } from 'lucide-react';
 import { format, parseISO, isWithinInterval } from 'date-fns';
 import { useDebounce } from 'use-debounce';
 import Loader11 from './Loader11';
+import Swal from 'sweetalert2';
 
 const ManageHisab = () => {
   const base_url = import.meta.env.VITE_BASE_URL;
@@ -195,6 +197,37 @@ const ManageHisab = () => {
       return matchesSearch && matchesStatus && matchesPrice && matchesDate;
     });
   }, [hisab, debouncedSearch, statusFilter, priceMin, priceMax, dateFrom, dateTo]);
+
+  // delete-->
+  const handleDelete = (id) => {
+    console.log(id)
+
+    Swal.fire({
+      title: "ডিলিট করতে চান?",
+      text: "একবার ডিলিট করলে আপনি এটি পুনরুদ্ধার করতে পারবেন না!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "হ্যাঁ, ডিলিট করুন",
+      cancelButtonText: "না, বাতিল করুন"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // delete
+        axios.delete(`${base_url}/admin_hisab/${id}`)
+          .then(res => {
+
+            Swal.fire({
+              title: "ডিলিট হয়েছে!",
+              text: "ডাটা ডিলিট হয়েছে.",
+              icon: "success"
+            });
+            fetchHisab();
+          })
+
+      }
+    });
+  }
 
   if (authLoading || loading1) {
     return (
@@ -568,6 +601,12 @@ const ManageHisab = () => {
                         }
                       >
                         <Edit2 className="w-4 h-4" />
+                      </button>
+                      {/* delete */}
+                      <button
+                        onClick={() => handleDelete(item._id)}
+                        className="ml-2 p-2 rounded-lg transition bg-red-100 text-red-600 hover:bg-red-200">
+                        <Trash2></Trash2>
                       </button>
                     </td>
                   </motion.tr>

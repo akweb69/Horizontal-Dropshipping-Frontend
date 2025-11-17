@@ -1,9 +1,10 @@
 import axios from 'axios';
-import { Loader, Search, Filter, X, Calendar, XCircle } from 'lucide-react';
+import { Loader, Search, Filter, X, Calendar, XCircle, Trash2 } from 'lucide-react';
 import React, { useEffect, useState, useMemo } from 'react';
 import { Info, CreditCard, Calendar as CalendarIcon, User, BadgeCheck, Wallet, Edit3, Eye } from "lucide-react";
 import { toast } from '@/components/ui/use-toast';
 import Loader11 from '../../components/layout/Loader11';
+import Swal from 'sweetalert2';
 
 const ManagePackage = () => {
     const [packages, setPackages] = useState([]);
@@ -113,6 +114,44 @@ const ManagePackage = () => {
         });
     }, [packages, searchQuery, statusFilter, paymentFilter, fromDate, toDate]);
 
+
+    // delete package order---->
+    const handleDelete = (pkg) => {
+        console.log(pkg)
+        console.log(pkg._id)
+
+        Swal.fire({
+            title: "ডিলিট করতে চান?",
+            text: "একবার ডিলিট করলে আপনি এটি পুনরুদ্ধার করতে পারবেন না!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "হ্যাঁ, ডিলিট করুন",
+            cancelButtonText: "না, বাতিল করুন"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios.delete(`${import.meta.env.VITE_BASE_URL}/buy-package/${pkg._id}`)
+                    .then(res => {
+                        axios.get(`${import.meta.env.VITE_BASE_URL}/buy-package`)
+                            .then(res => {
+                                setPackages(res.data);
+                                setLoading(false);
+                            })
+                        Swal.fire({
+                            title: "ডিলিট হয়েছে!",
+                            text: "প্যাকেজ ডিলিট হয়েছে.",
+                            icon: "success"
+                        });
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    })
+
+
+            }
+        });
+    }
     // Loading UI
     if (loading) {
         return (
@@ -129,6 +168,7 @@ const ManagePackage = () => {
                 </h1>
                 <p className="mt-2 text-gray-600 dark:text-gray-400">সকল ক্রয়কৃত প্যাকেজ দেখুন ও নিয়ন্ত্রণ করুন</p>
             </div>
+
 
             {/* Filters Section */}
             <div className="max-w-7xl mx-auto mb-8">
@@ -410,6 +450,13 @@ const ManagePackage = () => {
                                                     >
                                                         <Edit3 className="w-4 h-4" />
                                                         স্ট্যাটাস
+                                                    </button>
+
+                                                    <button
+                                                        className='px-2 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200'
+                                                        onClick={() => handleDelete(pkg)}
+                                                    >
+                                                        <Trash2></Trash2>
                                                     </button>
                                                 </div>
                                             </td>

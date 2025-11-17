@@ -136,7 +136,8 @@ const ManageOrdersPage = () => {
       }
       const color = orderData?.SelectColor
 
-      const { shopName = "UnicDropex", shopAddress = "N/A", shopContact = "N/A", shopImage } = orderData.store_info || {};
+      const { shopName = " ", shopAddress = "N/A", shopContact = "N/A", shopImage } = orderData.store_info || {};
+
       const isCOD = orderData.payment_method?.toLowerCase().includes('cash') || orderData.payment_method?.toLowerCase() === 'cod';
       const productTotal = orderData.amar_bikri_mullo - (orderData.delivery_charge || 0);
       const grandTotal = isCOD ? (orderData.amar_bikri_mullo - orderData.delivery_charge || 0) : (orderData.amar_bikri_mullo || 0);
@@ -162,7 +163,7 @@ const ManageOrdersPage = () => {
       // Order Info
       doc.setFontSize(12);
       doc.setTextColor("#000");
-      doc.text(`Invoice ID: ${orderId}`, 14, 58);
+      doc.text(`Invoice ID: ${orderId.slice(0, 8)}`, 14, 58);
       doc.text(`Order Date: ${formatDate(orderData.order_date)}`, 14, 66);
 
       const delivery = orderData.delivery_details || {};
