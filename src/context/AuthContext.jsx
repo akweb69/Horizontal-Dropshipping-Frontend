@@ -8,6 +8,7 @@ import {
 import auth from '../firebase';
 import axios from 'axios';
 import useProduct from '../components/sections/useProduct';
+import useSliders from '../components/sections/useSliders';
 
 const AuthContext = createContext(null);
 
@@ -18,6 +19,7 @@ export const AuthProvider = ({ children }) => {
   const [cartData, setCartData] = useState([]);
   const [showHomePage, setShowHomePage] = useState(false);
   const { products, productLoading, error, refetch } = useProduct();
+  const { sliders, slidersLoading, refetch: fetchSliders } = useSliders()
 
 
   useEffect(() => {
@@ -104,6 +106,9 @@ export const AuthProvider = ({ children }) => {
     productLoading,
     refetch,
     error,
+    sliders,
+    slidersLoading,
+    fetchSliders
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -108,6 +108,7 @@ const AdminDashboardPage = () => {
     const [subscriptionIncome, setSubscriptionIncome] = useState(0);
     // const [refferWithdraw, setRefferWithdraw] = useState(0);
     const [pendingRefferWithdraw, setPendingRefferWithdraw] = useState(0)
+    const [userRefferIncome, setUserRefferIncome] = useState(0)
 
 
     // const [netProfit, setNetProfit] = useState(0)
@@ -118,6 +119,7 @@ const AdminDashboardPage = () => {
                 const data = res.data
                 const balance = data.reduce((acc, u) => acc + u?.referIncome, 0)
                 setTotalRB(balance)
+                setUserRefferIncome(balance)
                 console.log("balance", balance)
                 setUiLoading(false)
 
@@ -341,7 +343,7 @@ const AdminDashboardPage = () => {
         { title: "পেন্ডিং উত্তোলন", value: `৳ ${withdrawStats.pendingWithdrawAmount}`, desc: pendingRefferWithdraw > 0 ? `${pendingRefferWithdraw} টি রেফার উত্তোলন অপেক্ষায়` : 'কোনো পেন্ডিং নেই' },
 
 
-        { title: "মোট অ্যাডমিন লাভ", value: `৳ ${completedProfit + subscriptionIncome - totalAdminWithdraw - totalNRW} ` },
+        { title: "মোট অ্যাডমিন লাভ", value: `৳ ${completedProfit + subscriptionIncome - totalAdminWithdraw - userRefferIncome} ` },
         { title: "মোট লাভ উত্তোলন ", value: `৳ ${totalAdminWithdraw}` },
     ];
 

@@ -16,6 +16,7 @@ const ManagePackageData = () => {
     const [currentPackage, setCurrentPackage] = useState({
         name: '',
         price: '',
+        discountAmount: '',
         validityDays: '',
         benefits: [''],
         recommended: false,
@@ -88,7 +89,7 @@ const ManagePackageData = () => {
 
     // Handle form submission (create or update)
     const handleSubmit = async () => {
-        const { name, price, validityDays, benefits } = currentPackage;
+        const { name, price, discountAmount, validityDays, benefits } = currentPackage;
 
         // Validation
         if (!name || !price || !validityDays || benefits.some((b) => !b.trim())) {
@@ -109,12 +110,23 @@ const ManagePackageData = () => {
             return;
         }
 
+        // discountAmount optional, কিন্তু দিলে শুধু সংখ্যা হতে হবে
+        if (discountAmount && !/^\d+$/.test(discountAmount)) {
+            toast({
+                title: "ত্রুটি",
+                description: "বোনাস পরিমাণ শুধুমাত্র সংখ্যা হতে হবে।",
+                variant: "destructive",
+            });
+            return;
+        }
+
         setIsLoading(true);
         try {
             const packageData = {
                 ...currentPackage,
                 price: parseInt(price),
                 validityDays: parseInt(validityDays),
+                discountAmount: discountAmount ? parseInt(discountAmount) : 0, // default 0
                 benefits: benefits.map((b) => b.trim()),
             };
 
@@ -141,7 +153,6 @@ const ManagePackageData = () => {
                     `${import.meta.env.VITE_BASE_URL}/manage-package`,
                     packageData
                 );
-                // Refetch all packages
                 const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/manage-package`);
                 setPackages(response.data);
                 toast({
@@ -169,6 +180,7 @@ const ManagePackageData = () => {
         setCurrentPackage({
             name: pkg.name,
             price: pkg.price?.toString() || '',
+            discountAmount: pkg.discountAmount?.toString() || '',
             validityDays: pkg.validityDays?.toString() || '',
             benefits: pkg.benefits || [''],
             recommended: pkg.recommended || false,
@@ -211,6 +223,7 @@ const ManagePackageData = () => {
         setCurrentPackage({
             name: '',
             price: '',
+            discountAmount: '',
             validityDays: '',
             benefits: [''],
             recommended: false,
@@ -226,6 +239,7 @@ const ManagePackageData = () => {
         setCurrentPackage({
             name: '',
             price: '',
+            discountAmount: '',
             validityDays: '',
             benefits: [''],
             recommended: false,
@@ -277,69 +291,90 @@ const ManagePackageData = () => {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {packages.map((pkg) => (
-                                <motion.div
-                                    key={pkg._id}
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ duration: 0.3 }}
-                                    className={`bg-white rounded-xl shadow-lg p-6 border-2 ${pkg.recommended
-                                        ? 'border-orange-500 ring-2 ring-orange-200'
-                                        : 'border-gray-200'
-                                        }`}
-                                >
-                                    {pkg.recommended && (
+                            {packages.map((pkg) => {
+                                const finalPrice = pkg.discountAmount > 0
+                                    ? pkg.price - pkg.discountAmount
+                                    : pkg.price;
+
+                                return (
+                                    <motion.div
+                                        key={pkg._id}
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.3 }}
+                                        className={`bg-white rounded-xl shadow-lg p-6 border-2 ${pkg.recommended
+                                            ? 'border-orange-500 ring-2 ring-orange-200'
+                                            : 'border-gray-200'
+                                            } relative`}
+                                    >
+                                        {pkg.recommended && (
+                                            <div className="text-center mb-4">
+                                                <span className="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                                                    সবচেয়ে জনপ্রিয়
+                                                </span>
+                                            </div>
+                                        )}
+
+                                        {/* Discount Badge */}
+                                        {pkg.discountAmount > 0 && (
+                                            <div className="absolute -top-3 -right-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                                                ৳{pkg.discountAmount} বোনাস
+                                            </div>
+                                        )}
+
+                                        <h2 className="text-xl font-bold text-gray-800 text-center mb-2">
+                                            {pkg.name}
+                                        </h2>
+
                                         <div className="text-center mb-4">
-                                            <span className="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                                                সবচেয়ে জনপ্রিয়
-                                            </span>
+                                            <p className="text-3xl font-extrabold text-gray-900">
+                                                ৳{pkg.price}
+                                            </p>
                                         </div>
-                                    )}
-                                    <h2 className="text-xl font-bold text-gray-800 text-center mb-2">
-                                        {pkg.name}
-                                    </h2>
-                                    <p className="text-2xl font-extrabold text-gray-900 text-center mb-1">
-                                        ৳{pkg.price}
-                                    </p>
-                                    <p className="text-sm text-gray-500 text-center mb-4">
-                                        মেয়াদ: {pkg.validityDays} দিন
-                                    </p>
-                                    <ul className="space-y-2 mb-6">
-                                        {pkg.benefits.map((benefit, index) => (
-                                            <li key={index} className="flex items-center gap-2">
-                                                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                                <span className="text-gray-700 text-sm">{benefit}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    {pkg.canDoClass && (
-                                        <p className="text-sm text-gray-700 mt-2 flex items-center gap-2">
-                                            <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                            ক্লাস করতে পারবে
+
+                                        <p className="text-sm text-gray-500 text-center mb-4">
+                                            মেয়াদ: {pkg.validityDays} দিন
                                         </p>
-                                    )}
-                                    <div className="flex justify-between">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handleEdit(pkg)}
-                                            className="flex-1 mr-2 border-gray-300 text-gray-700 hover:bg-gray-50"
-                                        >
-                                            <Edit className="w-4 h-4 mr-1" />
-                                            সম্পাদনা
-                                        </Button>
-                                        <Button
-                                            variant="destructive"
-                                            size="sm"
-                                            onClick={() => setDeleteConfirmId(pkg._id)}
-                                            className="flex-1 ml-2 bg-red-600 hover:bg-red-700"
-                                        >
-                                            <Trash2 className="w-4 h-4 mr-1" />
-                                            মুছুন
-                                        </Button>
-                                    </div>
-                                </motion.div>
-                            ))}
+
+                                        <ul className="space-y-2 mb-6">
+                                            {pkg.benefits.map((benefit, index) => (
+                                                <li key={index} className="flex items-center gap-2">
+                                                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                                    <span className="text-gray-700 text-sm">{benefit}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+
+                                        {pkg.canDoClass && (
+                                            <p className="text-sm text-gray-700 mt-2 flex items-center gap-2">
+                                                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                                ক্লাস করতে পারবে
+                                            </p>
+                                        )}
+
+                                        <div className="flex justify-between mt-6">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => handleEdit(pkg)}
+                                                className="flex-1 mr-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                                            >
+                                                <Edit className="w-4 h-4 mr-1" />
+                                                সম্পাদনা
+                                            </Button>
+                                            <Button
+                                                variant="destructive"
+                                                size="sm"
+                                                onClick={() => setDeleteConfirmId(pkg._id)}
+                                                className="flex-1 ml-2 bg-red-600 hover:bg-red-700"
+                                            >
+                                                <Trash2 className="w-4 h-4 mr-1" />
+                                                মুছুন
+                                            </Button>
+                                        </div>
+                                    </motion.div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
@@ -382,10 +417,11 @@ const ManagePackageData = () => {
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* Price */}
                             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                                 <Label htmlFor="price" className="text-sm font-semibold text-gray-700 mb-2 block">
-                                    দাম (টাকায়)
+                                    মূল দাম (টাকায়)
                                 </Label>
                                 <Input
                                     id="price"
@@ -394,12 +430,30 @@ const ManagePackageData = () => {
                                     min="0"
                                     value={currentPackage.price}
                                     onChange={handleInputChange}
-                                    placeholder="499"
+                                    placeholder="999"
                                     className="text-lg p-4 border-2 border-gray-200 focus:border-orange-500 rounded-xl"
                                 />
-                                <p className="text-xs text-gray-500 mt-1">শুধুমাত্র সংখ্যা</p>
                             </div>
 
+                            {/* Discount Amount */}
+                            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                                <Label htmlFor="discountAmount" className="text-sm font-semibold text-gray-700 mb-2 block">
+                                    বোনাস (টাকায়)
+                                </Label>
+                                <Input
+                                    id="discountAmount"
+                                    name="discountAmount"
+                                    type="number"
+                                    min="0"
+                                    value={currentPackage.discountAmount}
+                                    onChange={handleInputChange}
+                                    placeholder="200 (ঐচ্ছিক)"
+                                    className="text-lg p-4 border-2 border-gray-200 focus:border-orange-500 rounded-xl"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">বোনাস না থাকলে খালি রাখুন</p>
+                            </div>
+
+                            {/* Validity Days */}
                             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                                 <Label htmlFor="validityDays" className="text-sm font-semibold text-gray-700 mb-2 block">
                                     মেয়াদ (দিন)
@@ -414,10 +468,10 @@ const ManagePackageData = () => {
                                     placeholder="365"
                                     className="text-lg p-4 border-2 border-gray-200 focus:border-orange-500 rounded-xl"
                                 />
-                                <p className="text-xs text-gray-500 mt-1">যেমন: ৩৬৫ দিন</p>
                             </div>
                         </div>
 
+                        {/* Benefits */}
                         <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                             <Label className="text-sm font-semibold text-gray-700 mb-2 block">
                                 সুবিধাসমূহ
@@ -453,31 +507,34 @@ const ManagePackageData = () => {
                             </Button>
                         </div>
 
-                        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="recommended"
-                                    checked={currentPackage.recommended}
-                                    onChange={(e) => handleRecommendedChange(e.target.checked)}
-                                />
-                                <Label htmlFor="recommended" className="text-sm font-semibold text-gray-700">
-                                    সবচেয়ে জনপ্রিয় হিসেবে চিহ্নিত করুন
-                                </Label>
+                        {/* Recommended & Can Do Class */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="recommended"
+                                        checked={currentPackage.recommended}
+                                        onChange={(e) => handleRecommendedChange(e.target.checked)}
+                                    />
+                                    <Label htmlFor="recommended" className="text-sm font-semibold text-gray-700">
+                                        সবচেয়ে জনপ্রিয় হিসেবে চিহ্নিত করুন
+                                    </Label>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="canDoClass"
-                                    checked={currentPackage.canDoClass}
-                                    onChange={(e) => handleCanDoClassChange(e.target.checked)}
-                                />
-                                <Label htmlFor="canDoClass" className="text-sm font-semibold text-gray-700">
-                                    ক্লাস করতে পারবে
-                                </Label>
+                            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="canDoClass"
+                                        checked={currentPackage.canDoClass}
+                                        onChange={(e) => handleCanDoClassChange(e.target.checked)}
+                                    />
+                                    <Label htmlFor="canDoClass" className="text-sm font-semibold text-gray-700">
+                                        ক্লাস করতে পারবে
+                                    </Label>
+                                </div>
                             </div>
                         </div>
                     </div>

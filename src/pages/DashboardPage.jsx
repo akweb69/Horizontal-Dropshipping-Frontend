@@ -607,7 +607,7 @@ const DashboardPage = () => {
 
                                         <div className="flex justify-between items-center mt-3 md:mt-8">
                                             <p className="text-gray-600 font-medium text-base md:text-xl">বর্তমান ব্যালেন্স</p>
-                                            <p className="text-orange-400 text-lg md:text-4xl font-extrabold">৳ {displayedLifetimeBalance - minusAmount}</p>
+                                            <p className="text-orange-400 text-lg md:text-4xl font-extrabold">৳ {displayedLifetimeBalance + user?.referIncome - minusAmount}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1149,7 +1149,7 @@ const DashboardPage = () => {
                                         </div>
                                         <div className="flex justify-between items-center mt-3 md:mt-8">
                                             <p className="text-gray-600 font-medium text-base md:text-xl">লাইফটাইম ইনকাম</p>
-                                            <p className="text-orange-400 text-lg md:text-4xl font-extrabold">৳ {displayedLifetimeBalance}</p>
+                                            <p className="text-orange-400 text-lg md:text-4xl font-extrabold">৳ {displayedLifetimeBalance + user?.referIncome}</p>
                                         </div>
                                     </div>
                                 </div>

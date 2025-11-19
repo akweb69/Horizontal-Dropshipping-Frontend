@@ -273,6 +273,7 @@ const MembershipPage = () => {
                 use_refferal: isDiscountApplied,
                 invite_user_email: invite_user_email,
                 validityDays: selectedPlan.validityDays,
+                discountAmount: selectedPlan.discountAmount
             };
 
             const res = await fetch(`${import.meta.env.VITE_BASE_URL}/buy-package`, {

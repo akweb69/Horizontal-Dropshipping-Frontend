@@ -269,7 +269,7 @@ const ReferralDashboardPage = () => {
                 {/* Header */}
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800">রেফারেল প্রোগ্রাম</h1>
-                    <p className="text-muted-foreground">প্রতি রেফারেলে {runningBonus} টাকা বোনাস! আপনার বন্ধুদের আমন্ত্রণ জানান।</p>
+                    {/* <p className="text-muted-foreground">প্রতি রেফারেলে {runningBonus} টাকা বোনাস! আপনার বন্ধুদের আমন্ত্রণ জানান।</p> */}
                 </div>
 
 
@@ -336,7 +336,7 @@ const ReferralDashboardPage = () => {
                                 ৳ {referIncome}
                             </div>
                             <p className="text-xs text-muted-foreground">
-                                {referredUsers.length} জন × {runningBonus} = মোট আয়
+                                {referredUsers.length} জন রেফার
                                 {referIncome < minimumWithdraw && (
                                     <span className="block text-red-600">ন্যূনতম উত্তোলন: ৳{minimumWithdraw}</span>
                                 )}
@@ -378,7 +378,7 @@ const ReferralDashboardPage = () => {
                     <CardHeader className="flex flex-row justify-between items-center">
                         <div>
                             <CardTitle>রেফার করা ব্যবহারকারী</CardTitle>
-                            <CardDescription>প্রত্যেকের জন্য {runningBonus} টাকা বোনাস</CardDescription>
+                            {/* <CardDescription>প্রত্যেকের জন্য টাকা বোনাস</CardDescription> */}
                         </div>
                         <Button
                             onClick={handleWithdrawModalOpen}
@@ -396,7 +396,7 @@ const ReferralDashboardPage = () => {
                                     <TableRow>
                                         <TableHead>ইমেইল</TableHead>
                                         <TableHead>প্ল্যান</TableHead>
-                                        <TableHead className="text-right">বোনাস</TableHead>
+                                        {/* <TableHead className="text-right">বোনাস</TableHead> */}
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -404,7 +404,7 @@ const ReferralDashboardPage = () => {
                                         <TableRow key={i}>
                                             <TableCell className="font-medium">{u.email}</TableCell>
                                             <TableCell>{u.planName}</TableCell>
-                                            <TableCell className="text-right text-green-600 font-semibold">৳{runningBonus}</TableCell>
+                                            {/* <TableCell className="text-right text-green-600 font-semibold">৳{runningBonus}</TableCell> */}
                                         </TableRow>
                                     ))}
                                     <TableRow>
