@@ -18,7 +18,7 @@ const LavUttolon = () => {
     const [openOrdersWithdraw, setOpenOrdersWithdraw] = useState(false);
     const [subscriptionIncome, setSubscriptionIncome] = useState(0);
     const [refferWithdraw, setRefferWithdraw] = useState(0);
-    const { user } = useAuth();
+    const { user, adminLav, } = useAuth();
 
     // Pagination States
     const [withdrawPage, setWithdrawPage] = useState(1);
@@ -28,11 +28,12 @@ const LavUttolon = () => {
     const bb = totalbalance + subscriptionIncome
     const cc = totalwithdraw + refferWithdraw
 
-    const balance = bb - cc;
+    const balance = adminLav;
 
     // Load data
     useEffect(() => {
         setLoading(true);
+        console.log("dsjdskl--<<<<<<<<<", adminLav)
 
         // Fetch orders data
         axios.get(`${import.meta.env.VITE_BASE_URL}/orders`)

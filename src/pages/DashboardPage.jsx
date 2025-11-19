@@ -72,6 +72,7 @@ const DashboardPage = () => {
     const [rejectedBalance, setRejectedBalance] = useState(0)
     const [rejectedProductPrice, setRejectedProductPrice] = useState(0)
     const [revenueReject, setRevenueReject] = useState(0)
+    const [myRefferWithdrawAdding, setMyRefferWithdrawAdding] = useState(0)
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -79,6 +80,17 @@ const DashboardPage = () => {
         }, 3000);
         return () => clearTimeout(timer);
     }, []);
+
+    useEffect(() => {
+        axios.get(`${import.meta.env.VITE_BASE_URL}/refer-withdraw`)
+            .then(res => {
+                const data = res.data;
+                const amountOfMinus = (data.filter(i => i.status === "Pending" || i.status === "Approved").reduce((acc, i) => acc + i?.amount, 0))
+                setMyRefferWithdrawAdding(amountOfMinus)
+
+            })
+            .catch(err => console.log(err))
+    }, [])
 
     useEffect(() => {
         axios
@@ -97,7 +109,7 @@ const DashboardPage = () => {
                         return (
                             item.email === user?.email &&
                             item.order_date &&
-                            !isNaN(new Date(item.order_date).getTime()) && // Valid date
+                            !isNaN(new Date(item.order_date).getTime()) &&
                             item.amar_bikri_mullo !== undefined &&
                             item.delivery_charge !== undefined &&
                             item.grand_total !== undefined &&
@@ -1149,7 +1161,7 @@ const DashboardPage = () => {
                                         </div>
                                         <div className="flex justify-between items-center mt-3 md:mt-8">
                                             <p className="text-gray-600 font-medium text-base md:text-xl">লাইফটাইম ইনকাম</p>
-                                            <p className="text-orange-400 text-lg md:text-4xl font-extrabold">৳ {displayedLifetimeBalance + user?.referIncome}</p>
+                                            <p className="text-orange-400 text-lg md:text-4xl font-extrabold">৳ {displayedLifetimeBalance + user?.referIncome + myRefferWithdrawAdding}</p>
                                         </div>
                                     </div>
                                 </div>

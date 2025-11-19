@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }) => {
   const [showHomePage, setShowHomePage] = useState(false);
   const { products, productLoading, error, refetch } = useProduct();
   const { sliders, slidersLoading, refetch: fetchSliders } = useSliders()
+  const [adminLav, setAdminLav] = useState(0)
 
 
   useEffect(() => {
@@ -108,7 +109,9 @@ export const AuthProvider = ({ children }) => {
     error,
     sliders,
     slidersLoading,
-    fetchSliders
+    fetchSliders,
+    adminLav,
+    setAdminLav
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

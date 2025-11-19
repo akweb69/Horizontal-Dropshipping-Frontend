@@ -197,7 +197,7 @@ const WebsiteData = () => {
     return (
         <div className="w-full md:grid md:grid-cols-2 gap-6 space-y-6 md:space-y-0">
             {/* Referral Bonus */}
-            <motion.div
+            {/* <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
@@ -235,7 +235,7 @@ const WebsiteData = () => {
                         )}
                     </motion.button>
                 </form>
-            </motion.div>
+            </motion.div> */}
 
             {/* Reffer Discount */}
             <motion.div

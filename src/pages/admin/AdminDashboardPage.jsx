@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import Loader11 from '../../components/layout/Loader11';
+import { useAuth } from '../../context/AuthContext';
 
 // StatCard (অপরিবর্তিত)
 const StatCard = ({ title, value, icon, description, isLoading, gradient }) => (
@@ -82,6 +83,7 @@ const AdminDashboardPage = () => {
     });
     const [salesData, setSalesData] = useState([]);
     const [recentOrders, setRecentOrders] = useState([]);
+    const { setAdminLav } = useAuth()
     const [isLoading, setIsLoading] = useState({
         stats: true,
         sales: true,
@@ -99,6 +101,10 @@ const AdminDashboardPage = () => {
     const [totalNRW, setTotalNRW] = useState(0)
     const [totalUB, setTotalUB] = useState(0)
     const [totalRB, setTotalRB] = useState(0)
+
+
+
+
     const [uiLoading, setUiLoading] = useState(true)
     // profit
     const [rejectedProfit, setRejectedProfit] = useState(0)
@@ -108,7 +114,9 @@ const AdminDashboardPage = () => {
     const [subscriptionIncome, setSubscriptionIncome] = useState(0);
     // const [refferWithdraw, setRefferWithdraw] = useState(0);
     const [pendingRefferWithdraw, setPendingRefferWithdraw] = useState(0)
+    const [pendingRefferWithdrawAmount, setPendingRefferWithdrawAmount] = useState(0)
     const [userRefferIncome, setUserRefferIncome] = useState(0)
+    const [ppppp, setPpppp] = useState(0)
 
 
     // const [netProfit, setNetProfit] = useState(0)
@@ -120,7 +128,7 @@ const AdminDashboardPage = () => {
                 const balance = data.reduce((acc, u) => acc + u?.referIncome, 0)
                 setTotalRB(balance)
                 setUserRefferIncome(balance)
-                console.log("balance", balance)
+                console.log("balance---<<<<<<<", balance)
                 setUiLoading(false)
 
             })
@@ -138,6 +146,7 @@ const AdminDashboardPage = () => {
                 const profit2 = data.filter(i => i.status === "pending").reduce((acc, i) => acc + i.profit, 0)
 
                 const profit3 = data.filter(i => i.status === "Returned").reduce((acc, i) => acc + i.profit, 0)
+                console.log("profit1----------->>>>>", profit1)
                 // set profit
                 setCompletedProfit(profit1)
                 setPendingProfit(profit2)
@@ -185,6 +194,11 @@ const AdminDashboardPage = () => {
                 const data = res.data
                 const pendingRefferWithdraw = data.filter(i => i.status === "Pending").length
                 setPendingRefferWithdraw(pendingRefferWithdraw)
+
+                setPendingRefferWithdrawAmount(data.filter(i => i.status === "Pending" || i.status === "Approved").reduce((acc, i) => acc + i?.amount, 0))
+
+                setPpppp(data.filter(i => i.status === "Pending").reduce((acc, i) => acc + i?.amount, 0))
+
                 const balance = data.filter(i => i.status === "Approved").reduce((acc, i) => acc + i.amount, 0)
                 console.log("balance", balance)
                 setTotalNRW(balance)
@@ -330,22 +344,30 @@ const AdminDashboardPage = () => {
 
 
 
-        { title: "ব্যবহারকারী ব্যালান্স", value: `৳ ${(totalUB + totalRB) - (totalNW + totalNRW)}`, },
+        { title: "ব্যবহারকারী ব্যালান্স", value: `৳ ${(totalUB + totalRB) - (totalNW)}`, },
 
 
 
         { title: "উত্তোলন রিকোয়েস্ট", value: withdrawStats.totalWithdrawRequest, desc: withdrawStats.totalWithdrawRequest > 0 ? `${pendingRefferWithdraw}  টি রেফার উত্তোলন রিকোয়েস্ট` : 'কোনো রিকোয়েস্ট নেই' },
 
 
-        { title: "উত্তোলিত টাকা", value: `৳ ${withdrawStats.completedWithdrawAmount}`, desc: withdrawStats.completedWithdrawAmount > 0 ? `৳${withdrawStats.completedWithdrawAmount} অনুমোদিত` : 'কোনো উত্তোলন নেই' },
+        { title: "উত্তোলিত টাকা", value: `৳ ${withdrawStats.completedWithdrawAmount + totalNRW}`, desc: withdrawStats.completedWithdrawAmount > 0 ? `৳${withdrawStats.completedWithdrawAmount} অনুমোদিত` : 'কোনো উত্তোলন নেই' },
 
 
-        { title: "পেন্ডিং উত্তোলন", value: `৳ ${withdrawStats.pendingWithdrawAmount}`, desc: pendingRefferWithdraw > 0 ? `${pendingRefferWithdraw} টি রেফার উত্তোলন অপেক্ষায়` : 'কোনো পেন্ডিং নেই' },
+        { title: "পেন্ডিং উত্তোলন", value: `৳ ${withdrawStats.pendingWithdrawAmount + ppppp}`, desc: pendingRefferWithdraw > 0 ? `${pendingRefferWithdraw} টি রেফার উত্তোলন অপেক্ষায়` : 'কোনো পেন্ডিং নেই' },
 
 
-        { title: "মোট অ্যাডমিন লাভ", value: `৳ ${completedProfit + subscriptionIncome - totalAdminWithdraw - userRefferIncome} ` },
+        { title: "মোট অ্যাডমিন লাভ", value: `৳ ${(completedProfit + subscriptionIncome) - (totalAdminWithdraw + userRefferIncome + pendingRefferWithdrawAmount)} ` },
+
         { title: "মোট লাভ উত্তোলন ", value: `৳ ${totalAdminWithdraw}` },
     ];
+
+
+    useEffect(() => {
+        const mmm = (completedProfit + subscriptionIncome) -
+            (totalAdminWithdraw + userRefferIncome + pendingRefferWithdrawAmount);
+        setAdminLav(mmm);
+    }, [completedProfit, subscriptionIncome, totalAdminWithdraw, userRefferIncome, pendingRefferWithdrawAmount]);
 
     // check loading
     if (uiLoading) {
