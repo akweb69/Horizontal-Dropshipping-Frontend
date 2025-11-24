@@ -28,6 +28,7 @@ import {
 import { getCategories, addCategory, updateCategory, deleteCategory } from '@/data/categories';
 import { toast } from '@/components/ui/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import Loader11 from '../../components/layout/Loader11';
 
 const ManageCategoriesPage = () => {
   const [categories, setCategories] = useState([]);
@@ -36,6 +37,7 @@ const ManageCategoriesPage = () => {
   const [formData, setFormData] = useState({ name: '', iconImage: '', color: '' });
   const [previewImage, setPreviewImage] = useState(null);
   const fileInputRef = useRef(null);
+  const [loading, setLoading] = useState(true);
 
   const imgbb_api_key = import.meta.env.VITE_IMGBB_API_KEY;
   const base_url = import.meta.env.VITE_BASE_URL;
@@ -43,6 +45,7 @@ const ManageCategoriesPage = () => {
   useEffect(() => {
     const handleCategoriesUpdate = async () => {
       setCategories(await getCategories());
+      setLoading(false);
     };
 
     handleCategoriesUpdate();
@@ -130,6 +133,10 @@ const ManageCategoriesPage = () => {
     await deleteCategory(categoryId);
     toast({ title: "সফল", description: "ক্যাটাগরি সফলভাবে মুছে ফেলা হয়েছে।" });
   };
+
+  if (loading) {
+    return <Loader11 />;
+  }
 
   return (
     <>

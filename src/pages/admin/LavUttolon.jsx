@@ -19,6 +19,7 @@ const LavUttolon = () => {
     const [subscriptionIncome, setSubscriptionIncome] = useState(0);
     const [refferWithdraw, setRefferWithdraw] = useState(0);
     const { user, adminLav, } = useAuth();
+    const [allUsersRefferIncome, setAllUsersRefferIncome] = useState(0);
 
     // Pagination States
     const [withdrawPage, setWithdrawPage] = useState(1);
@@ -26,14 +27,26 @@ const LavUttolon = () => {
     const itemsPerPage = 5;
 
     const bb = totalbalance + subscriptionIncome
-    const cc = totalwithdraw + refferWithdraw
+    const cc = totalwithdraw + refferWithdraw + allUsersRefferIncome
 
-    const balance = adminLav;
+    const balance = bb - cc;
 
     // Load data
     useEffect(() => {
         setLoading(true);
         console.log("dsjdskl--<<<<<<<<<", adminLav)
+        console.log("dsjdskl--<<<<<<<<<", balance)
+        // fetch user reffer income--->
+        axios.get(`${import.meta.env.VITE_BASE_URL}/users`)
+            .then(res => {
+                const data = res.data
+                const balance = data.reduce((acc, u) => acc + u?.referIncome, 0)
+                setAllUsersRefferIncome(balance)
+
+            })
+            .catch(err => {
+                setError("Something went wrong!");
+            });
 
         // Fetch orders data
         axios.get(`${import.meta.env.VITE_BASE_URL}/orders`)
@@ -57,10 +70,11 @@ const LavUttolon = () => {
             .catch(err => {
                 setError("Something went wrong!");
             });
+
         // load refferwithdraw data
         axios.get(`${import.meta.env.VITE_BASE_URL}/refer-withdraw`)
             .then(res => {
-                const data = res.data.filter(i => i.status === 'Approved');
+                const data = res.data.filter(i => i.status === 'Approved' || i.status === "Pending");
                 setRefferWithdraw(data.reduce((acc, order) => acc + order.amount, 0));
                 console.log("--------->", data.reduce((acc, order) => acc + order.amount, 0));
             })

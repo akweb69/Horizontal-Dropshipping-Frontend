@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from '@/components/ui/use-toast';
+import Loader11 from '../../components/layout/Loader11';
 
 const IMGBB_API_KEY = import.meta.env.VITE_IMGBB_API_KEY;
 const base_url = import.meta.env.VITE_BASE_URL;
@@ -32,6 +33,7 @@ const ManageProductsPage = () => {
   const [selectedSliderFiles, setSelectedSliderFiles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [btnLoading, setBtnLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const sectionOptions = [
     'অফার প্যাক',
@@ -46,8 +48,10 @@ const ManageProductsPage = () => {
   ];
 
   useEffect(() => {
+
     fetchProducts();
     fetchCategories();
+
   }, []);
 
   const fetchCategories = async () => {
@@ -65,6 +69,7 @@ const ManageProductsPage = () => {
       const res = await fetch(`${base_url}/products`);
       const data = await res.json();
       setProducts(data);
+      setLoading(false);
     } catch (error) {
       toast({ title: "ত্রুটি", description: "পণ্য লোড করতে ব্যর্থ হয়েছে।", variant: "destructive" });
     }
@@ -299,6 +304,10 @@ const ManageProductsPage = () => {
       </div>
     );
   };
+
+  if (loading) {
+    return <Loader11></Loader11>
+  }
 
   return (
     <>

@@ -3,6 +3,7 @@ import { Loader } from 'lucide-react';
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Loader11 from './Loader11';
+import Swal from 'sweetalert2';
 
 const SeeUser = () => {
     const [data, setData] = React.useState({});
@@ -21,46 +22,91 @@ const SeeUser = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [updateError, setUpdateError] = useState('');
+    const [userReferIncome, setUserReferIncome] = useState(0);
+    const [totalRefferIncome, setTotalRefferIncome] = useState(0);
+
 
     const base_url = import.meta.env.VITE_BASE_URL;
     const imgbb_api_key = import.meta.env.VITE_IMGBB_API_KEY;
 
-    const handelGetUser = () => {
+
+    const handelGetUser = async () => {
+        if (!email.trim()) {
+            Swal.fire({ icon: "warning", text: "ইমেইল দিন" });
+            return;
+        }
+
         setLoading(true);
-        axios.get(`${base_url}/users`)
-            .then(res => {
-                const userData = res.data.find(user => user.email === email);
-                setData(userData || {});
-                setLoading(false);
-                if (userData) {
-                    setPassword(`sasfe${Math.floor(1000 + Math.random() * 9000)}sda03}${Math.floor(1000 + Math.random() * 9000)}k6yk69d${userData?.isPuki}yk69d${Math.floor(1000 + Math.random() * 9000)}`);
-                }
-            })
-            .catch(err => {
-                console.log(err);
-                setLoading(false);
-                toast.error("User খুঁজে পাওয়া যায়নি");
-            });
+        setData({});
+        setOrdersData([]);
+        setWithdrawData([]);
+        setTotalOrders(0);
+        setTotalRevenue(0);
+        setMyIncome(0);
+        setTotalWithdraw(0);
+        setUserReferIncome(0);
+        setTotalRefferIncome(0);
 
-        axios.get(`${base_url}/orders`)
-            .then(res => {
-                const orders = res.data.filter(order => order.email === email);
-                const sortedOrders = orders.sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
-                setOrdersData(sortedOrders);
-                setTotalOrders(orders.length);
-                setTotalRevenue(orders.reduce((acc, order) => acc + order.amar_bikri_mullo, 0));
-                setMyIncome((orders.reduce((acc, order) => acc + order.amar_bikri_mullo, 0)) - (orders.reduce((acc, order) => acc + order.grand_total, 0)));
-            });
+        try {
+            const [usersRes, ordersRes, withdrawRes, referWithdrawRes] = await Promise.all([
+                axios.get(`${base_url}/users`),
+                axios.get(`${base_url}/orders`),
+                axios.get(`${base_url}/withdraw`),
+                axios.get(`${base_url}/refer-withdraw`)
+            ]);
 
-        axios.get(`${base_url}/withdraw`)
-            .then(res => {
-                const myWithdraws = res.data.filter(withdraw => withdraw.email === email);
-                const approvedWithdraws = myWithdraws.filter(withdraw => withdraw.status === 'Approved');
-                const total = approvedWithdraws.reduce((acc, withdraw) => acc + withdraw.amount, 0);
-                setTotalWithdraw(total);
-                const latestWithdraws = approvedWithdraws.sort((a, b) => new Date(b.approval_date) - new Date(a.approval_date)).slice(0, 10);
-                setWithdrawData(latestWithdraws);
+            // User খুঁজে বের করা
+            const userData = usersRes.data.find(user => user.email === email);
+
+            if (!userData) {
+                Swal.fire({ icon: "error", text: "User খুঁজে পাওয়া যায়নি" });
+                setLoading(false);
+                return;
+            }
+
+            setData(userData);
+            const referIncome = userData?.referIncome || 0;
+            setUserReferIncome(referIncome);
+
+            // Orders processing
+            const userOrders = ordersRes.data.filter(order => order.email === email);
+            const sortedOrders = userOrders.sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
+            setOrdersData(sortedOrders);
+            setTotalOrders(userOrders.length);
+
+            const totalRev = userOrders.reduce((acc, o) => acc + (o.amar_bikri_mullo || 0), 0);
+            const totalCost = userOrders.reduce((acc, o) => acc + (o.items_total || 0), 0);
+            const deliveryCharges = userOrders.reduce((acc, o) => acc + (o.delivery_charge || 0), 0);
+
+            setTotalRevenue(totalRev);
+            setMyIncome(totalRev - totalCost - deliveryCharges);
+
+            // Withdraw processing
+            const userWithdraws = withdrawRes.data.filter(w => w.email === email);
+            const approvedWithdraws = userWithdraws.filter(w => w.status === 'Approved');
+            const totalWd = approvedWithdraws.reduce((acc, w) => acc + (w.amount || 0), 0);
+            setTotalWithdraw(totalWd);
+            const latest10 = approvedWithdraws
+                .sort((a, b) => new Date(b.approval_date) - new Date(a.approval_date))
+                .slice(0, 10);
+            setWithdrawData(latest10);
+
+            // Refer withdraw total
+            const referData = referWithdrawRes.data.filter(i =>
+                i.email === email && (i.status === 'Approved' || i.status === 'Pending')
+            );
+            const referBalance = referData.reduce((acc, i) => acc + (i.amount || 0), 0);
+            setTotalRefferIncome(referBalance + referIncome);
+
+        } catch (err) {
+            console.error(err);
+            Swal.fire({
+                icon: "error",
+                text: "ডেটা লোড করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।",
             });
+        } finally {
+            setLoading(false);
+        }
     };
 
     // File select handler
@@ -73,11 +119,17 @@ const SeeUser = () => {
     // Update store image - main function
     const confirmUpdate = async () => {
         if (!updateStoreEmail.trim()) {
-            toast.error("ইমেইল দিন");
+            Swal.fire({
+                icon: "error",
+                text: "ইমেইল দিন",
+            });
             return;
         }
         if (!selectedFile) {
-            toast.error("ইমেজ সিলেক্ট করুন");
+            Swal.fire({
+                icon: "error",
+                text: "ইমেজ সিলেক্ট করুন",
+            });
             return;
         }
 
@@ -125,16 +177,18 @@ const SeeUser = () => {
         }
     };
 
+    // handle update store---->
     const handleUpdateStore = () => {
         setShowStoreUpdateModal(true);
         setUpdateStoreEmail('');
         setSelectedFile(null);
     };
 
+    // check loading--->
     if (loading) {
         return <Loader11 />;
     }
-
+    // final output return---->
     return (
         <div className="w-full relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             {/* Header */}
@@ -280,7 +334,7 @@ const SeeUser = () => {
                         {[
                             { title: "মোট পণ্য", value: totalOrders, color: "from-green-50 to-green-200" },
                             { title: "মোট বিক্রয়", value: totalRevenue, color: "from-blue-50 to-orange-200" },
-                            { title: "মোট আয়", value: myIncome, color: "from-purple-50 to-purple-200" },
+                            { title: "মোট আয়", value: myIncome + totalRefferIncome, color: "from-purple-50 to-purple-200" },
                             { title: "মোট উইথড্র", value: totalWithdraw, color: "from-teal-50 to-teal-200" },
                         ].map((stat, index) => (
                             <div key={index} className={`p-6 rounded-xl bg-gradient-to-br ${stat.color} shadow-sm border border-gray-100`}>

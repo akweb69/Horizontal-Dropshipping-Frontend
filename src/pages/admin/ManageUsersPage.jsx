@@ -20,6 +20,7 @@ import {
 const base_url = import.meta.env.VITE_BASE_URL;
 import { useAuth } from '@/context/AuthContext';
 import auth from '../../firebase';
+import Loader11 from '../../components/layout/Loader11';
 
 const ManageUsersPage = () => {
   const [users, setUsers] = useState([]);
@@ -35,6 +36,7 @@ const ManageUsersPage = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(true);
   const [oobCode, setOobCode] = useState(''); // Firebase reset code from URL
 
   useEffect(() => {
@@ -58,7 +60,9 @@ const ManageUsersPage = () => {
     try {
       const res = await axios.get(`${base_url}/users`);
       setUsers(res.data);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       toast({ title: "ত্রুটি", description: "ব্যবহারকারী লোড করতে ব্যর্থ হয়েছে।", variant: "destructive" });
     }
   };
@@ -229,6 +233,11 @@ const ManageUsersPage = () => {
     setOobCode('');
     window.history.replaceState({}, document.title, window.location.pathname);
   };
+
+
+  if (loading) {
+    return <Loader11 />
+  }
 
   return (
     <>
