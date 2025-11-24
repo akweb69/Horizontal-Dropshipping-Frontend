@@ -76,7 +76,7 @@ const MobileBottomNav = ({ activeTab, setActiveTab }) => {
               <Gift
                 onClick={() => setBg(2)}
                 className={`${bg === 2 ? "text-orange-400" : ""} h-5 w-5`} />
-              <span className="text-xs mt-1">মেম্বারশিপ</span>
+              <span className="text-xs mt-1">{`${user?.storeInfo ? "আপগ্রেড স্টোর" : "স্টোর তৈরি করুন "}`}</span>
             </button>
           </div> : null
         }

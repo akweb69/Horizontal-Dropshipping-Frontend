@@ -17,6 +17,7 @@ const Header = () => {
   const [runningLogo, setRunningLogo] = useState('');
 
   useEffect(() => {
+
     // load love data
     axios.get(`${import.meta.env.VITE_BASE_URL}/love`)
       .then(res => {
@@ -123,7 +124,7 @@ const Header = () => {
               <NavLink to="/" onClick={scrollToTop} className={({ isActive }) => `${navLinkClasses} ${isActive ? activeLinkClasses : ''}`}>হোম</NavLink>
               <NavLink to="/about" className={({ isActive }) => `${navLinkClasses} ${isActive ? activeLinkClasses : ''}`}>আমাদের সম্পর্কে</NavLink>
               <NavLink to="/contact" className={({ isActive }) => `${navLinkClasses} ${isActive ? activeLinkClasses : ''}`}>যোগাযোগ</NavLink>
-              <NavLink to="/membership" className={({ isActive }) => `${navLinkClasses} ${isActive ? activeLinkClasses : ''}`}>মেম্বারশিপ</NavLink>
+              <NavLink to="/membership" className={({ isActive }) => `${navLinkClasses} ${isActive ? activeLinkClasses : ''}`}> {`${user?.storeInfo ? "আপগ্রেড স্টোর" : "স্টোর তৈরি করুন "}`} </NavLink>
             </nav>
 
             <div className="flex items-center space-x-4">

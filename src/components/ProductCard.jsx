@@ -235,7 +235,7 @@ const ProductCard = ({ product }) => {
               asChild
               className="w-full bg-gradient-to-r text-center px-2 from-orange-500 to-orange-600 hover:from-orange-600 text-sm md:text-base hover:to-orange-700 text-white rounded-lg"
             >
-              <Link to="/membership">মেম্বার হয়ে দাম দেখুন</Link>
+              <Link to="/membership"> দাম দেখতে স্টোর খুলুন</Link>
             </Button>
           )}
         </div>
