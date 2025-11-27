@@ -73,6 +73,7 @@ const MembershipPage = () => {
     const [isDiscountApplied, setIsDiscountApplied] = useState(false);
     const [invite_user_email, set_invite_user_email] = useState('');
     const [discountAmount, setDiscountAmount] = useState(0)
+    const [hasAcceptedPolicy, setHasAcceptedPolicy] = useState(false);
 
     useEffect(() => {
         fetchPaymentNumbers();
@@ -237,6 +238,15 @@ const MembershipPage = () => {
             toast({ title: "ত্রুটি", description: "১১ সংখ্যার মোবাইল নম্বর দিন", variant: "destructive" });
             return;
         }
+
+        if (!hasAcceptedPolicy) {
+            toast({
+                title: "আবশ্যক!",
+                description: "রিফান্ড নীতি পড়ে সম্মতি দিন",
+                variant: "destructive"
+            });
+            return;
+        }
         setCurrentStep(2);
     };
 
@@ -396,6 +406,35 @@ const MembershipPage = () => {
                                                 {field === 'shopContact' && <p className="text-xs text-gray-500 mt-1">১১ সংখ্যার মোবাইল নম্বর</p>}
                                             </motion.div>
                                         ))}
+
+                                        {/* নীতিমালা ও চেকবক্স */}
+                                        <div className="mt-6">
+                                            <div className="p-4 border border-dashed border-orange-400 rounded-lg bg-orange-50">
+                                                <p className="font-semibold text-orange-800 mb-3">স্টোর ওপেন রিফান্ড নীতি</p>
+                                                <p className="text-sm text-gray-700">
+                                                    স্টোর ওপেন সম্পন্ন হওয়ার পর অর্থ ফেরতযোগ্য নয়।<br />
+                                                    স্টোর অ্যাক্টিভেশন একটি ডিজিটাল ও স্থায়ী সেবা—একবার সম্পন্ন হলে এটি বাতিল বা রিফান্ড করা সম্ভব নয়।
+                                                </p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-3 mt-4">
+                                                <input
+                                                    type="checkbox"
+                                                    id="policy-checkbox"
+                                                    checked={hasAcceptedPolicy}
+                                                    onChange={(e) => setHasAcceptedPolicy(e.target.checked)}
+                                                    className="w-5 h-5 text-orange-600 rounded focus:ring-orange-500"
+                                                />
+                                                <label htmlFor="policy-checkbox" className="text-sm font-medium cursor-pointer">
+                                                    আমি উপরের রিফান্ড নীতি পড়েছি এবং সম্মত আছি
+                                                </label>
+                                            </div>
+
+                                            {!hasAcceptedPolicy && (
+                                                <p className="text-red-500 text-sm mt-2">এই শর্তে সম্মতি দিতে হবে</p>
+                                            )}
+                                        </div>
+
                                     </div>
                                     <div>
                                         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-gray-50 p-5 rounded-xl border">
@@ -412,6 +451,9 @@ const MembershipPage = () => {
                                                 <img src={imagePreview} alt="Preview" className="mt-3 w-full h-48 object-cover rounded-lg" />
                                             )}
                                         </motion.div>
+
+
+
                                     </div>
                                 </div>
                             </div>

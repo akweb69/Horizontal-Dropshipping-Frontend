@@ -14,18 +14,24 @@ import {
     Eye,
     Copy,
     Loader2,
-    GraduationCap
+    GraduationCap,
+    Plus,
+    Gift,
+    X
 } from 'lucide-react';
 import Loader11 from '../../components/layout/Loader11';
 
 const ManageClassRequest = () => {
     const base_url = import.meta.env.VITE_BASE_URL;
+    const imgbb_api_key = import.meta.env.VITE_IMGBB_API_KEY;
+
     const [requests, setRequests] = useState([]);
     const [filtered, setFiltered] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [topicFilter, setTopicFilter] = useState('all');
     const [selectedReq, setSelectedReq] = useState(null);
+    const [openNewClassModal, setOpenNewClassModal] = useState(false);
 
     // Fetch all class requests
     const fetchRequests = async () => {
@@ -74,6 +80,70 @@ const ManageClassRequest = () => {
         toast({ title: `${label} কপি হয়েছে!` });
     };
 
+    const [loadingClassUpdateBtn, setLoadingClassUpdateBtn] = useState(false)
+    const [classEmail, setClassEmail] = useState('')
+    const [classTitle, setClassTitle] = useState('')
+    const [classDate, setClassDate] = useState('')
+    const [classPresent, setClassPresent] = useState('')
+    // const [classEnd, setClassEnd] = useState('')
+    // class update hndle----->
+    const handleClassUpdate = () => {
+        setLoadingClassUpdateBtn(true);
+        const data = {
+            classEmail: classEmail,
+            classTitle: classTitle,
+            classDate: classDate,
+            classPresent: classPresent,
+        }
+
+        //    post data to database-->
+        axios.post(`${base_url}/class-management`, data)
+            .then((res) => {
+                if (res.data.insertedId) {
+                    toast({ title: "ক্লাস আপডেট হয়েছে!", className: "bg-green-500 text-white" });
+                    setLoadingClassUpdateBtn(false);
+                    fetchRequests();
+                    setOpenNewClassModal(false);
+                }
+            })
+            .catch((err) => {
+                toast({ title: "ক্লাস আপডেট করতে সমস্যা হয়েছে!", variant: "destructive" });
+                setLoadingClassUpdateBtn(false);
+                setOpenNewClassModal(false);
+
+
+            })
+
+    }
+
+    // gift certificate management--->
+    const [giftEmail, setGiftEmail] = useState('');
+    const [openGiftModal, setOpenGiftModal] = useState(false);
+
+
+    const handleGiftCertificate = (e) => {
+        e.preventDefault();
+
+        const data = {
+            giftEmail: giftEmail,
+
+        }
+        // functionality
+        axios.post(`${base_url}/gift-certificate`, data)
+            .then((res) => {
+                if (res.data) {
+                    toast({ title: "ক্লাস আপডেট হয়েছে!", className: "bg-green-500 text-white" });
+                    setOpenGiftModal(false);
+                }
+            })
+            .catch((err) => {
+                toast({ title: "ক্লাস আপডেট করতে সমস্যা হয়েছে!", variant: "destructive" });
+                setOpenGiftModal(false);
+            })
+
+    }
+
+
     // Loading UI
     if (loading) {
         return (
@@ -91,11 +161,171 @@ const ManageClassRequest = () => {
                 </h1>
                 <p className="text-gray-600 mt-2">সকল ক্লাস রিকোয়েস্ট দেখুন ও যোগাযোগ করুন</p>
             </motion.div>
+            <div className="w-full grid md:grid-cols-2 gap-4 items-center mb-4">
+                <div
+                    onClick={() => setOpenNewClassModal(true)}
+                    className=" bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 text-sm font-semibold rounded-md shadow-lg transition-transform hover:scale-102 cursor-pointer flex items-center gap-1 z-50">
+                    <Plus></Plus>  Update Class List
+                </div>
+                <div
+                    onClick={() => setOpenGiftModal(true)}
+                    className=" bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 text-sm font-semibold rounded-md shadow-lg transition-transform hover:scale-102 cursor-pointer  flex items-center gap-1 z-50">
+                    <Gift></Gift> Class Completed User
+                </div>
+            </div>
+            {/* gift modal */}
+
+            {
+                openGiftModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3 }}
+                            className="relative bg-white dark:bg-gray-900 w-full max-w-md rounded-xl shadow-xl p-6"
+                        >
+
+                            {/* Close Button */}
+                            <button
+                                onClick={() => setOpenGiftModal(false)}
+                                className="absolute top-3 right-3 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+
+                            {/* Title */}
+                            <h2 className="text-xl font-semibold text-center mb-4 text-orange-500">
+                                Class Completed User
+                            </h2>
+
+                            {/* Form */}
+                            <form onSubmit={handleGiftCertificate} className="space-y-4">
+
+                                <div className="flex flex-col">
+                                    <label htmlFor="giftEmail" className="font-medium mb-1">
+                                        User Email
+                                    </label>
+
+                                    <input
+                                        required
+                                        onChange={(e) => setGiftEmail(e.target.value)}
+                                        type="email"
+                                        id="giftEmail"
+                                        placeholder="Enter user email..."
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    className="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-semibold"
+                                >
+                                    Submit
+                                </button>
+                            </form>
+
+                        </motion.div>
+                    </div>
+                )
+            }
+
+
+            {/* modal for new class */}
+            {openNewClassModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
+                    <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+                        {/* Orange Header */}
+                        <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-5 text-white">
+                            <h2 className="text-2xl font-bold">ক্লাস রিকোয়েস্ট আপডেট</h2>
+                            <p className="mt-1 text-sm opacity-90">নিচের ফর্মে সঠিক তথ্য দিন</p>
+                        </div>
+
+                        {/* Form Body */}
+                        <div className="p-6">
+                            <form onSubmit={(e) => { e.preventDefault(); handleClassUpdate(); }} className="space-y-5">
+                                {/* Email */}
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">ইমেইল</label>
+                                    <input
+                                        value={classEmail}
+                                        onChange={(e) => setClassEmail(e.target.value)}
+                                        required
+                                        type="email"
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition"
+                                        placeholder="student@example.com"
+                                    />
+                                </div>
+
+                                {/* Date */}
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">ক্লাসের তারিখ</label>
+                                    <input
+                                        value={classDate}
+                                        onChange={(e) => setClassDate(e.target.value)}
+                                        required
+                                        type="date"
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition"
+                                    />
+                                </div>
+
+                                {/* Class Title */}
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">ক্লাসের শিরোনাম</label>
+                                    <input
+                                        value={classTitle}
+                                        onChange={(e) => setClassTitle(e.target.value)}
+                                        required
+                                        type="text"
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition"
+                                        placeholder="যেমন: Advanced Facebook Ads"
+                                    />
+                                </div>
+
+                                {/* Attendance Status */}
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">উপস্থিতি</label>
+                                    <select
+                                        value={classPresent}
+                                        onChange={(e) => setClassPresent(e.target.value)}
+                                        required
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition"
+                                    >
+                                        <option value="" disabled>নির্বাচন করুন</option>
+                                        <option value="Present">উপস্থিত (Present)</option>
+                                        <option value="Absent">অনুপস্থিত (Absent)</option>
+                                    </select>
+                                </div>
+
+
+                            </form>
+                        </div>
+
+                        {/* Footer Buttons */}
+                        <div className="flex justify-end gap-3 border-t border-gray-200 bg-gray-50 px-6 py-4">
+                            <button
+                                type="button"
+                                onClick={() => setOpenNewClassModal(false)}
+                                className="rounded-lg border border-gray-300 bg-white px-6 py-2.5 font-semibold text-gray-700 hover:bg-gray-100 transition"
+                            >
+                                বাতিল করুন
+                            </button>
+                            <button
+                                type="submit"
+                                onClick={handleClassUpdate}
+                                className="rounded-lg bg-orange-600 px-8 py-2.5 font-semibold text-white shadow-lg hover:bg-orange-700 transform hover:scale-105 transition"
+                            >
+                                {loadingClassUpdateBtn ? 'আপডেট হচ্ছে...' : 'আপডেট করুন'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Filters */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-2xl shadow-lg p-6 mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="relativeτικού">
+                    <div className="relative">
                         <Search className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
                         <input
                             type="text"
